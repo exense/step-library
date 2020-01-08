@@ -6,10 +6,4 @@ target/
 *.bak
 .classpath
 .project
-.DS_Store
-out*.html
-/step-enterprise-agent-*.zip
-/step-enterprise-controller-*.zip
-bower_components/
-*.jar
-!step-functions-package/src/test/resources/TestResource.jar
+dependency-reduced-pom.xml
