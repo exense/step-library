@@ -4,21 +4,21 @@ import step.handlers.javahandler.Keyword;
 
 public class JavaProcessKeywords extends ProcessKeywords {
 
-	private static final String JAVA_EXE = "javaExe";
-	private static final String PROGRAM_ARGS = "programArgs";
-	private static final String MAIN_CLASS_OR_JAR = "mainClassOrJar";
-	private static final String CLASS_PATH = "classPath";
-	private static final String VM_ARGS = "vmArgs";
+	private static final String JAVA_EXE = "Java_exe";
+	private static final String VM_ARGS = "VM_args";
+	private static final String PROGRAM_ARGS = "Program_args";
+	private static final String MAIN_CLASS_OR_JAR = "Mainclass_or_Jar";
+	private static final String CLASS_PATH = "Classpath";
 
 	@Keyword(name = "Java", schema = "{\"properties\":{\"" + MAIN_CLASS_OR_JAR + "\":{\"type\":\"string\"}," + "\""
 			+ VM_ARGS + "\":{\"type\":\"string\"},\"" + CLASS_PATH + "\":{\"type\":\"string\"}," + "\"" + JAVA_EXE
 			+ "\":{\"type\":\"string\"},\"" + TIMEOUT_MS + "\":{\"type\":\"string\"}," + "\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\"" + MAX_OUTPUT_PAYLOAD_SIZE
 			+ "\":{\"type\":\"string\"}}," + "\"required\":[\"" + MAIN_CLASS_OR_JAR + "\"]}")
-	public void JavaManagedProcessKeyword() throws Exception {
+	public void executeJavaProcess() throws Exception {
 		readInputs();
-		String cmd = buildCommandLine();
-		executeManagedCommand(cmd);
+		String command = buildCommandLine();
+		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
 	}
 
 	protected String buildCommandLine() {

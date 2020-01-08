@@ -28,7 +28,7 @@ public class ProcessKeywordsTest {
 
 	@Test
 	public void test1() throws Exception {
-		JsonObject input = Json.createObjectBuilder().add("command", "java -version").build();
+		JsonObject input = Json.createObjectBuilder().add("Command", "java -version").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 		Assert.assertTrue(output.getPayload().getString("stderr").startsWith("java version"));
 	}
@@ -36,7 +36,7 @@ public class ProcessKeywordsTest {
 	@Test
 	public void testExitCode() throws Exception {
 		ctx.setThrowExceptionOnError(false);
-		JsonObject input = Json.createObjectBuilder().add("command", "java").build();
+		JsonObject input = Json.createObjectBuilder().add("Command", "java").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 		Assert.assertEquals("Process exited with code 1", output.getError().getMsg());
 	}
@@ -44,14 +44,14 @@ public class ProcessKeywordsTest {
 	@Test
 	public void testTimeout() throws Exception {
 		ctx.setThrowExceptionOnError(false);
-		JsonObject input = Json.createObjectBuilder().add("command", "cmd timeout 10").add("timeoutMs", "1").build();
+		JsonObject input = Json.createObjectBuilder().add("Command", "cmd timeout 10").add("Timeout_ms", "1").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 		Assert.assertEquals("Process didn't exit within the defined timeout of 1ms", output.getError().getMsg());
 	}
 
 	@Test
 	public void testMaxPayloadSize() throws Exception {
-		JsonObject input = Json.createObjectBuilder().add("command", "java -version").add("maxOutputPayloadSize", "1")
+		JsonObject input = Json.createObjectBuilder().add("Command", "java -version").add("Max_Output_Payload_Size", "1")
 				.build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 
@@ -61,8 +61,8 @@ public class ProcessKeywordsTest {
 
 	@Test
 	public void testMaxAttachmentSize() throws Exception {
-		JsonObject input = Json.createObjectBuilder().add("command", "java -version").add("maxOutputPayloadSize", "1")
-				.add("maxOutputAttachmentSize", "1").build();
+		JsonObject input = Json.createObjectBuilder().add("Command", "java -version").add("Max_Output_Payload_Size", "1")
+				.add("Max_Output_Attachment_Size", "1").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 
 		Assert.assertEquals("j", output.getPayload().getString("stderr"));

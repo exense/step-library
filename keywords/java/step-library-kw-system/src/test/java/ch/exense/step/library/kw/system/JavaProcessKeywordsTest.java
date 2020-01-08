@@ -31,7 +31,7 @@ public class JavaProcessKeywordsTest {
 	@Test
 	public void testJar() throws Exception {
 		String echoJar = new File(getClass().getClassLoader().getResource("echo.jar").getFile()).getAbsolutePath();
-		JsonObject input = Json.createObjectBuilder().add("mainClassOrJar", echoJar).build();
+		JsonObject input = Json.createObjectBuilder().add("Mainclass_or_Jar", echoJar).build();
 		Output<JsonObject> output = ctx.run("Java", input.toString());
 		Assert.assertTrue(output.getPayload().getString("stderr").equals(""));
 	}
@@ -40,7 +40,7 @@ public class JavaProcessKeywordsTest {
 	public void testClassPath() throws Exception {
 		ctx.setThrowExceptionOnError(false);
 		String echoJar = new File(getClass().getClassLoader().getResource("echo.jar").getFile()).getAbsolutePath();
-		JsonObject input = Json.createObjectBuilder().add("mainClassOrJar", "echo.Echo").add("classPath",echoJar).build();
+		JsonObject input = Json.createObjectBuilder().add("Mainclass_or_Jar", "echo.Echo").add("Classpath",echoJar).build();
 		Output<JsonObject> output = ctx.run("Java", input.toString());
 		Assert.assertTrue(output.getPayload().getString("stderr").equals(""));
 	}
@@ -49,7 +49,7 @@ public class JavaProcessKeywordsTest {
 	public void testProgramArgs() throws Exception {
 		ctx.setThrowExceptionOnError(false);
 		String echoJar = new File(getClass().getClassLoader().getResource("echo.jar").getFile()).getAbsolutePath();
-		JsonObject input = Json.createObjectBuilder().add("mainClassOrJar", echoJar).add("programArgs", "TEST").build();
+		JsonObject input = Json.createObjectBuilder().add("Mainclass_or_Jar", echoJar).add("Program_args", "TEST").build();
 		Output<JsonObject> output = ctx.run("Java", input.toString());
 		Assert.assertTrue(output.getPayload().getString("stdout").startsWith("TEST"));
 		Assert.assertTrue(output.getPayload().getString("stderr").equals(""));
@@ -59,7 +59,7 @@ public class JavaProcessKeywordsTest {
 	public void testVmArgs() throws Exception {
 		ctx.setThrowExceptionOnError(false);
 		String echoJar = new File(getClass().getClassLoader().getResource("echo.jar").getFile()).getAbsolutePath();
-		JsonObject input = Json.createObjectBuilder().add("mainClassOrJar", echoJar).add("vmArgs", "-Xmx0G").build();
+		JsonObject input = Json.createObjectBuilder().add("Mainclass_or_Jar", echoJar).add("VM_args", "-Xmx0G").build();
 		Output<JsonObject> output = ctx.run("Java", input.toString());
 		Assert.assertTrue(output.getPayload().getString("stderr").contains("Could not create"));
 	}
