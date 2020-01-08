@@ -7,9 +7,9 @@ import step.handlers.javahandler.Keyword;
 
 public class FileSystemKeywords extends AbstractKeyword {
 
-	@Keyword(schema = "{\"properties\":{\"folder\":{\"type\":\"string\"}},\"required\":[\"folder\"]}")
+	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Rmdir() throws Exception {
-		String folderName = input.getString("folder");
+		String folderName = input.getString("Folder");
 
 		File folder = new File(folderName);
 
@@ -36,9 +36,9 @@ public class FileSystemKeywords extends AbstractKeyword {
 	    return folder.delete();
 	}
 
-	@Keyword(schema = "{\"properties\":{\"folder\":{\"type\":\"string\"}},\"required\":[\"folder\"]}")
+	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Mkdir() throws Exception {
-		String folderName = input.getString("folder");
+		String folderName = input.getString("Folder");
 		
 		File folder = new File(folderName);
 
