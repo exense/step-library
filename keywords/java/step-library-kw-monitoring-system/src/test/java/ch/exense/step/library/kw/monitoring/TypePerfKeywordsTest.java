@@ -30,7 +30,7 @@ public class TypePerfKeywordsTest {
 	@Test
 	public void testTypePerfManagedProcessKeyword() throws Exception {
 		JsonObject input = Json.createObjectBuilder().build();
-		Output<JsonObject> output = ctx.run("TypePerf", input.toString());
+		Output<JsonObject> output = ctx.run("Typeperf", input.toString());
 		assertTrue(output.getMeasures().size()>0);
 		assertTrue(output.getPayload().containsKey("MemoryAvailableMB"));
 		assertTrue(output.getPayload().containsKey("CPU(%)"));

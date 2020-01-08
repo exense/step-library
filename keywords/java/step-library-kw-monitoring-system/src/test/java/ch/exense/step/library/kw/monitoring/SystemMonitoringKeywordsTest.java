@@ -29,8 +29,8 @@ public class SystemMonitoringKeywordsTest {
 
 	@Test
 	public void testPowershellServiceStatusKeyword() throws Exception {
-		JsonObject input = Json.createObjectBuilder().add("serviceDisplayName", "DHCP Client").build();
-		Output<JsonObject> output = ctx.run("WindowsServiceStatus", input.toString());
-		assertTrue(output.getPayload().getString("status").contains("running"));
+		JsonObject input = Json.createObjectBuilder().add("Service_Display_Name", "DHCP Client").build();
+		Output<JsonObject> output = ctx.run("Windows_Service_Status", input.toString());
+		assertTrue(output.getPayload().getString("Status").contains("running"));
 	}
 }

@@ -33,7 +33,7 @@ public class TypePerfKeywords extends AbstractProcessKeyword {
 		hostname = getLocalHostname();
 	}
 
-	@Keyword(name = "TypePerf", schema = "{\"properties\":{}}")
+	@Keyword(name = "Typeperf", schema = "{\"properties\":{}}")
 	public void getTypePerf() throws Exception {
 		String cmd = buildCommandLine();
 		executeManagedCommand(cmd, 10000, new OutputConfiguration(false, 1000, 10000), p->{
