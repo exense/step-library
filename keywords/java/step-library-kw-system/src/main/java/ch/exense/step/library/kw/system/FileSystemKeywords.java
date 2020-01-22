@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.nio.file.Files;
 import java.util.regex.Pattern;
 
+import ch.exense.commons.io.FileHelper;
 import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
@@ -56,6 +57,65 @@ public class FileSystemKeywords extends AbstractKeyword {
 		} catch (SecurityException e) {
 			output.setBusinessError("Security error when creating folder \"" + folderName + "\". Message was: \""
 					+ e.getMessage() + "\"");
+		}
+	}
+
+	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+	public void Zip_file() throws Exception {
+		String folderName = input.getString("Folder");
+		String zip = input.getString("Destination", folderName + ".zip");
+
+		File folder = new File(folderName);
+		File zipFile = new File(zip);
+
+		if (!folder.exists()) {
+			output.setBusinessError("Folder \"" + folderName + "\" do not exist.");
+			return;
+		}
+		if (!folder.canRead()) {
+			output.setBusinessError("Folder \"" + folderName + "\" is not readable.");
+			return;
+		}
+		if (!folder.isDirectory()) {
+			output.setBusinessError("\"" + folderName + "\" is not a folder.");
+			return;
+		}
+
+		try {
+			FileHelper.zip(folder, zipFile);
+		} catch (Exception e) {
+			output.setBusinessError(
+					"Exception when zipping \"" + folderName + "\". Error message was: \"" + e.getMessage() + "\"");
+		}
+	}
+
+	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+	public void Unzip_file() throws Exception {
+		String zipName = input.getString("File");
+		String dest = input.getString("Destination", ".");
+
+		File file = new File(zipName);
+		File folder = new File(dest);
+
+		if (!file.exists()) {
+			output.setBusinessError("File \"" + zipName + "\" do not exist.");
+		}
+		if (!file.canRead()) {
+			output.setBusinessError("File \"" + zipName + "\" is not readable.");
+		}
+		if (!file.isFile()) {
+			output.setBusinessError("\"" + zipName + "\" is not a file.");
+		}
+		if (!folder.isDirectory()) {
+			output.setBusinessError("\"" + dest + "\" is not a folder.");
+			return;
+		}
+
+		try {
+			FileHelper.unzip(file, folder);
+		} catch (Exception e) {
+			output.setBusinessError(
+					"Exception when unzipping \"" + zipName + "\". Error message was: \"" + e.getMessage() + "\"");
 		}
 	}
 
@@ -110,10 +170,10 @@ public class FileSystemKeywords extends AbstractKeyword {
 		try {
 			Pattern.compile(regex);
 		} catch (Exception e) {
-			output.setBusinessError("Regex \"" + regex + "\" is invalid. Error is \""+e.getMessage()+"\"");
+			output.setBusinessError("Regex \"" + regex + "\" is invalid. Error is \"" + e.getMessage() + "\"");
 			return;
 		}
-		
+
 		File tmpFile = File.createTempFile(fileName, ".tmp");
 
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(tmpFile))) {
@@ -122,7 +182,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 				String line;
 				while ((line = reader.readLine()) != null) {
 					line = line.replaceAll(regex, replacement);
-					writer.write(line+"\n");
+					writer.write(line + "\n");
 				}
 			} catch (Exception e) {
 				output.setBusinessError(
@@ -135,10 +195,9 @@ public class FileSystemKeywords extends AbstractKeyword {
 					"Exception when writing file \"" + fileName + "\". Message was: \"" + e.getMessage() + "\"");
 			return;
 		}
-		
-		if (Files.move(tmpFile.toPath(),file.toPath())==null) {
-			output.setBusinessError(
-					"Could not move to file \"" + fileName + "\"");
+
+		if (Files.move(tmpFile.toPath(), file.toPath()) == null) {
+			output.setBusinessError("Could not move to file \"" + fileName + "\"");
 		}
 	}
 }

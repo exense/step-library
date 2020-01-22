@@ -30,13 +30,34 @@ public class FileSystemKeywordsTest {
 	@Test
 	public void test_sed() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getAbsolutePath();
-
-		System.out.println(path);
 		
 		JsonObject input = Json.createObjectBuilder().add("File", path).add("Regex", "\"version\" *: *\"[^\"]*\"")
 				.add("Replacement",  "\"version\": \"test\"").build();
 
 		Output<JsonObject> output = ctx.run("Sed_file", input.toString());
+		
+		System.out.println(output.getPayload());
+	}
+	
+	@Test
+	public void test_zip() throws Exception {
+		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
+		
+		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+"\\..\\test_zip.zip").build();
+		
+
+		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
+		
+		System.out.println(output.getPayload());
+	}
+	
+	@Test
+	public void test_unzip() throws Exception {
+		String path = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
+		
+		JsonObject input = Json.createObjectBuilder().add("File", path).add("Destination", path+"\\..\\").build();
+
+		Output<JsonObject> output = ctx.run("Unzip_file", input.toString());
 		
 		System.out.println(output.getPayload());
 	}
