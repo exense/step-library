@@ -23,16 +23,21 @@ public abstract class AbstractProcessKeyword extends AbstractKeyword {
 		private final boolean alwaysAttachOutput;
 		private final int maxOutputPayloadSize;
 		private final int maxOutputAttachmentSize;
+		private final boolean printExitCode;
+		private final boolean checkExitCode;
 		
 		public OutputConfiguration() {
-			this(true, 1000, 1000000);
+			this(true, 1000, 1000000, true, true);
 		}
 		
-		public OutputConfiguration(boolean alwaysAttachOutput, int maxOutputPayloadSize, int maxOutputAttachmentSize) {
+		public OutputConfiguration(boolean alwaysAttachOutput, int maxOutputPayloadSize, int maxOutputAttachmentSize,
+				boolean printExitCode, boolean checkExitCode) {
 			super();
 			this.alwaysAttachOutput = alwaysAttachOutput;
 			this.maxOutputPayloadSize = maxOutputPayloadSize;
 			this.maxOutputAttachmentSize = maxOutputAttachmentSize;
+			this.printExitCode = printExitCode;
+			this.checkExitCode = checkExitCode;
 		}
 
 		protected boolean isAlwaysAttachOutput() {
@@ -45,6 +50,10 @@ public abstract class AbstractProcessKeyword extends AbstractKeyword {
 
 		protected int getMaxOutputAttachmentSize() {
 			return maxOutputAttachmentSize;
+		}
+
+		protected boolean isCheckExitCode() {
+			return checkExitCode;
 		}
 	}
 
@@ -63,9 +72,12 @@ public abstract class AbstractProcessKeyword extends AbstractKeyword {
 			process.start();
 			try {
 				int exitCode = process.waitFor(timeoutMs);
-				if (exitCode != 0) {
+				if (outputConfiguration.isCheckExitCode() && exitCode != 0) {
 					output.setBusinessError("Process exited with code " + exitCode);
 					hasError = true;
+				}
+				if(outputConfiguration.printExitCode) {
+					output.add("Exit_code", Integer.toString(exitCode));
 				}
 				if(postProcess != null) {
 					postProcess.accept(process);

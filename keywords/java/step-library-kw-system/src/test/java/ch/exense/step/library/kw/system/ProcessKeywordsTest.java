@@ -40,6 +40,13 @@ public class ProcessKeywordsTest {
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 		Assert.assertEquals("Process exited with code 1", output.getError().getMsg());
 	}
+	
+	@Test
+	public void testCheckExitCode() throws Exception {
+		JsonObject input = Json.createObjectBuilder().add("Command", "java").add("Check_Exit_Code", false).build();
+		Output<JsonObject> output = ctx.run("Execute", input.toString());
+		Assert.assertEquals("1", output.getPayload().getString("Exit_code"));
+	}
 
 	@Test
 	public void testTimeout() throws Exception {
