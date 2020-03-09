@@ -14,6 +14,27 @@ import step.handlers.javahandler.Keyword;
 
 public class FileSystemKeywords extends AbstractKeyword {
 
+	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+	public void Exist() throws Exception {
+		String zipName = input.getString("File");
+
+		File file = new File(zipName);
+
+		if (!file.exists()) {
+			output.add("exists","false");
+			return;
+		}
+		output.add("exists","true");
+		if (!file.canRead()) {
+			output.add("canRead","false");
+		}
+		if (file.isFile()) {
+			output.add("isDirectory","false");
+		} else {
+			output.add("isDirectory","true");
+		}
+	}
+	
 	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Rmdir() throws Exception {
 		String folderName = input.getString("Folder");
@@ -44,12 +65,20 @@ public class FileSystemKeywords extends AbstractKeyword {
 		return folder.delete();
 	}
 
-	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Mkdir() throws Exception {
 		String folderName = input.getString("Folder");
+		boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist","false"));
 
 		File folder = new File(folderName);
 
+		if (folder.exists()) {
+			if (failIfExist) {
+				output.setBusinessError("Folder \"" + folderName + "\" already exist.");
+			}
+			return;
+		}
+		
 		try {
 			if (!folder.mkdirs()) {
 				output.setBusinessError("Folder \"" + folderName + "\" could not be created.");
