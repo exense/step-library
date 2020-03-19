@@ -6,7 +6,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
 
 import ch.exense.commons.io.FileHelper;
 import step.handlers.javahandler.AbstractKeyword;
@@ -34,10 +37,45 @@ public class FileSystemKeywords extends AbstractKeyword {
 			output.add("isDirectory","true");
 		}
 	}
-	
-	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+
+	@Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Source\",\"Destination\"]}")
+	public void Copy() throws Exception {
+		String source = input.getString("Source");
+		String destination = input.getString("Destination");
+
+		File folderSource = new File(source);
+		File folderDestination = new File(destination);
+
+		if (!folderSource.exists()) {
+			output.setBusinessError("\"" + source + "\" does not exist.");
+			return;
+		}
+		if (!folderDestination.exists()) {
+			output.setBusinessError("\"" + destination + "\" does not exist.");
+			return;
+		}
+		if (!folderDestination.isDirectory()) {
+			output.setBusinessError("\"" + destination + "\" is not a directory.");
+			return;
+		}
+
+		try {
+			if (folderSource.isDirectory()) {
+				FileUtils.copyDirectory(folderSource, folderDestination);
+			} else 
+			{
+				FileUtils.copyFileToDirectory(folderSource, folderDestination);
+			}
+		} catch (SecurityException e) {
+			output.setBusinessError("Security error when copying folder \"" + source + "\". Message was: \""
+					+ e.getMessage() + "\"");
+		}
+	}
+
+	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Rmdir() throws Exception {
 		String folderName = input.getString("Folder");
+		boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist","false"));
 
 		File folder = new File(folderName);
 
@@ -45,6 +83,10 @@ public class FileSystemKeywords extends AbstractKeyword {
 			output.setBusinessError("\"" + folderName + "\" is not a folder.");
 		}
 
+		if (!folder.exists() && failIfExist) {
+			output.setBusinessError("\"" + folderName + "\" is not a folder.");
+		}
+		
 		try {
 			if (!recursiveDelete(folder)) {
 				output.setBusinessError("Folder \"" + folderName + "\" could not be deleted.");
