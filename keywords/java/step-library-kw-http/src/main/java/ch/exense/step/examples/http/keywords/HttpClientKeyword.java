@@ -53,12 +53,17 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	 * @throws UnrecoverableKeyException
 	 * 
 	 */
-	@Keyword(schema = "{\"properties\":{" + "\"BasicAuthUser\":{\"type\":\"string\"},"
-			+ "\"BasicAuthPassword\":{\"type\":\"string\"}," + "\"BasicAuthHost\":{\"type\":\"string\"},"
-			+ "\"BasicAuthHostScheme\":{\"type\":\"string\"}," + "\"BasicAuthPort\":{\"type\":\"string\"}},"
-			+ "\"KeyStorePath\":{\"type\":\"string\"}," + "\"KeyStorePassword\":{\"type\":\"string\"},"
+	@Keyword(schema = "{\"properties\":{"
+			+ "\"BasicAuthUser\":{\"type\":\"string\"},"
+			+ "\"BasicAuthPassword\":{\"type\":\"string\"},"
+			+ "\"BasicAuthHost\":{\"type\":\"string\"},"
+			+ "\"BasicAuthHostScheme\":{\"type\":\"string\"}," 
+			+ "\"BasicAuthPort\":{\"type\":\"string\"},"
+			+ "\"KeyStorePath\":{\"type\":\"string\"},"
+			+ "\"KeyStorePassword\":{\"type\":\"string\"},"
 			+ "\"CustomDnsResolverTargetIP\":{\"type\":\"string\"},"
-			+ "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"}," + "\"required\":[]}", properties = { "" })
+			+ "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"}"
+			+ "},\"required\":[]}", properties = { "" })
 	public void InitHttpClient() throws UnrecoverableKeyException, KeyManagementException, KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException {
 		HttpClient httpClient = null;
@@ -148,9 +153,13 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	 * 
 	 * @throws Exception
 	 */
-	@Keyword(schema = "{\"properties\":{" + "\"URL\":{\"type\":\"string\"}," + "\"Method\":{\"type\":\"string\"},"
-			+ "\"Header_myheader1\":{\"type\":\"string\"}," + "\"Data\":{\"type\":\"string\"},"
-			+ "\"Name\":{\"type\":\"string\"}," + "}\"required\":[\"URL\"]}", properties = {})
+	@Keyword(schema = "{\"properties\":{" 
+			+ "\"URL\":{\"type\":\"string\"},"
+			+ "\"Method\":{\"type\":\"string\"},"
+			+ "\"Header_myheader1\":{\"type\":\"string\"},"
+			+ "\"Data\":{\"type\":\"string\"},"
+			+ "\"Name\":{\"type\":\"string\"}"
+			+ "}, \"required\":[\"URL\"]}", properties = {})
 	public void HttpRequest() throws Exception {
 		String url = input.getString("URL");
 		String method = input.getString("Method", "GET");
@@ -253,9 +262,12 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		output.add("Cookies", httpClient.getCookiesFromStore().toString());
 	}
 
-	@Keyword(schema = "{\"properties\":{" + "\"Name\":{\"type\":\"string\"}" + "\"Value\":{\"type\":\"string\"}"
-			+ "\"Fomain\":{\"type\":\"string\"}" + "\"Path\":{\"type\":\"string\"}"
-			+ "}\"required\":[\"cookies\",\"value\",\"domain\",\"path\"]}", properties = {})
+	@Keyword(schema = "{\"properties\":{"
+			+ "\"Name\":{\"type\":\"string\"},"
+			+ "\"Value\":{\"type\":\"string\"},"
+			+ "\"Domain\":{\"type\":\"string\"},"
+			+ "\"Path\":{\"type\":\"string\"}"
+			+ "}, \"required\":[\"cookies\",\"value\",\"domain\",\"path\"]}", properties = {})
 	public void AddCookie() {
 		HttpClient httpClient = getHttpClientFromSession();
 		String name = input.getString("Name");
