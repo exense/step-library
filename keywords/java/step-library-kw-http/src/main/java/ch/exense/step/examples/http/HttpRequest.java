@@ -16,47 +16,46 @@ import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class HttpRequest extends HttpEntityEnclosingRequestBase {
+
 	private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 	String method = HttpGet.METHOD_NAME;
-	String body="";
-	
+	String body = "";
+
 	public HttpRequest(String uri, String method) {
 		this.method = method;
 		setURI(URI.create(uri));
-		
 	}
 
 	@Override
 	public String getMethod() {
 		return method;
 	}
-	
-	public HttpRequest appendHeader(String key, String value){
+
+	public HttpRequest appendHeader(String key, String value) {
 		this.addHeader(key, value);
 		return this;
 	}
-	
-	public HttpRequest setHeaders(JsonObject headers){
-		for (String key: headers.keySet()) {
+
+	public HttpRequest setHeaders(JsonObject headers) {
+		for (String key : headers.keySet()) {
 			this.appendHeader(key, headers.getString(key));
 		}
 		return this;
 	}
-	
-	public HttpRequest setParams(List<NameValuePair> params) throws UnsupportedEncodingException{
+
+	public HttpRequest setParams(List<NameValuePair> params) throws UnsupportedEncodingException {
 		setEntity(new UrlEncodedFormEntity(params));
 		return this;
 	}
-	
-	public HttpRequest setRowPayload(String payload) throws UnsupportedEncodingException{
-		body=payload;
-		setEntity(new StringEntity(payload,ContentType.create("text/plain", "UTF-8")));
+
+	public HttpRequest setRowPayload(String payload) throws UnsupportedEncodingException {
+		body = payload;
+		setEntity(new StringEntity(payload, ContentType.create("text/plain", "UTF-8")));
 		return this;
 	}
-	
-	protected void logDebugInfo(){
+
+	protected void logDebugInfo() {
 		logger.debug("Request URI: " + (this.getURI()));
 		logger.debug("Request headers: " + this.getAllHeaders());
 		logger.debug("Request method: " + this.getMethod());
@@ -64,5 +63,5 @@ public class HttpRequest extends HttpEntityEnclosingRequestBase {
 			logger.debug("Request body: " + body);
 		}
 	}
-	
+
 }

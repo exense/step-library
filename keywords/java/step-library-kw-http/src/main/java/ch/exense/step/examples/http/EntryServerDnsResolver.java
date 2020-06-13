@@ -16,8 +16,6 @@ import org.apache.http.impl.conn.SystemDefaultDnsResolver;
  * across multiple entry servers
  * 
  * @author stephanda
- *
- * 
  * 
  */
 public class EntryServerDnsResolver extends SystemDefaultDnsResolver {
