@@ -4,29 +4,11 @@
 	
 	"SUBPROJECTS":
 	{
-		"TYPE":
-		["POM","POM","POM"],
-		"FOLDER":
-		[
-			"keywords/java/step-library-kw-http",
-			"keywords/java/step-library-kw-system",
-			"keywords/java/step-library-kw-monitoring-system"
-		],
-		"URL_STAGING":
-		[ 
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/",
-			"nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"
-		],
-		"URL_PROD":
-		[
-			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
-			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
-			"sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"
-		],
-		"CONFIG_STAGING":
-		[ "DefaultBuild","DefaultBuild","DefaultBuild"],
-		"CONFIG_PROD":
-		[ "DefaultBuild","DefaultBuild","DefaultBuild"]
+		"TYPE": ["POM"],
+		"FOLDER": ["step-library-parent"],
+		"URL_STAGING": ["nexus-staging::https://nexus-enterprise.exense.ch/repository/staging-maven/"],
+		"URL_PROD": ["sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2"],
+		"CONFIG_STAGING":["DefaultBuild"],
+		"CONFIG_PROD": ["DefaultBuild"]
 	}
 }
