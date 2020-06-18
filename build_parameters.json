@@ -9,8 +9,8 @@
 		"FOLDER":
 		[
 			"keywords/java/step-library-kw-http",
-			"keywords/java/step-library-kw-monitoring-system",
-			"keywords/java/step-library-kw-system"
+			"keywords/java/step-library-kw-system",
+			"keywords/java/step-library-kw-monitoring-system"
 		],
 		"URL_STAGING":
 		[ 
