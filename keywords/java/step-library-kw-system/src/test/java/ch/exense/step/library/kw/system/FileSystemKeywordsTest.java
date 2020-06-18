@@ -1,11 +1,9 @@
 package ch.exense.step.library.kw.system;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,9 +54,7 @@ public class FileSystemKeywordsTest {
 	public void test_unzip() throws Exception {
 		String file = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
 		String path = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getParent();
-		
-		System.out.println(path);
-		
+				
 		JsonObject input = Json.createObjectBuilder().add("File", file).add("Destination", path+ File.separator +".." + File.separator).build();
 
 		Output<JsonObject> output = ctx.run("Unzip_file", input.toString());
