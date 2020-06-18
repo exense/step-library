@@ -14,6 +14,8 @@ import step.handlers.javahandler.AbstractKeyword;
 
 public abstract class AbstractProcessKeyword extends AbstractKeyword {
 
+	protected static final int PROCESS_TIMEOUT = 60000;
+
 	public AbstractProcessKeyword() {
 		super();
 	}

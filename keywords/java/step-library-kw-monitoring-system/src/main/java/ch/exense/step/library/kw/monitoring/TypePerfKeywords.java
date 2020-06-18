@@ -21,8 +21,6 @@ import ch.exense.step.library.kw.system.AbstractProcessKeyword;
 import step.handlers.javahandler.Keyword;
 
 public class TypePerfKeywords extends AbstractProcessKeyword {
-
-	private static final int PROCESS_TIMEOUT = 60000;
 	protected List<Metric> metrics;
 	protected ScriptEngine engine;
 	protected String hostname;
@@ -37,7 +35,7 @@ public class TypePerfKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "Typeperf", schema = "{\"properties\":{}}")
 	public void getTypePerf() throws Exception {
 		String cmd = buildCommandLine();
-		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true,true), p->{
+		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true, true), p -> {
 			try {
 				executionPostProcess(p.getProcessOutputLog());
 			} catch (Exception e) {
@@ -49,20 +47,22 @@ public class TypePerfKeywords extends AbstractProcessKeyword {
 	private String createTypePerfArgs() throws Exception {
 		StringBuilder sb = new StringBuilder();
 		InputStream inputStream = this.getClass().getResourceAsStream("/typePerf.csv");
-		BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));
-		String line;
-		while ((line = bf.readLine()) != null) {
-			if (line.startsWith("Metric_name,Typeperf_counter")) {
-				continue;
+
+		try (BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream))) {
+			String line;
+			while ((line = bf.readLine()) != null) {
+				if (line.startsWith("Metric_name,Typeperf_counter")) {
+					continue;
+				}
+				String[] columns = line.split(",");
+				String expression = (columns.length > 2) ? columns[2] : "";
+				metrics.add(new Metric(columns[0], columns[1], expression));
+				sb.append(" \"").append(columns[1]).append("\"");
 			}
-			String[] columns = line.split(",");
-			String expression = (columns.length > 2) ? columns[2] : "";
-			metrics.add(new Metric(columns[0], columns[1], expression));
-			sb.append(" \"").append(columns[1]).append("\"");
-		}
-		sb.append(" -sc 1");
-		if (input.containsKey("hostname")) {
-			sb.append(" -s ").append(input.getString("hostname"));
+			sb.append(" -sc 1");
+			if (input.containsKey("hostname")) {
+				sb.append(" -s ").append(input.getString("hostname"));
+			}
 		}
 		return sb.toString();
 	}
