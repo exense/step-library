@@ -11,7 +11,7 @@ public class WindowsServiceStatusKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "Windows_Service_Status", schema = "{\"properties\":{\"Service_Display_Name\":{\"type\":\"string\"}},\"required\":[\"Service_Display_Name\"]}")
 	public void getWindowsServiceStatus() throws Exception {
 		String cmd = buildCommandLine();
-		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true,true), p->{
+		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true,false), p->{
 			try {
 				executionPostProcess(p.getProcessOutputLog());
 			} catch (Exception e) {

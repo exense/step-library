@@ -35,7 +35,7 @@ public class TypePerfKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "Typeperf", schema = "{\"properties\":{}}")
 	public void getTypePerf() throws Exception {
 		String cmd = buildCommandLine();
-		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true, true), p -> {
+		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true, false), p -> {
 			try {
 				executionPostProcess(p.getProcessOutputLog());
 			} catch (Exception e) {
