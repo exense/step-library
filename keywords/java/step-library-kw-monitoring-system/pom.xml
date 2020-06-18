@@ -4,10 +4,43 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ch.exense.step.library</groupId>
 	<artifactId>step-library-kw-monitoring-system</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-
+	<version>0.0.0-SNAPSHOT</version>
+	
+	<name>Step Library - Monitoring keywords</name>
+	<description>
+		step is the first open-source automation platform for unified agile testing.
+	</description>
+	<url>http://step.exense.ch/</url>
+	<licenses>
+		<license>
+			<name>The GNU Affero General Public License 3.0</name>
+			<url>http://www.gnu.org/licenses/</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Jerome Comte</name>
+			<email>jerome.comte@exense.ch</email>
+			<organization>Exense</organization>
+			<organizationUrl>http://exense.ch</organizationUrl>
+			<url>http://step.exense.ch/</url>
+		</developer>
+		<developer>
+			<name>Dorian Cransac</name>
+			<email>dorian.cransac@exense.ch</email>
+			<organization>Exense</organization>
+			<organizationUrl>http://exense.ch</organizationUrl>
+			<url>http://step.exense.ch/</url>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/exense/step-library.git</connection>
+		<developerConnection>scm:git:[push=]https://github.com/exense/step-library.git[fetch=]https://github.com/exense/step-library.git</developerConnection>
+		<url>https://github.com/exense/step-library.git</url>
+	</scm>
+	
 	<properties>
-		<step-api.version>1.1.0</step-api.version>
+		<step-api.version>1.1.3</step-api.version>
 		<exense-commons.version>1.1.0</exense-commons.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -22,7 +55,7 @@
 		<dependency>
 			<groupId>ch.exense.step.library</groupId>
 			<artifactId>step-library-kw-system</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
@@ -40,12 +73,67 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>3.0.0-M1</version>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<appendAssemblyId>false</appendAssemblyId>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Source -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Javadoc -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<quiet>true</quiet>
+					<source>8</source>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -64,4 +152,45 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>Default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<!-- Local compilation - no signature -->
+		</profile>
+		<profile>
+			<id>DefaultBuild</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<!-- Signature -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

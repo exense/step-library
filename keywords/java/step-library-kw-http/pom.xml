@@ -4,8 +4,41 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ch.exense.step.library</groupId>
 	<artifactId>step-library-kw-http</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.0-SNAPSHOT</version>
 
+	<name>Step Library - HTTP keywords</name>
+	<description>
+		step is the first open-source automation platform for unified agile testing.
+	</description>
+	<url>http://step.exense.ch/</url>
+	<licenses>
+		<license>
+			<name>The GNU Affero General Public License 3.0</name>
+			<url>http://www.gnu.org/licenses/</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Jerome Comte</name>
+			<email>jerome.comte@exense.ch</email>
+			<organization>Exense</organization>
+			<organizationUrl>http://exense.ch</organizationUrl>
+			<url>http://step.exense.ch/</url>
+		</developer>
+		<developer>
+			<name>Dorian Cransac</name>
+			<email>dorian.cransac@exense.ch</email>
+			<organization>Exense</organization>
+			<organizationUrl>http://exense.ch</organizationUrl>
+			<url>http://step.exense.ch/</url>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/exense/step-library.git</connection>
+		<developerConnection>scm:git:[push=]https://github.com/exense/step-library.git[fetch=]https://github.com/exense/step-library.git</developerConnection>
+		<url>https://github.com/exense/step-library.git</url>
+	</scm>
+	
 	<properties>
 		<step-api.version>1.1.3</step-api.version>
 		<junit.version>4.8.1</junit.version>
@@ -18,7 +51,6 @@
 			<version>${step-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
