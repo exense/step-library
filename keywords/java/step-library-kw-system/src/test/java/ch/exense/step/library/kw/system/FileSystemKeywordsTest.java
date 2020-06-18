@@ -43,9 +43,8 @@ public class FileSystemKeywordsTest {
 	public void test_zip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
 		
-		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+"\\..\\test_zip.zip").build();
+		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+ File.pathSeparator +".." + File.pathSeparator + "test_zip.zip").build();
 		
-
 		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
 		
 		System.out.println(output.getPayload());
@@ -55,7 +54,7 @@ public class FileSystemKeywordsTest {
 	public void test_unzip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
 		
-		JsonObject input = Json.createObjectBuilder().add("File", path).add("Destination", path+"\\..\\").build();
+		JsonObject input = Json.createObjectBuilder().add("File", path).add("Destination", path+ File.pathSeparator +".." + File.pathSeparator).build();
 
 		Output<JsonObject> output = ctx.run("Unzip_file", input.toString());
 		
