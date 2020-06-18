@@ -1,9 +1,11 @@
 package ch.exense.step.library.kw.system;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +45,7 @@ public class FileSystemKeywordsTest {
 	public void test_zip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
 		
-		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+ File.pathSeparator +".." + File.pathSeparator + "test_zip.zip").build();
+		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+ File.separator +".." + File.separator + "test_zip.zip").build();
 		
 		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
 		
@@ -54,7 +56,7 @@ public class FileSystemKeywordsTest {
 	public void test_unzip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
 		
-		JsonObject input = Json.createObjectBuilder().add("File", path).add("Destination", path+ File.pathSeparator +".." + File.pathSeparator).build();
+		JsonObject input = Json.createObjectBuilder().add("File", path).add("Destination", path+ File.separator +".." + File.separator).build();
 
 		Output<JsonObject> output = ctx.run("Unzip_file", input.toString());
 		
