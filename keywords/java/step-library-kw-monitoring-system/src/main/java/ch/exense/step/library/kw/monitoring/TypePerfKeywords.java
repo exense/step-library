@@ -22,6 +22,7 @@ import step.handlers.javahandler.Keyword;
 
 public class TypePerfKeywords extends AbstractProcessKeyword {
 
+	private static final int PROCESS_TIMEOUT = 60000;
 	protected List<Metric> metrics;
 	protected ScriptEngine engine;
 	protected String hostname;
@@ -36,7 +37,7 @@ public class TypePerfKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "Typeperf", schema = "{\"properties\":{}}")
 	public void getTypePerf() throws Exception {
 		String cmd = buildCommandLine();
-		executeManagedCommand(cmd, 10000, new OutputConfiguration(false, 1000, 10000, true,true), p->{
+		executeManagedCommand(cmd, PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true,true), p->{
 			try {
 				executionPostProcess(p.getProcessOutputLog());
 			} catch (Exception e) {
