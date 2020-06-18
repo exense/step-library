@@ -167,7 +167,7 @@ public class HttpClientKeywordTest {
 		} catch(Exception e) {
 			actual = e;
 		}
-		assertEquals("Connect to mycustomhost.ch:443 [/0.0.0.0] failed: Connection refused: connect",actual.getMessage());
+		assertTrue(actual.getMessage().startsWith("Connect to mycustomhost.ch:443 [/0.0.0.0] failed: Connection refused"));
 	}
 
 }
