@@ -51,7 +51,7 @@ public class ProcessKeywordsTest {
 	@Test
 	public void testTimeout() throws Exception {
 		ctx.setThrowExceptionOnError(false);
-		JsonObject input = Json.createObjectBuilder().add("Command", "cmd timeout 10").add("Timeout_ms", "1").build();
+		JsonObject input = Json.createObjectBuilder().add("Command", "java -verbose -version").add("Timeout_ms", "1").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 		Assert.assertEquals("Process didn't exit within the defined timeout of 1ms", output.getError().getMsg());
 	}
@@ -74,9 +74,5 @@ public class ProcessKeywordsTest {
 
 		Assert.assertEquals("j", output.getPayload().getString("stderr"));
 		Assert.assertEquals("ag==", output.getAttachments().get(0).getHexContent());
-	}
-
-	public static boolean isWindows() {
-		return System.getProperty("os.name").startsWith("Windows");
 	}
 }
