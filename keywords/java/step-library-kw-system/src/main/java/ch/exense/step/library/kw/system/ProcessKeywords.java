@@ -1,5 +1,7 @@
 package ch.exense.step.library.kw.system;
 
+import java.util.ArrayList;
+
 import step.handlers.javahandler.Keyword;
 
 public class ProcessKeywords extends AbstractProcessKeyword {
@@ -22,6 +24,37 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	public void executeSystemCommand() throws Exception {
 		readInputs();
 		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
+	}
+	
+	@Keyword(name = "ExecuteBash", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
+			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
+			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+	public void executeBashCommand() throws Exception {
+		readInputs();
+		
+		ArrayList<String> cmd = new ArrayList<String>();
+		cmd.add("bash");
+		cmd.add("-c");
+		cmd.add(command);
+		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, null);
+	}
+	
+
+	@Keyword(name = "ExecuteCmd", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
+			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
+			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+	public void executeCmdCommand() throws Exception {
+		readInputs();
+		
+		ArrayList<String> cmd = new ArrayList<String>();
+		cmd.add("cmd");
+		cmd.add("/C");
+		cmd.add(command);
+		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, null);
 	}
 
 	protected void readInputs() {

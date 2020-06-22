@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 import ch.exense.commons.processes.ManagedProcess;
+import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
@@ -67,10 +69,21 @@ public abstract class AbstractProcessKeyword extends AbstractKeyword {
 		executeManagedCommand(cmd, timeoutMs, outputConfiguration, null);
 	}
 	
-	protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
-		boolean hasError = false;
+	protected void executeManagedCommand(List<String> cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
 		ManagedProcess process = new ManagedProcess(cmd);
+		executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process);
+	}
+	
+	protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
+		ManagedProcess process = new ManagedProcess(cmd);
+		executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process);
+	}
+
+	protected void executeManagedCommand(int timeoutMs, OutputConfiguration outputConfiguration,
+			Consumer<ManagedProcess> postProcess, ManagedProcess process)
+			throws ManagedProcessException, InterruptedException, IOException {
 		try {
+			boolean hasError = false;
 			process.start();
 			try {
 				int exitCode = process.waitFor(timeoutMs);
