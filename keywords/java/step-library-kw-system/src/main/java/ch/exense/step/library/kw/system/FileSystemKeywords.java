@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -24,17 +23,17 @@ public class FileSystemKeywords extends AbstractKeyword {
 		File file = new File(zipName);
 
 		if (!file.exists()) {
-			output.add("exists","false");
+			output.add("exists", "false");
 			return;
 		}
-		output.add("exists","true");
+		output.add("exists", "true");
 		if (!file.canRead()) {
-			output.add("canRead","false");
+			output.add("canRead", "false");
 		}
 		if (file.isFile()) {
-			output.add("isDirectory","false");
+			output.add("isDirectory", "false");
 		} else {
-			output.add("isDirectory","true");
+			output.add("isDirectory", "true");
 		}
 	}
 
@@ -62,38 +61,39 @@ public class FileSystemKeywords extends AbstractKeyword {
 		try {
 			if (folderSource.isDirectory()) {
 				FileUtils.copyDirectory(folderSource, folderDestination);
-			} else 
-			{
+			} else {
 				FileUtils.copyFileToDirectory(folderSource, folderDestination);
 			}
 		} catch (SecurityException e) {
-			output.setBusinessError("Security error when copying folder \"" + source + "\". Message was: \""
-					+ e.getMessage() + "\"");
+			output.setBusinessError(
+					"Security error when copying folder \"" + source + "\". Message was: \"" + e.getMessage() + "\"");
 		}
 	}
 
-	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Rmdir() throws Exception {
 		String folderName = input.getString("Folder");
-		boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist","false"));
+		boolean failIfDontExist = Boolean.getBoolean(input.getString("Fail_if_dont_exist", "false"));
 
 		File folder = new File(folderName);
 
-		if (!folder.isDirectory()) {
+		if (!folder.isDirectory() && failIfDontExist) {
 			output.setBusinessError("\"" + folderName + "\" is not a folder.");
 		}
 
-		if (!folder.exists() && failIfExist) {
-			output.setBusinessError("\"" + folderName + "\" is not a folder.");
-		}
-		
-		try {
-			if (!recursiveDelete(folder)) {
-				output.setBusinessError("Folder \"" + folderName + "\" could not be deleted.");
+		if (!folder.exists()) {
+			if (failIfDontExist) {
+				output.setBusinessError("\"" + folderName + "\" do not exist.");
 			}
-		} catch (SecurityException e) {
-			output.setBusinessError("Security error when deleting folder \"" + folderName + "\". Message was: \""
-					+ e.getMessage() + "\"");
+		} else {
+			try {
+				if (!recursiveDelete(folder)) {
+					output.setBusinessError("Folder \"" + folderName + "\" could not be deleted.");
+				}
+			} catch (SecurityException e) {
+				output.setBusinessError("Security error when deleting folder \"" + folderName + "\". Message was: \""
+						+ e.getMessage() + "\"");
+			}
 		}
 	}
 
@@ -110,7 +110,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Mkdir() throws Exception {
 		String folderName = input.getString("Folder");
-		boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist","false"));
+		boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist", "false"));
 
 		File folder = new File(folderName);
 
@@ -120,7 +120,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 			}
 			return;
 		}
-		
+
 		try {
 			if (!folder.mkdirs()) {
 				output.setBusinessError("Folder \"" + folderName + "\" could not be created.");
