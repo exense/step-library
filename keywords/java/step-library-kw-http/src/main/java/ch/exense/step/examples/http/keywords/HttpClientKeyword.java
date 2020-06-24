@@ -224,7 +224,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			output.stopMeasure(measureData);
 		}
 
-		output.add("StatusCode", httpResponse.getStatus());
+		output.add("StatusCode", Integer.toString(httpResponse.getStatus()));
 		output.add("Headers", httpResponse.getResponseHeaders().toString());
 		output.add("Cookies", httpResponse.getCookies().toString());
 		if (returnResponse) {

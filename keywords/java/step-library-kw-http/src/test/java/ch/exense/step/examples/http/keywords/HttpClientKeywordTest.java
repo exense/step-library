@@ -20,7 +20,7 @@ public class HttpClientKeywordTest {
 	public void simpleHttpGetRequest() throws Exception {
 		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/").build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class HttpClientKeywordTest {
 
 		ctx.run("CloseHttpClient", "{}");
 		
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getBoolean("Check_Title"));
 		assertEquals(output.getPayload().getString("Extract_Title"),"Google");
 	}
@@ -60,7 +60,7 @@ public class HttpClientKeywordTest {
 				.add("Method", "GET")
 				.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		
 		output = ctx.run("GetCookies", input);
 		assertTrue(output.getPayload().getString("Cookies").contains("Domain=google.ch; Path=/"));
@@ -77,7 +77,7 @@ public class HttpClientKeywordTest {
 			.build().toString();
 		output = ctx.run("HttpRequest", input);
 
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getString("Response").contains("My content"));
 	}
 	
@@ -89,7 +89,8 @@ public class HttpClientKeywordTest {
 			.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getString("Response").contains("My form value 1"));
 	}
 	
@@ -104,7 +105,7 @@ public class HttpClientKeywordTest {
 				.build().toString();
 		output = ctx.run("HttpRequest", input);
 
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getString("Response").contains("My content"));
 	}
 	
@@ -118,7 +119,7 @@ public class HttpClientKeywordTest {
 			.build().toString();
 		output = ctx.run("HttpRequest", input);
 
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 	}
 	
 	@Test
@@ -134,7 +135,7 @@ public class HttpClientKeywordTest {
 			.build().toString();
 		output = ctx.run("HttpRequest", input);
 
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 	}
 	
 	@Test
@@ -146,7 +147,7 @@ public class HttpClientKeywordTest {
 			.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 
-		assertEquals(output.getPayload().getInt("StatusCode"),200);
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
 	}
 	
 	@Test
