@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import step.client.StepClient;
 import step.core.execution.model.Execution;
+import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
 import step.core.repositories.RepositoryObjectReference;
 import step.handlers.javahandler.AbstractKeyword;
@@ -36,6 +37,7 @@ public class StepClientKeyword extends AbstractKeyword {
 		String password = input.getString("Password",DEFAULT_PASSWORD);
 		
 		getSession().put(new StepClient(url,user,password));
+		getSession().put("User",user);
 	}
 
 	@Keyword(schema = "{\"properties\":{" 
@@ -58,8 +60,12 @@ public class StepClientKeyword extends AbstractKeyword {
 		long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
 		
 		ExecutionParameters executionParams = new ExecutionParameters();
-		RepositoryObjectReference repoObject = new RepositoryObjectReference();
 
+		executionParams.setMode(ExecutionMode.RUN);
+		executionParams.setUserID((String) getSession().get("User"));
+		
+		RepositoryObjectReference repoObject = new RepositoryObjectReference();
+		
 		executionParams.setDescription(description);
 		
 		repoObject.setRepositoryID(repoId);
@@ -67,9 +73,6 @@ public class StepClientKeyword extends AbstractKeyword {
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, String> repoParameters = mapper.readValue(repoParametersJson, new TypeReference<Map<String, String>>() {});
 		
-//		repoParametersJson.forEach((key,value) -> {
-//			repoParameters.put(key, value.toString());
-//		});
 		repoObject.setRepositoryParameters(repoParameters);
 		executionParams.setRepositoryObject(repoObject);
 		
@@ -77,9 +80,6 @@ public class StepClientKeyword extends AbstractKeyword {
 
 		customParameters = mapper.readValue(customParametersJson, new TypeReference<Map<String, String>>() {});
 		
-//		customParametersJson.forEach((key,value) -> {
-//			customParameters.put(key, value.toString());
-//		});
 		executionParams.setCustomParameters(customParameters);
 		
 		String executionID = client.getExecutionManager().execute(executionParams);
@@ -93,8 +93,13 @@ public class StepClientKeyword extends AbstractKeyword {
 			output.setBusinessError("Execution '"+executionID+"' did not terminate before the timeout of "+timeout+"ms");
 			return;
 		}
-		
-		output.add("Result",exec.getResult().toString());
+
+		if (exec.getImportResult().isSuccessful()) {
+			output.add("Result",exec.getResult().toString());
+		} else {
+			output.add("Result","IMPORT_ERROR");
+			output.add("Import_Error",String.join(",", exec.getImportResult().getErrors()));
+		}
 	}
 
 	private String getMandatoryInputString(String inputName) throws BusinessException {
