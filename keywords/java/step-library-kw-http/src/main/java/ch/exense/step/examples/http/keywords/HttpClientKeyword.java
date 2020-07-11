@@ -61,6 +61,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"BasicAuthPort\":{\"type\":\"string\"},"
 			+ "\"KeyStorePath\":{\"type\":\"string\"},"
 			+ "\"KeyStorePassword\":{\"type\":\"string\"},"
+			+ "\"TimeoutInMs\":{\"type\":\"string\"},"
 			+ "\"CustomDnsResolverTargetIP\":{\"type\":\"string\"},"
 			+ "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"}"
 			+ "},\"required\":[]}", properties = { "" })
@@ -112,7 +113,8 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 				}
 			}
 		}
-		httpClient = new HttpClient(keyStorePath, keyStorePassword, customDnsResolverTargetIP,
+		int timeoutInMs = Integer.parseInt(input.getString("TimeoutInMs", "60000"));
+		httpClient = new HttpClient(timeoutInMs, keyStorePath, keyStorePassword, customDnsResolverTargetIP,
 				customDnsResolverHostWithCustomDns, basicAuthHostScheme, basicAuthHost, basicAuthPort, basicAuthUser,
 				basicAuthPassword);
 
