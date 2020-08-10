@@ -37,32 +37,41 @@ public class FileSystemKeywords extends AbstractKeyword {
 		}
 	}
 
-	@Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Source\",\"Destination\"]}")
+	@Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"}},"
+				+ "\"required\":[\"Source\",\"Destination\"]}")
 	public void Copy() throws Exception {
 		String source = input.getString("Source");
 		String destination = input.getString("Destination");
+		
+		Boolean toFile = Boolean.parseBoolean(input.getString("ToFile","false"));
 
-		File folderSource = new File(source);
-		File folderDestination = new File(destination);
+		File fileSource = new File(source);
+		File fileDestination = new File(destination);
 
-		if (!folderSource.exists()) {
+		if (!fileSource.exists()) {
 			output.setBusinessError("\"" + source + "\" does not exist.");
 			return;
 		}
-		if (!folderDestination.exists()) {
+		if (!fileDestination.exists() && !toFile) {
 			output.setBusinessError("\"" + destination + "\" does not exist.");
 			return;
 		}
-		if (!folderDestination.isDirectory()) {
+		if (!fileDestination.isDirectory() && !toFile) {
 			output.setBusinessError("\"" + destination + "\" is not a directory.");
+			return;
+		}
+		if (fileSource.isDirectory() && toFile) {
+			output.setBusinessError("\"" + source + "\" should not be a directory if \"ToFile\" is set to true.");
 			return;
 		}
 
 		try {
-			if (folderSource.isDirectory()) {
-				FileUtils.copyDirectory(folderSource, folderDestination);
+			if (toFile) {
+				FileUtils.copyFile(fileSource, fileDestination);
+			} else if (fileSource.isDirectory()) {
+				FileUtils.copyDirectory(fileSource, fileDestination);
 			} else {
-				FileUtils.copyFileToDirectory(folderSource, folderDestination);
+				FileUtils.copyFileToDirectory(fileSource, fileDestination);
 			}
 		} catch (SecurityException e) {
 			output.setBusinessError(
