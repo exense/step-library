@@ -82,10 +82,10 @@ public class FileSystemKeywords extends AbstractKeyword {
 	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
 	public void Rmdir() throws Exception {
 		String folderName = input.getString("Folder");
-		boolean failIfDontExist = Boolean.getBoolean(input.getString("Fail_if_dont_exist", "false"));
+		boolean failIfDontExist = Boolean.parseBoolean(input.getString("Fail_if_dont_exist", "false"));
 
 		File folder = new File(folderName);
-
+		
 		if (!folder.isDirectory() && failIfDontExist) {
 			output.setBusinessError("\"" + folderName + "\" is not a folder.");
 		}
@@ -93,6 +93,8 @@ public class FileSystemKeywords extends AbstractKeyword {
 		if (!folder.exists()) {
 			if (failIfDontExist) {
 				output.setBusinessError("\"" + folderName + "\" do not exist.");
+			} else {
+				output.add("Exist","false");
 			}
 		} else {
 			try {
