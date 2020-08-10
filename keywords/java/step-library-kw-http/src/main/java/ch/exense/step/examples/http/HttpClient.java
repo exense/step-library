@@ -30,6 +30,7 @@ import org.apache.http.client.AuthCache;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -57,20 +58,27 @@ public class HttpClient {
 	protected String targetIP = "";
 				 
 	/**
-	* Create a client and its context with provided SSL information, auth cache
-	* and optionally a custom DNS resolved for load balancing
-	* @param jksPath
-	* @param password
-	* @param targetIP
-	* @param hostWithCustomDns: resolved to the target IP if provided
-	* @throws KeyStoreException
-	* @throws NoSuchAlgorithmException
-	* @throws CertificateException
-	* @throws IOException
-	* @throws UnrecoverableKeyException
-	* @throws KeyManagementException
-	*/
-	public HttpClient(String jksPath, String password, String targetIP, String hostWithCustomDns, String basicAuthHostScheme,
+	 * Create a client and its context with provided SSL information, auth cache and
+	 * optionally a custom DNS resolved for load balancing
+	 * 
+	 * @param timeoutInMs
+	 * @param jksPath
+	 * @param password
+	 * @param targetIP
+	 * @param hostWithCustomDns
+	 * @param basicAuthHostScheme
+	 * @param basicAuthHost
+	 * @param basicAuthPort
+	 * @param basicAuthUser
+	 * @param basicAuthPassword
+	 * @throws KeyStoreException
+	 * @throws NoSuchAlgorithmException
+	 * @throws CertificateException
+	 * @throws IOException
+	 * @throws UnrecoverableKeyException
+	 * @throws KeyManagementException
+	 */
+	public HttpClient(int timeoutInMs, String jksPath, String password, String targetIP, String hostWithCustomDns, String basicAuthHostScheme,
 			String basicAuthHost, int basicAuthPort, String basicAuthUser, String basicAuthPassword)
 			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
 			UnrecoverableKeyException, KeyManagementException {
@@ -113,9 +121,14 @@ public class HttpClient {
 			httpClientBuilder.setDefaultCredentialsProvider(provider);
 		}
 		
+		RequestConfig config = RequestConfig.custom()
+				  .setConnectTimeout(timeoutInMs)
+				  .setConnectionRequestTimeout(timeoutInMs)
+				  .setSocketTimeout(timeoutInMs).build();
+		
 		//Build the client
-		this.client = httpClientBuilder.build();
-		  		
+		this.client = httpClientBuilder.setDefaultRequestConfig(config).build();
+		
 		// context.setCredentialsProvider(credsProvider);
 		// Add AuthCache to the execution context
 		context.setAuthCache(authCache);

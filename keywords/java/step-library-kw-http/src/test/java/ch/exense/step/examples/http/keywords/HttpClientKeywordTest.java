@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import javax.json.Json;
 import javax.json.JsonObject;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import step.functions.io.Output;
@@ -21,6 +22,19 @@ public class HttpClientKeywordTest {
 		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/").build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
+	}
+	
+	@Test
+	public void simpleHttpGetRequestTimeout() throws Exception {
+		String input = Json.createObjectBuilder().add("TimeoutInMs", "1").add("URL", "https://www.google.ch/").build().toString();
+		Exception actualException = null;
+		try { 
+			ctx.run("HttpRequest", input);
+		} catch (Exception e) {
+			actualException = e;
+		}
+		Assert.assertNotNull(actualException);
+		assertTrue(actualException.getMessage().contains("connect timed out"));
 	}
 
 	@Test
