@@ -39,7 +39,7 @@ public class HttpClientKeywordTest {
 			actualException = e;
 		}
 		Assert.assertNotNull(actualException);
-		assertTrue(actualException.getMessage().contains("connect timed out"));
+		assertTrue(actualException.getMessage().contains("timed out"));
 	}
 
 	@Test
