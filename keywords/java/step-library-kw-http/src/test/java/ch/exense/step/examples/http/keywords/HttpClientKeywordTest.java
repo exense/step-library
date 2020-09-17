@@ -25,11 +25,16 @@ public class HttpClientKeywordTest {
 	}
 	
 	@Test
-	public void simpleHttpGetRequestTimeout() throws Exception {
-		String input = Json.createObjectBuilder().add("TimeoutInMs", "1").add("URL", "https://www.google.ch/").build().toString();
+	public void simpleHttpGetRequestTimeoutWithExplicitClientInit() throws Exception {
+		
+		String inputInitHttpClient = Json.createObjectBuilder().add("TimeoutInMs", "1").build().toString();
+		ctx.run("InitHttpClient", inputInitHttpClient);
+		
+		String inputHttpRequest = Json.createObjectBuilder().add("URL", "https://www.google.ch/").build().toString();
+
 		Exception actualException = null;
 		try { 
-			ctx.run("HttpRequest", input);
+			ctx.run("HttpRequest", inputHttpRequest);
 		} catch (Exception e) {
 			actualException = e;
 		}
