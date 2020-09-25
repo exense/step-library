@@ -178,11 +178,12 @@ public class HttpClient {
 	public HttpResponse executeRequestInContext(HttpRequest request)
 			throws ClientProtocolException, IOException, Exception {
 		request.logDebugInfo();
-		CloseableHttpResponse httpResponse = this.client.execute(request, context);
-		int status = httpResponse.getStatusLine().getStatusCode();
-		List<BasicNameValuePair> responseHeaders = toNameValues(Arrays.asList(httpResponse.getAllHeaders()));
-		String response = readResponse(httpResponse);
-		return new HttpResponse(response, responseHeaders, status);
+		try(CloseableHttpResponse httpResponse = this.client.execute(request, context)) {
+			int status = httpResponse.getStatusLine().getStatusCode();
+			List<BasicNameValuePair> responseHeaders = toNameValues(Arrays.asList(httpResponse.getAllHeaders()));
+			String response = readResponse(httpResponse);
+			return new HttpResponse(response, responseHeaders, status);
+		}
 	}
 
 	public void close() {

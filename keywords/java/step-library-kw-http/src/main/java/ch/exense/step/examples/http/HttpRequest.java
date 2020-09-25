@@ -56,11 +56,13 @@ public class HttpRequest extends HttpEntityEnclosingRequestBase {
 	}
 
 	protected void logDebugInfo() {
-		logger.debug("Request URI: " + (this.getURI()));
-		logger.debug("Request headers: " + this.getAllHeaders());
-		logger.debug("Request method: " + this.getMethod());
-		if (method.equals(HttpPost.METHOD_NAME)) {
-			logger.debug("Request body: " + body);
+		if(logger.isDebugEnabled()) {
+			logger.debug("Request URI: " + (this.getURI()));
+			logger.debug("Request headers: " + this.getAllHeaders());
+			logger.debug("Request method: " + this.getMethod());
+			if (method.equals(HttpPost.METHOD_NAME)) {
+				logger.debug("Request body: " + body);
+			}
 		}
 	}
 
