@@ -24,10 +24,12 @@ import java.lang.management.MemoryUsage;
 
 import com.sun.management.OperatingSystemMXBean;
 
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
 @SuppressWarnings("restriction")
+@Attribute(key="project", value="@system")
 public class MBeanKeywords extends AbstractKeyword {
 
 	protected static final String HEAP_MEMORY_USAGE_MAX = "HeapMemoryUsageMax";
@@ -47,22 +49,26 @@ public class MBeanKeywords extends AbstractKeyword {
 		System.out.println(systemCpuLoadPercentage);
 		addMeasureAndOutput(SYSTEM_CPU_LOAD, systemCpuLoadPercentage);
 
-		long freePhysicalMemorySize = operatingSystemMXBean.getFreePhysicalMemorySize();
+		long freePhysicalMemorySize = fromBytesToMegaBytes(operatingSystemMXBean.getFreePhysicalMemorySize());
 		addMeasureAndOutput(FREE_PHYSICAL_MEMORY_SIZE, freePhysicalMemorySize);
 		
-		long totalPhysicalMemorySize = operatingSystemMXBean.getTotalPhysicalMemorySize();
+		long totalPhysicalMemorySize = fromBytesToMegaBytes(operatingSystemMXBean.getTotalPhysicalMemorySize());
 		addMeasureAndOutput(TOTAL_PHYSICAL_MEMORY_SIZE, totalPhysicalMemorySize);
 
-		long freeSwapMemorySize = operatingSystemMXBean.getFreeSwapSpaceSize();
+		long freeSwapMemorySize = fromBytesToMegaBytes(operatingSystemMXBean.getFreeSwapSpaceSize());
 		addMeasureAndOutput(FREE_SWAP_MEMORY_SIZE, freeSwapMemorySize);
 
-		long totalSwapSpaceSize = operatingSystemMXBean.getTotalSwapSpaceSize();
+		long totalSwapSpaceSize = fromBytesToMegaBytes(operatingSystemMXBean.getTotalSwapSpaceSize());
 		addMeasureAndOutput(TOTAL_SWAP_SPACE_SIZE, totalSwapSpaceSize);
 		
 		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 		MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-		addMeasureAndOutput(HEAP_MEMORY_USAGE_USED, heapMemoryUsage.getUsed());
-		addMeasureAndOutput(HEAP_MEMORY_USAGE_MAX, heapMemoryUsage.getMax());
+		addMeasureAndOutput(HEAP_MEMORY_USAGE_USED, fromBytesToMegaBytes(heapMemoryUsage.getUsed()));
+		addMeasureAndOutput(HEAP_MEMORY_USAGE_MAX, fromBytesToMegaBytes(heapMemoryUsage.getMax()));
+	}
+	
+	protected Long fromBytesToMegaBytes(long bytesValue) {
+		return bytesValue / 1048576;
 	}
 
 	protected void addMeasureAndOutput(String measureName, long systemCpuLoadPercentage) {
