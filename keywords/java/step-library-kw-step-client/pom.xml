@@ -16,7 +16,6 @@
 			<groupId>ch.exense.step-enterprise</groupId>
 			<artifactId>step-client</artifactId>
 			<version>${step.version}</version>
-<!-- 			<scope>provided</scope> -->
 		</dependency>
 	</dependencies>
 </project>
