@@ -35,7 +35,7 @@ import step.handlers.javahandler.Keyword;
 public class FileSystemKeywords extends AbstractKeyword {
 
 	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
-	public void Exist() throws Exception {
+	public void Exist() {
 		String zipName = input.getString("File");
 
 		File file = new File(zipName);
@@ -61,7 +61,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 		String source = input.getString("Source");
 		String destination = input.getString("Destination");
 		
-		Boolean toFile = Boolean.parseBoolean(input.getString("ToFile","false"));
+		boolean toFile = Boolean.parseBoolean(input.getString("ToFile","false"));
 
 		File fileSource = new File(source);
 		File fileDestination = new File(destination);
@@ -98,7 +98,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
-	public void Rmdir() throws Exception {
+	public void Rmdir() {
 		String folderName = input.getString("Folder");
 		boolean failIfDontExist = Boolean.parseBoolean(input.getString("Fail_if_dont_exist", "false"));
 
@@ -137,7 +137,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
-	public void Mkdir() throws Exception {
+	public void Mkdir() {
 		String folderName = input.getString("Folder");
 		boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist", "false"));
 
@@ -161,7 +161,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
-	public void Zip_file() throws Exception {
+	public void Zip_file() {
 		String folderName = input.getString("Folder");
 		String zip = input.getString("Destination", folderName + ".zip");
 
@@ -190,7 +190,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
-	public void Unzip_file() throws Exception {
+	public void Unzip_file() {
 		String zipName = input.getString("File");
 		String dest = input.getString("Destination", ".");
 
@@ -199,12 +199,15 @@ public class FileSystemKeywords extends AbstractKeyword {
 
 		if (!file.exists()) {
 			output.setBusinessError("File \"" + zipName + "\" do not exist.");
+			return;
 		}
 		if (!file.canRead()) {
 			output.setBusinessError("File \"" + zipName + "\" is not readable.");
+			return;
 		}
 		if (!file.isFile()) {
 			output.setBusinessError("\"" + zipName + "\" is not a file.");
+			return;
 		}
 		if (!folder.isDirectory()) {
 			output.setBusinessError("\"" + dest + "\" is not a folder.");
@@ -220,16 +223,18 @@ public class FileSystemKeywords extends AbstractKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
-	public void Read_file() throws Exception {
+	public void Read_file() {
 		String fileName = input.getString("File");
 
 		File file = new File(fileName);
 
 		if (!file.exists()) {
 			output.setBusinessError("File \"" + fileName + "\" do not exist.");
+			return;
 		}
 		if (!file.canRead()) {
 			output.setBusinessError("File \"" + fileName + "\" is not readable.");
+			return;
 		}
 
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -296,8 +301,6 @@ public class FileSystemKeywords extends AbstractKeyword {
 			return;
 		}
 
-		if (Files.move(tmpFile.toPath(), file.toPath()) == null) {
-			output.setBusinessError("Could not move to file \"" + fileName + "\"");
-		}
+		Files.move(tmpFile.toPath(), file.toPath());
 	}
 }
