@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
+import ch.exense.step.library.commons.BusinessException;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import ch.exense.step.examples.common.helper.AbstractEnhancedKeyword;
-import ch.exense.step.examples.common.helper.BusinessException;
 import ch.exense.step.examples.http.HttpClient;
 import ch.exense.step.examples.http.HttpRequest;
 import ch.exense.step.examples.http.HttpResponse;

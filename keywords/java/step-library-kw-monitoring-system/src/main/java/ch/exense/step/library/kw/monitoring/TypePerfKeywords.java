@@ -35,7 +35,7 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import ch.exense.step.library.kw.system.AbstractProcessKeyword;
+import ch.exense.step.library.commons.AbstractProcessKeyword;
 import step.handlers.javahandler.Keyword;
 
 public class TypePerfKeywords extends AbstractProcessKeyword {

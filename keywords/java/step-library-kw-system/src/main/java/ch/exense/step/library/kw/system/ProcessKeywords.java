@@ -20,6 +20,7 @@ package ch.exense.step.library.kw.system;
 
 import java.util.ArrayList;
 
+import ch.exense.step.library.commons.AbstractProcessKeyword;
 import step.handlers.javahandler.Keyword;
 
 public class ProcessKeywords extends AbstractProcessKeyword {

@@ -21,7 +21,7 @@ package ch.exense.step.library.kw.monitoring;
 import java.io.File;
 import java.nio.file.Files;
 
-import ch.exense.step.library.kw.system.AbstractProcessKeyword;
+import ch.exense.step.library.commons.AbstractProcessKeyword;
 import step.handlers.javahandler.Keyword;
 
 public class WindowsServiceStatusKeywords extends AbstractProcessKeyword {
