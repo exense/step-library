@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.json.JsonValue;
+
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import org.apache.http.NameValuePair;
@@ -159,7 +161,11 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"URL\":{\"type\":\"string\"},"
 			+ "\"Method\":{\"type\":\"string\"},"
 			+ "\"Header_myheader1\":{\"type\":\"string\"},"
+			+ "\"FormData_myFormData1\":{\"type\":\"string\"},"
+			+ "\"Extract_myField1ToExtract1\":{\"type\":\"string\"},"
+			+ "\"Check_myFieldToChec1\":{\"type\":\"string\"},"
 			+ "\"Data\":{\"type\":\"string\"},"
+			+ "\"ReturnResponse\":{\"type\":\"boolean\"},"
 			+ "\"Name\":{\"type\":\"string\"}"
 			+ "}, \"required\":[\"URL\"]}", properties = {})
 	public void HttpRequest() throws Exception {
@@ -175,22 +181,26 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		Map<String, Pattern> extractRegexp = new HashMap<String, Pattern>();
 		Map<String, String> textChecks = headers;
 		for (String key : input.keySet()) {
-			String value = input.getString(key);
-			if (key.startsWith(HEADER_PREFIX)) {
-				String name = key.substring(HEADER_PREFIX.length());
-				headers.put(name, value);
-			} else if (key.startsWith(PARAM_PREFIX)) {
-				String name = key.substring(PARAM_PREFIX.length());
-				formData.add(new BasicNameValuePair(name, value));
-			} else if (key.startsWith(EXTRACT_PREFIX)) {
-				String name = key.substring(EXTRACT_PREFIX.length());
-				extractRegexp.put(name, Pattern.compile(value, Pattern.DOTALL));
-			} else if (key.startsWith(CHECK_PREFIX)) {
-				String name = key.substring(CHECK_PREFIX.length());
-				textChecks.put(name, value);
-			} else if (key.equals(DATA)) {
-				payload = input.getString(DATA);
-			}
+			try {
+				String value = input.getString(key);
+				if (key.startsWith(HEADER_PREFIX)) {
+					String name = key.substring(HEADER_PREFIX.length());
+					headers.put(name, value);
+				} else if (key.startsWith(PARAM_PREFIX)) {
+					String name = key.substring(PARAM_PREFIX.length());
+					formData.add(new BasicNameValuePair(name, value));
+				} else if (key.startsWith(EXTRACT_PREFIX)) {
+					String name = key.substring(EXTRACT_PREFIX.length());
+					extractRegexp.put(name, Pattern.compile(value, Pattern.DOTALL));
+				} else if (key.startsWith(CHECK_PREFIX)) {
+					String name = key.substring(CHECK_PREFIX.length());
+					textChecks.put(name, value);
+				} else if (key.equals(DATA)) {
+					payload = input.getString(DATA);
+				}
+			} catch(ClassCastException e) {
+				logger.warn("Input " + key + " is not a String but a " + input.get(key).getClass().getSimpleName() + " so it will not be parsed");
+			}			
 		}
 
 		HttpClient httpClient = getHttpClientFromSession();
