@@ -44,7 +44,7 @@ public class FileCompareKeywordsTest {
 	}
 
 	@Test
-	public void test_compare_xml() throws Exception {
+	public void test_validate_xml() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
 		
 		JsonObject input = Json.createObjectBuilder().add("File", path)
@@ -52,7 +52,7 @@ public class FileCompareKeywordsTest {
 				.add("//otherTest/@id", "myId")
 				.add("//test", "test").build();
 
-		Output<JsonObject> output = ctx.run("Compare_XML", input.toString());
+		Output<JsonObject> output = ctx.run("Validate_XML", input.toString());
 
 		System.out.println(output.getPayload());
 	}
