@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 public class FileCompareKeywords extends AbstractKeyword {
 
 	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
-	public void Compare_XML() throws Exception {
+	public void Validate_XML() throws Exception {
 		String fileName = input.getString("File");
 
 		File file = new File(fileName);
@@ -83,6 +83,7 @@ public class FileCompareKeywords extends AbstractKeyword {
 
 				if (!result.equals(expected)) {
 					output.setBusinessError("Error when comparing xpath '" + xpathString + "': value was expected to be: '" + expected + "' but was '" + result + "'");
+					return;
 				}
 			} catch (XPathExpressionException expr) {
 				output.setError("Invalid xpath found'" + xpathString + "': " + expr.getMessage(), expr);
