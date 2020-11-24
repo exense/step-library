@@ -1,4 +1,10 @@
 <root>
-    <test>test</test>
-    <otherTest id="myId">otherTest</otherTest>
+    <testEmpty1></testEmpty1>
+    <testEmpty2/>
+    <otherTest id="myId">otherTestValue</otherTest>
+    <testMultiple>test1</testMultiple>
+    <testMultiple>test2</testMultiple>
+    <testEmbededMultiple>
+        <testMultiple>test3</testMultiple>
+    </testEmbededMultiple>
 </root>
