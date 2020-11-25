@@ -55,16 +55,24 @@ public class FileCompareKeywordsTest {
                 .add("//otherTest/@id", "myId")
                 .add("//testEmpty1", "")
                 .add("//testEmpty2", "")
+                .add("//testEmpty3/@empty", "")
                 .add("//testMultiple", ".*").build();
         output = ctx.run("Validate_XML", input.toString());
+        System.out.println(output.getPayload());
         assert output.getError() == null;
 
         input = Json.createObjectBuilder().add("File", path)
 				.add("//testMultiple", "[test1,test2,...]")
-                .add("//testMultiple", "[test1,test2,test3]").build();
+                .add("//testMultipleDuplicate", "[testSameValue*]").build();
         output = ctx.run("Validate_XML", input.toString());
+        System.out.println(output.getPayload());
         assert output.getError() == null;
 
+        input = Json.createObjectBuilder().add("File", path)
+                .add("//testMultiple", "[test1,test2,test3]")
+                .add("//testMultipleDuplicate", "[testSameValue,testSameValue,testSameValue]").build();
+        output = ctx.run("Validate_XML", input.toString());
         System.out.println(output.getPayload());
+        assert output.getError() == null;
     }
 }

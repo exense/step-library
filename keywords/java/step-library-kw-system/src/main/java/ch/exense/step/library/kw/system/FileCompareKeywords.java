@@ -28,9 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class FileCompareKeywords extends AbstractKeyword {
 
@@ -87,30 +85,47 @@ public class FileCompareKeywords extends AbstractKeyword {
             }
             // case: list of values
             else if (expected.startsWith("[") && expected.endsWith("]")) {
-                List<String> actualValues = new ArrayList<>();
+                List<String> actualValues = new LinkedList<>();
                 for (int i=0;i<nodeList.getLength();i++) {
                     actualValues.add(nodeList.item(i).getTextContent());
                 }
 
                 boolean exactCount = true;
                 List<String> expectedValues;
+                //only check the presence of the values given:
                 if (expected.endsWith(",...]")) {
                     exactCount = false;
                     expectedValues = Arrays.asList(expected.substring(1, expected.length() - ",...]".length()).split(","));
-                } else {
+                }
+                // Consider all values to be equals:
+                else if (expected.endsWith("*]") && !expected.contains(",")) {
+                    expectedValues = Collections.nCopies(nodeList.getLength(),expected.substring(1, expected.length() - "*]".length()));
+                }
+                // Otherwise split by ","
+                else {
                     expectedValues = Arrays.asList(expected.substring(1, expected.length() - 1).split(","));
                 }
                 if (exactCount && expectedValues.size()!=nodeList.getLength()) {
                     output.setBusinessError("Error when comparing xpath '" + xpathString + "': "
                             + expectedValues.size() + " values were expected, "+nodeList.getLength()+" were found.\n"
-                            + "Use the "+expected.substring(0,expected.length()-1)+",...]"+" notation to only validate a subset of values");
+                            + "Use the "+expected.substring(0,expected.length()-1)+",...] notation to only validate a subset of values"
+                            + " or the "+expected.substring(0,expected.length()-1)+"*] notation to test that all values are expected to be the same");
                     return;
                 }
-                if (!actualValues.containsAll(expectedValues)) {
-                    output.setBusinessError("Error when comparing xpath '" + xpathString + "': "
-                            + "values were expected to contains: '" + expectedValues + "' but were '" + actualValues + "'");
-                    return;
+                String actualValuesString = actualValues.toString();
+                for (String value : expectedValues) {
+                    if (!actualValues.contains(value)) {
+                        output.setBusinessError("Error when comparing xpath '" + xpathString + "': "
+                                + "value '"+value+"' was not found. Expected was '"+expectedValues+"' and actual values were '"+actualValuesString+"'");
+                        return;
+                    }
+                    actualValues.remove(value);
                 }
+                //if (!actualValues.containsAll(expectedValues)) {
+                //    output.setBusinessError("Error when comparing xpath '" + xpathString + "': "
+                //            + "values were expected to contains: '" + expectedValues + "' but were '" + actualValues + "'");
+                //    return;
+                //}
             }
             // case: one value
             else if (nodeList.getLength() == 1) {
@@ -123,7 +138,8 @@ public class FileCompareKeywords extends AbstractKeyword {
             } else {
                 output.setBusinessError("Error when comparing xpath '" + xpathString + "': "
                         + "the xpath was supposed to be unique, but was found " + nodeList.getLength() + " times.\n"
-                        + "Use the ["+expected+",...] notation to validate the presence of one value");
+                        + "Use the ["+expected+",...] notation to validate the presence of one value"
+                        + " or the ["+expected+"*] notation to test that all values are expected to be the same");
                 return;
             }
         }
