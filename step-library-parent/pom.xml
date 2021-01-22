@@ -81,6 +81,7 @@
 		<module>../keywords/java/step-library-kw-system</module>
 		<module>../keywords/java/step-library-kw-monitoring-system</module>
 		<module>../keywords/java/step-library-kw-step-client</module>
+		<module>../keywords/java/step-library-kw-selenium</module>
 	</modules>
 
 	<dependencies>
@@ -169,6 +170,18 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
