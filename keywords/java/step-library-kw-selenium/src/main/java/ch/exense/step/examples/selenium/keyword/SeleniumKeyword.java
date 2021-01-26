@@ -119,20 +119,20 @@ public class SeleniumKeyword extends TransactionalKeyword {
 	 * </ul>
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"headless\": {  \"type\": \"boolean\", \"default\": false},"
-			+ "\"disableShm\": {\"type\": \"boolean\", \"default\": false},"
-			+ "\"proxyHost\": {\"type\": \"string\", \"default\": \"not set\"},"
+			+ "\"headless\": {  \"type\": \"boolean\"},"
+			+ "\"disableShm\": {\"type\": \"boolean\"},"
+			+ "\"proxyHost\": {\"type\": \"string\"},"
 			+ "\"proxyPort\": {\"type\": \"integer\"},"
-			+ "\"enableHarCapture\": {\"type\": \"boolean\", \"default\": false},"
-			+ "\"browserProxyPort\": {\"type\": \"integer\", \"default\": 0},"
+			+ "\"enableHarCapture\": {\"type\": \"boolean\"},"
+			+ "\"browserProxyPort\": {\"type\": \"integer\"},"
 			+ "\"readBytesPerSecond\": {\"type\": \"integer\"},"
 			+ "\"writeBytesPerSecond\": {\"type\": \"integer\"},"
-			+ "\"user-data-dir\": {  \"type\": \"string\", \"default\": \"not set\"},"
-			+ "\"additionalOptions\": {  \"type\": \"string\", \"default\": \"comma separated list of additional chrome options\"},"
-			+ "\"implicitlyWait\": {  \"type\": \"integer\", \"default\": 10},"
-			+ "\"pageLoadTimeout\": {  \"type\": \"integer\", \"default\": 10},"
-			+ "\"maximize\": {  \"type\": \"boolean\", \"default\": false},"
-			+ "}, \"required\" : []}")
+			+ "\"user-data-dir\": {  \"type\": \"string\"},"
+			+ "\"additionalOptions\": {  \"type\": \"string\"},"
+			+ "\"implicitlyWait\": {  \"type\": \"integer\"},"
+			+ "\"pageLoadTimeout\": {  \"type\": \"integer\"},"
+			+ "\"maximize\": {  \"type\": \"boolean\"}"
+			+ "}, \"required\" : []}", properties = { "" })
 	public void Open_chrome() {
 		if (properties.containsKey("chromedriver")) {
 			File chromeDriverBin = new File(properties.get("chromedriver"));
