@@ -75,4 +75,19 @@ public class FileCompareKeywordsTest {
         System.out.println(output.getPayload());
         assert output.getError() == null;
     }
+
+    @Test
+    public void test_extract_xml() throws Exception {
+        String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
+        Output<JsonObject> output;
+        JsonObject input;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("/root/otherTest", "first")
+                .add("//otherTest/@id", "all")
+                .add("//testMultiple", "all").build();
+        output = ctx.run("Extract_XML", input.toString());
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+    }
 }

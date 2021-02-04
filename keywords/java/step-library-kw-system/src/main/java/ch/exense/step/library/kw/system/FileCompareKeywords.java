@@ -1,3 +1,4 @@
+package ch.exense.step.library.kw.system;
 /*******************************************************************************
  * Copyright (C) 2020, exense GmbH
  *
@@ -16,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with STEP.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package ch.exense.step.library.kw.system;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -26,38 +26,90 @@ import step.handlers.javahandler.Keyword;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
 import java.io.*;
 import java.util.*;
 
 public class FileCompareKeywords extends AbstractKeyword {
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
-    public void Validate_XML() throws Exception {
+    private Document getDocument() {
         String fileName = input.getString("File");
 
         File file = new File(fileName);
 
         if (!file.exists()) {
             output.setBusinessError("File \"" + fileName + "\" do not exist.");
-            return;
+            return null;
         }
         if (!file.canRead()) {
             output.setBusinessError("File \"" + fileName + "\" is not readable.");
-            return;
+            return null;
         }
 
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Document doc;
+        Document doc = null;
         try {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             doc = builder.parse(file);
         } catch (IOException io) {
             output.setError("IOException when trying to parse the File '" + file.getName() + "': " + io.getMessage(), io);
-            return;
+            return null;
         } catch (SAXException sax) {
             output.setError("Invalid XML found when parsing the File '" + file.getName() + "': " + sax.getMessage(), sax);
-            return;
+            return null;
+        } catch (ParserConfigurationException parse) {
+            output.setError("ParserConfigurationException when trying to parse the File '" + file.getName() + "': " + parse.getMessage(), parse);
         }
+        return doc;
+    }
+
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    public void Extract_XML() throws Exception {
+
+        Document doc = getDocument();
+        if (doc == null) return;
+
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xPath = xpathFactory.newXPath();
+
+        for (Object xpathObj : input.keySet().stream().filter(key -> !key.equals("File")).toArray()) {
+            String xpathString = (String) xpathObj;
+
+            String type = input.getString(xpathString);
+
+            NodeList nodeList;
+            try {
+                XPathExpression expr = xPath.compile(xpathString);
+                nodeList = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            } catch (XPathExpressionException expr) {
+                output.setError("Invalid xpath found'" + xpathString + "': " + expr.getMessage(), expr);
+                return;
+            }
+            if (nodeList.getLength() == 0) {
+                output.setBusinessError("Xpath '" + xpathString + "' not found in the document");
+                return;
+            }
+            switch (type.toLowerCase()) {
+                case "all":
+                    List<String> actualValues = new LinkedList<>();
+                    for (int i=0;i<nodeList.getLength();i++) {
+                        actualValues.add(nodeList.item(i).getTextContent());
+                    }
+                    output.add(xpathString,actualValues.toString());
+                    break;
+                case "first":
+                default:
+                    output.add(xpathString,nodeList.item(0).getTextContent());
+                    break;
+            }
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    public void Validate_XML() throws Exception {
+
+        Document doc = getDocument();
+        if (doc ==null) return;
 
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xPath = xpathFactory.newXPath();
