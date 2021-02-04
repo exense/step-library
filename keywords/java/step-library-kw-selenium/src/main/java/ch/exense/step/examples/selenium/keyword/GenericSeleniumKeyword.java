@@ -19,14 +19,20 @@ import step.handlers.javahandler.Keyword;
  * @author rubieroj
  */
 public class GenericSeleniumKeyword extends SeleniumKeyword {
-	
-	@Keyword
-	public void Send_keys_by_xpath() {
+
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
+			+ "\"keys\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\",\"keys\"]}", properties = { "" })
+	public void SEL_Send_keys_by_xpath() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String xpath = input.getString("xpath");
 		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
 		String keys = input.getString("keys");
-		
+
 		Map<String, Object> additionalTransactionProperties = new HashMap<>();
 		additionalTransactionProperties.put("xpath", xpath);
 		additionalTransactionProperties.put("keys", keys);
@@ -57,8 +63,13 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
-	@Keyword
-	public void Click_by_xpath() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Click_by_xpath() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String xpath = input.getString("xpath");
 		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
@@ -75,9 +86,50 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 			stopTransaction("Click_by_xpath", "xpath", xpath);
 		}	
 	}
-	
-	@Keyword
-	public void Execute_javascript() {
+
+	/**
+	 * <p>Generic keyword used to hover on the element located by the xpath given as input</p>
+	 * Inputs (default values):
+	 * <ul>
+	 * <li>xpath (): the element xpath to click on
+	 * <li>elementXPathToCheckIfDisplayed (): optional element xpath to check if displayed after clicking
+	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
+	 * </ul>
+	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
+	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
+	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Hover_by_xpath() {
+		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		String xpath = input.getString("xpath");
+		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
+		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
+		startTransaction("Hover_by_xpath");
+		try {
+			page.safeHover(By.xpath(xpath));
+			if(elementXPathToCheckIfDisplayed != null && !elementXPathToCheckIfDisplayed.isEmpty()) {
+				page.safeWait(() -> {
+					return page.findBy(By.xpath(elementXPathToCheckIfDisplayed)).isDisplayed();
+				}, timeout);
+			}
+		} finally {
+			stopTransaction("Hover_by_xpath", "xpath", xpath);
+		}
+	}
+
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"javascriptToExecute\": {\"type\": \"string\"},"
+			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"javascriptToExecute\"]}", properties = { "" })
+	public void SEL_Execute_javascript() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String javascriptToExecute = input.getString("javascriptToExecute");
 		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
@@ -94,9 +146,14 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 			stopTransaction("Execute_javascript", "javascriptToExecute", javascriptToExecute);
 		}
 	}
-	
-	@Keyword
-	public void Click_by_xpath_javascript() {
+
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Click_by_xpath_javascript() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String xpath = input.getString("xpath");
 		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
@@ -127,8 +184,13 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * </ul>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
-	@Keyword 
-	public void Check_element_is_displayed_by_xpath() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"optional\": {\"type\": \"boolean\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Check_element_is_displayed_by_xpath() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String xpath = input.getString("xpath");
 		boolean optional = input.containsKey("optional") ? input.getBoolean("optional") : false;
@@ -162,8 +224,12 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * </ul>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
-	@Keyword
-	public void Get_text_by_xpath() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Get_text_by_xpath() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String xpath = input.getString("xpath");
 		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
@@ -188,8 +254,12 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * </ul>
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
-	@Keyword
-	public void Enter_iframe_by_xpath() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Enter_iframe_by_xpath() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String xpath = input.getString("xpath");
 		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
@@ -214,8 +284,10 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see AbstractPageObject#switchToDefaultContent()
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
-	@Keyword
-	public void Exit_iframe() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"}"
+			+ "}, \"required\" : []}", properties = { "" })
+	public void SEL_Exit_iframe() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		startTransaction("Exit_iframe");
 		try {
@@ -230,7 +302,7 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * <p>Only one method of selection can be used, in order by priority index, value or text.</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>xpath (): the element xpath to the combobox
+	 * <li>select_tag_xpath (): the element xpath to the combobox
 	 * <li>index (): optional index to select
 	 * <li>value (): optional value to select
 	 * <li>text (): optional visible text to select
@@ -240,10 +312,17 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
-	@Keyword
-	public void Select_option_by_xpath() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"select_tag_xpath\": {\"type\": \"string\"},"
+			+ "\"index\": {\"type\": \"integer\"},"
+			+ "\"value\": {\"type\": \"string\"},"
+			+ "\"text\": {\"type\": \"string\"},"
+			+ "\"timeout\": {\"type\": \"integer\"}"
+			+ "}, \"required\" : [\"select_tag_xpath\"]}", properties = { "" })
+	public void SEL_Select_option_by_xpath() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
+		String xpath = input.getString("select_tag_xpath");
 		Integer index = input.getInt("index");
 		String value = input.getString("value");
 		String text = input.getString("text");
@@ -267,8 +346,11 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 		}
 	}
 
-	@Keyword
-	public void Select_window_by_handle() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"handle\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"handle\"]}", properties = { "" })
+	public void SEL_Select_window_by_handle() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		String handle = input.getString("handle","");
 		startTransaction("Select_window_by_handle");
@@ -281,7 +363,7 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	}
 
 	@Keyword
-	public void Get_window_handles() {
+	public void SEL_Get_window_handles() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
 		startTransaction("Get_window_handles");
 		try {

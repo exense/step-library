@@ -234,6 +234,30 @@ public class AbstractPageObject {
 	public void safeClick(By by) {
 		safeClick(by, getDefaultTimeout());
 	}
+
+	/**
+	 * Method used to hover on a web element in a safe manner
+	 * @param by the web element locator
+	 * @param timeout the maximal amount of time to wait when trying to click on the web element
+	 * @see Poller#retryIfFails(Supplier, long)
+	 */
+	public void safeHover(By by, long timeout) {
+		Actions actions = new Actions(driver);
+		Poller.retryIfFails(()-> {
+			WebElement element = driver.findElement(by);
+			actions.moveToElement(element).build().perform();
+			return true;
+		}, timeout);
+	}
+
+	/**
+	 * Method used to click on a web element in a safe manner, using the default class timeout
+	 * @param by the web element locator
+	 * @see #safeHover(By, long)
+	 */
+	public void safeHover(By by) {
+		safeHover(by, getDefaultTimeout());
+	}
 	
 	public void executeJavascript(String javascriptToExecute) {
 		((JavascriptExecutor) driver).executeScript(javascriptToExecute);

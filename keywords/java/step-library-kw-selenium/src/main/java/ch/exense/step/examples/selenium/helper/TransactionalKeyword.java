@@ -39,16 +39,16 @@ public class TransactionalKeyword extends AbstractKeyword {
 	 * @param transactionName the transaction name to be updated if necessary
 	 * @return the potentially updated transaction name
 	 */
-	protected String getFullTransactionName(String transactionName) {
+	protected String getActualTransactionName(String transactionName) {
 		String result = transactionName;
-		if (input.containsKey("customTransactionName")) {
-			result = input.getString("customTransactionName");
+		if (input.containsKey("name")) {
+			result = input.getString("name");
 		} else {
-			if (input.containsKey("transactionPrefix")) {		
-				result = input.getString("transactionPrefix") + result;
+			if (input.containsKey("namePrefix")) {
+				result = input.getString("namePrefix") + result;
 			}
-			if (input.containsKey("transactionSuffix")) {
-				result = result + input.getString("transactionSuffix");
+			if (input.containsKey("nameSuffix")) {
+				result = result + input.getString("nameSuffix");
 			}
 		}
 		return result;
@@ -56,10 +56,10 @@ public class TransactionalKeyword extends AbstractKeyword {
 	
 	/**
 	 * Helper method used to start a Keyword custom transaction
-	 * @param transactionName the name of the custom transaction to start
+	 * @param defaultTransactionName the name of the custom transaction to start
 	 */
-	protected void startTransaction(String transactionNameTmp){
-		String transactionName = getFullTransactionName(transactionNameTmp);
+	protected void startTransaction(String defaultTransactionName){
+		String transactionName = getActualTransactionName(defaultTransactionName);
 		if(isHarCaptureEnabled()) {
 			getProxy().newHar(transactionName);
 		}
@@ -68,11 +68,11 @@ public class TransactionalKeyword extends AbstractKeyword {
 		
 	/**
 	 * Helper method used to stop a Keyword custom transaction. An optional map of measurements data can be passed to add details on the custom transaction.
-	 * @param transactionName the name of the custom transaction to stop
+	 * @param defaultTransactionName the name of the custom transaction to stop
 	 * @param additionnalMeasurementData the optional map of measurements data to insert into the custom transaction
 	 */
-	protected void stopTransaction(String transactionNameTmp, Map<String, Object> additionnalMeasurementData) {
-		String transactionName = getFullTransactionName(transactionNameTmp);
+	protected void stopTransaction(String defaultTransactionName, Map<String, Object> additionnalMeasurementData) {
+		String transactionName = getActualTransactionName(defaultTransactionName);
 		Map<String, Object> data = new HashMap<>();
 		//data.put("type", "e2e");
 		if(additionnalMeasurementData != null && !additionnalMeasurementData.isEmpty()) data.putAll(additionnalMeasurementData);

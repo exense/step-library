@@ -54,7 +54,6 @@ public class SeleniumKeyword extends TransactionalKeyword {
 	/**
 	 * <p>Method used for lazy initialization of a page object in a generic way</p>
 	 * @param poClass the class of the page object to retrieve and instantiate if required
-	 * @param driver to be associated with the page object
 	 * @return the page object
 	 */
 	protected <T extends AbstractPageObject> T getPageObject(Class<T> poClass)  {
@@ -133,7 +132,7 @@ public class SeleniumKeyword extends TransactionalKeyword {
 			+ "\"pageLoadTimeout\": {  \"type\": \"integer\"},"
 			+ "\"maximize\": {  \"type\": \"boolean\"}"
 			+ "}, \"required\" : []}", properties = { "" })
-	public void Open_chrome() {
+	public void SEL_Open_chrome() {
 		if (properties.containsKey("chromedriver")) {
 			File chromeDriverBin = new File(properties.get("chromedriver"));
 			if (chromeDriverBin.exists()) {
@@ -265,10 +264,13 @@ public class SeleniumKeyword extends TransactionalKeyword {
 	 * <li>url (https://www.exense.ch): the url to navigate to
 	 * </ul>
 	 */
-	@Keyword
-	public void Navigate_to_page()  {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"url\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"url\"]}", properties = { "" })
+	public void SEL_Navigate_to_page()  {
 		String transactionName = input.getString("transactionName", "Navigate_to_page");
-		String url = input.getString("url", "https://www.exense.ch");
+		String url = input.getString("url");
 		WebDriver driver = getDriver();
 		
 		startTransaction(transactionName);
@@ -284,8 +286,12 @@ public class SeleniumKeyword extends TransactionalKeyword {
 	 * <li>scrollTop value to be applied (0 is top, large value fall back to max. i.e. end of the element) 
 	 * </ul>
 	*/
-	@Keyword
-	public void Set_ScrollTop() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ "\"name\": {  \"type\": \"string\"},"
+			+ "\"xpath\": {\"type\": \"string\"},"
+			+ "\"scrollTop\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void SEL_Set_ScrollTop() {
 		JavascriptExecutor jse = (JavascriptExecutor) this.getDriver();
 		String xpath = input.getString("xpath");
 		WebElement scrollElement = getDriver().findElement(By.xpath(xpath));
@@ -298,7 +304,7 @@ public class SeleniumKeyword extends TransactionalKeyword {
 	 * <p>Keyword used to explicitly close the driver and related Chrome browser. The driver and browser automatically close when the step session ends.</p>
 	 */
 	@Keyword
-	public void Close_chrome() {
+	public void SEL_Close_chrome() {
 		String transactionName = input.getString("transactionName", "Close_chrome");
 		WebDriver driver = getDriver();
 		startTransaction(transactionName);
@@ -407,9 +413,9 @@ public class SeleniumKeyword extends TransactionalKeyword {
 	 * @param additionnalMeasurementData the optional map of measurements data to insert into the custom transaction
 	 */
 	@Override
-	protected void stopTransaction(String transactionNameTmp, Map<String, Object> additionnalMeasurementData) {
-		super.stopTransaction(transactionNameTmp, additionnalMeasurementData);
-		String transactionName = getFullTransactionName(transactionNameTmp);
+	protected void stopTransaction(String defaultTransactionName, Map<String, Object> additionnalMeasurementData) {
+		super.stopTransaction(defaultTransactionName, additionnalMeasurementData);
+		String transactionName = getActualTransactionName(defaultTransactionName);
 		if(isDebug()) attachScreenshot(transactionName +".jpg");
 	}
 	
