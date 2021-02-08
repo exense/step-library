@@ -83,9 +83,9 @@ public class FileCompareKeywordsTest {
         JsonObject input;
 
         input = Json.createObjectBuilder().add("File", path)
-                .add("/root/otherTest", "first")
-                .add("//otherTest/@id", "all")
-                .add("//testMultiple", "all").build();
+                .add("value1","/root/otherTest")
+                .add("value2","//otherTest/@id")
+                .add("value3","//testMultiple").build();
         output = ctx.run("Extract_XML", input.toString());
         System.out.println(output.getPayload());
         assert output.getError() == null;

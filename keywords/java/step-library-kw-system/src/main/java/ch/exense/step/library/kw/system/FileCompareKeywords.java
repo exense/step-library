@@ -73,9 +73,9 @@ public class FileCompareKeywords extends AbstractKeyword {
         XPath xPath = xpathFactory.newXPath();
 
         for (Object xpathObj : input.keySet().stream().filter(key -> !key.equals("File")).toArray()) {
-            String xpathString = (String) xpathObj;
+            String name = (String) xpathObj;
 
-            String type = input.getString(xpathString);
+            String xpathString = input.getString(name);
 
             NodeList nodeList;
             try {
@@ -88,19 +88,14 @@ public class FileCompareKeywords extends AbstractKeyword {
             if (nodeList.getLength() == 0) {
                 output.setBusinessError("Xpath '" + xpathString + "' not found in the document");
                 return;
-            }
-            switch (type.toLowerCase()) {
-                case "all":
-                    List<String> actualValues = new LinkedList<>();
-                    for (int i=0;i<nodeList.getLength();i++) {
-                        actualValues.add(nodeList.item(i).getTextContent());
-                    }
-                    output.add(xpathString,actualValues.toString());
-                    break;
-                case "first":
-                default:
-                    output.add(xpathString,nodeList.item(0).getTextContent());
-                    break;
+            } else if (nodeList.getLength() == 1) {
+                output.add(name,nodeList.item(0).getTextContent());
+            } else {
+                List<String> actualValues = new LinkedList<>();
+                for (int i = 0; i < nodeList.getLength(); i++) {
+                    actualValues.add(nodeList.item(i).getTextContent());
+                }
+                output.add(name, actualValues.toString());
             }
         }
     }
