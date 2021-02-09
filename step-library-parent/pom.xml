@@ -82,6 +82,7 @@
 		<module>../keywords/java/step-library-kw-monitoring-system</module>
 		<module>../keywords/java/step-library-kw-step-client</module>
 		<module>../keywords/java/step-library-kw-selenium</module>
+		<module>../keywords/java/step-library-kw-excel</module>
 	</modules>
 
 	<dependencies>
@@ -171,6 +172,10 @@
 					</execution>
 				</executions>
 				<configuration>
+					<transformers>
+						<transformer
+							implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+					</transformers>					
 					<filters>
 						<filter>
 							<artifact>*:*</artifact>
