@@ -77,6 +77,38 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
+	 * <p>Generic keyword used to click on the located by the locator given as input</p>
+	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
+	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
+	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_INPUTS+ ","
+			+ "\"AsJavascript\": {\"type\": \"boolean\"}"
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Double_Click() {
+		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+		boolean javascript = input.getBoolean("AsJavascript",false);
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
+		try {
+			if (javascript) {
+				page.javascriptDoubleClick(element);
+			} else {
+				page.safeClick(element);
+			}
+			waitForElement(page,timeout);
+		} finally {
+			stopTransaction(additionalTransactionProperties);
+		}
+	}
+
+	/**
 	 * <p>Generic keyword used to hover on the element located by the xpath given as input</p>
 	 * Inputs (default values):
 	 * <ul>

@@ -265,6 +265,29 @@ public class AbstractPageObject {
 		((JavascriptExecutor) driver).executeScript("arguments[0].click();", findBy(by));
 		customWait();
 	}
+
+	public void javascriptDoubleClick(By by) {
+		((JavascriptExecutor) driver).executeScript("var clickEvent  = document.createEvent ('MouseEvents');\n" +
+				"clickEvent.initEvent ('dblclick', true, true);\n" +
+				"arguments[0].dispatchEvent (clickEvent);", findBy(by));
+		customWait();
+	}
+
+	/**
+	 * Method used to fulfill an input web element in a safe manner. First clear the input web element content.
+	 * @param by the element to send the keys to
+	 * @param timeout the maximal amount of time to wait when trying to send the keys to the web element
+	 * @see AbstractPageObject#safeWait(Supplier, long)
+	 */
+	public void safeDoubleClick(By by, long timeout) {
+		safeWait(() -> {
+			WebElement element = driver.findElement(by);
+			Actions actions = new Actions(driver);
+			actions.doubleClick(element).perform();
+			customWait();
+			return true;
+		}, timeout);
+	}
 	
 	/**
 	 * Method used to fulfill an input web element in a safe manner. First clear the input web element content.

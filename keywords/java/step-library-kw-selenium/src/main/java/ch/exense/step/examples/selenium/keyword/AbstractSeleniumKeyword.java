@@ -118,7 +118,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
 			+ "\"Url\": {\"type\": \"string\"}"
 			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
-	public void Navigate_To_Page()  {
+	public void Navigate_To()  {
 		String url = input.getString("Url");
 		WebDriver driver = getDriver();
 		
