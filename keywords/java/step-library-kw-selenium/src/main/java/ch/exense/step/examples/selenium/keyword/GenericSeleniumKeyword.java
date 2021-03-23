@@ -5,85 +5,74 @@ import java.util.HashSet;
 import java.util.Map;
 
 import ch.exense.step.examples.selenium.helper.AbstractPageObject;
-import ch.exense.step.examples.selenium.helper.AbstractPageObject;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
 /**
  * Class containing generic selenium keywords
- * @author rubieroj
  */
-public class GenericSeleniumKeyword extends SeleniumKeyword {
+@Attribute(key = "category",value = "Selenium")
+public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
-			+ "\"keys\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\",\"keys\"]}", properties = { "" })
-	public void SEL_Send_keys_by_xpath() {
+			+ SELENIUM_DEFAULT_INPUTS + ","
+			+ "\"Keys\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"Keys\"]}", properties = { "" })
+	public void Send_Keys() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
-		String keys = input.getString("keys");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+
+		String keys = input.getString("Keys");
 
 		Map<String, Object> additionalTransactionProperties = new HashMap<>();
-		additionalTransactionProperties.put("xpath", xpath);
-		additionalTransactionProperties.put("keys", keys);
-		
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Send_keys_by_xpath");
+		additionalTransactionProperties.put("Element",element.toString());
+		additionalTransactionProperties.put("Keys", keys);
+		startTransaction();
 		try {
-			page.safeSendKeys(By.xpath(xpath), keys);
-			if(elementXPathToCheckIfDisplayed != null && !elementXPathToCheckIfDisplayed.isEmpty()) {
-				page.safeWait(() -> {
-					return page.findBy(By.xpath(elementXPathToCheckIfDisplayed)).isDisplayed();
-				}, timeout);
-			}
+			page.safeSendKeys(element, keys, timeout);
+			waitForElement(page,timeout);
 		} finally {
-			stopTransaction("Send_keys_by_xpath", additionalTransactionProperties);
+			stopTransaction(additionalTransactionProperties);
 		}	
 	}
-	
+
 	/**
-	 * <p>Generic keyword used to click on the located by the xpath given as input</p>
-	 * Inputs (default values):
-	 * <ul>
-	 * <li>xpath (): the element xpath to click on
-	 * <li>elementXPathToCheckIfDisplayed (): optional element xpath to check if displayed after clicking
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
-	 * </ul>
+	 * <p>Generic keyword used to click on the located by the locator given as input</p>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
-	public void SEL_Click_by_xpath() {
+			+ SELENIUM_DEFAULT_INPUTS+ ","
+			+ "\"AsJavascript\": {\"type\": \"boolean\"}"
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Click() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Click_by_xpath");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+		boolean javascript = input.getBoolean("AsJavascript",false);
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
 		try {
-			page.safeClick(By.xpath(xpath));
-			if(elementXPathToCheckIfDisplayed != null && !elementXPathToCheckIfDisplayed.isEmpty()) {
-				page.safeWait(() -> {
-					return page.findBy(By.xpath(elementXPathToCheckIfDisplayed)).isDisplayed();
-				}, timeout);
+			if (javascript) {
+				page.javascriptClick(element);
+			} else {
+				page.safeClick(element);
 			}
+			waitForElement(page,timeout);
 		} finally {
-			stopTransaction("Click_by_xpath", "xpath", xpath);
+			stopTransaction(additionalTransactionProperties);
 		}	
 	}
 
@@ -100,75 +89,43 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
-	public void SEL_Hover_by_xpath() {
+			+ SELENIUM_DEFAULT_INPUTS
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Hover() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Hover_by_xpath");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
 		try {
-			page.safeHover(By.xpath(xpath));
-			if(elementXPathToCheckIfDisplayed != null && !elementXPathToCheckIfDisplayed.isEmpty()) {
-				page.safeWait(() -> {
-					return page.findBy(By.xpath(elementXPathToCheckIfDisplayed)).isDisplayed();
-				}, timeout);
-			}
+			page.safeHover(element);
+			waitForElement(page,timeout);
 		} finally {
-			stopTransaction("Hover_by_xpath", "xpath", xpath);
+			stopTransaction(additionalTransactionProperties);
 		}
 	}
 
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"javascriptToExecute\": {\"type\": \"string\"},"
-			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"javascriptToExecute\"]}", properties = { "" })
-	public void SEL_Execute_javascript() {
+			+ "\"Javascript_To_Execute\": {\"type\": \"string\"},"
+			+ SELENIUM_DEFAULT_WAIT_FOR_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : [\"Javascript_To_Execute\"]}", properties = { "" })
+	public void Execute_Javascript() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String javascriptToExecute = input.getString("javascriptToExecute");
-		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Click_by_xpath_javascript");
+		String javascriptToExecute = input.getString("Javascript_To_Execute");
+		long timeout = getTimeoutFromInput();
+
+		startTransaction();
 		try {
 			page.executeJavascript(javascriptToExecute);
-			if(elementXPathToCheckIfDisplayed != null && !elementXPathToCheckIfDisplayed.isEmpty()) {
-				page.safeWait(() -> {
-					return page.findBy(By.xpath(elementXPathToCheckIfDisplayed)).isDisplayed();
-				}, timeout);
-			}
+			waitForElement(page,timeout);
 		} finally {
-			stopTransaction("Execute_javascript", "javascriptToExecute", javascriptToExecute);
+			stopTransaction();
 		}
-	}
-
-	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"elementXPathToCheckIfDisplayed\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
-	public void SEL_Click_by_xpath_javascript() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		String elementXPathToCheckIfDisplayed = input.getString("elementXPathToCheckIfDisplayed", "");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Click_by_xpath_javascript");
-		try {
-			page.javascriptClick(xpath);
-			if(elementXPathToCheckIfDisplayed != null && !elementXPathToCheckIfDisplayed.isEmpty()) {
-				page.safeWait(() -> {
-					return page.findBy(By.xpath(elementXPathToCheckIfDisplayed)).isDisplayed();
-				}, timeout);
-			}
-		} finally {
-			stopTransaction("Click_by_xpath_javascript", "xpath", xpath);
-		}	
 	}
 
 	/**
@@ -185,29 +142,31 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"optional\": {\"type\": \"boolean\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
-	public void SEL_Check_element_is_displayed_by_xpath() {
+			+ "\"Optional\": {\"type\": \"boolean\"},"
+			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Is_Displayed() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		boolean optional = input.containsKey("optional") ? input.getBoolean("optional") : false;
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Check_element_is_displayed_by_xpath_advisor");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+		boolean optional = input.containsKey("Optional") ? input.getBoolean("Optional") : false;
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
 		try {
-			page.safeWait(() -> {
-				return page.findBy(By.xpath(xpath), timeout).isDisplayed();
-			});
-			output.add("exists", true);
+			page.safeWait(() -> page.findBy(element, timeout).isDisplayed());
+			output.add("Exists", true);
 		} catch(NoSuchElementException e) {
 			if(optional)
-				output.add("exists", false);
+				output.add("Exists", false);
 			else
 				throw e;
 		} finally {
-			stopTransaction("Check_element_is_displayed_by_xpath_advisor", "xpath", xpath);
+			stopTransaction(additionalTransactionProperties);
 		}
 	}
 
@@ -225,23 +184,27 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
-	public void SEL_Get_text_by_xpath() {
+			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Get_Text() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Get_text_by_xpath");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
 		try {
 			page.safeWait(() -> {
-				String text = page.findBy(By.xpath(xpath), timeout).getText();
-				output.add("text", text);
+				String text = page.findBy(element, timeout).getText();
+				output.add("Text", text);
 				return true;
 			});
 		} finally {
-			stopTransaction("Get_text_by_xpath", "xpath", xpath);
+			stopTransaction(additionalTransactionProperties);
 		}
 	}
 
@@ -255,22 +218,26 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"xpath\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
-	public void SEL_Enter_iframe_by_xpath() {
+			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Enter_Iframe() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("xpath");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Enter_iframe_by_xpath");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
 		try {
 			page.safeWait(() -> {
-				page.waitForFrame(By.xpath(xpath)); // This will also do the switch
+				page.waitForFrame(element); // This will also do the switch
 				return true;
-			});
+			},timeout);
 		} finally {
-			stopTransaction("Enter_iframe_by_xpath", "xpath", xpath);
+			stopTransaction(additionalTransactionProperties);
 		}
 
 	}
@@ -285,15 +252,16 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"}"
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
-	public void SEL_Exit_iframe() {
+	public void Exit_Iframe() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		startTransaction("Exit_iframe");
+
+		startTransaction();
 		try {
 			page.switchToDefaultContent();
 		} finally {
-			stopTransaction("Exit_iframe");
+			stopTransaction();
 		}
 	}
 
@@ -313,24 +281,29 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"select_tag_xpath\": {\"type\": \"string\"},"
-			+ "\"index\": {\"type\": \"integer\"},"
-			+ "\"value\": {\"type\": \"string\"},"
-			+ "\"text\": {\"type\": \"string\"},"
-			+ "\"timeout\": {\"type\": \"integer\"}"
-			+ "}, \"required\" : [\"select_tag_xpath\"]}", properties = { "" })
-	public void SEL_Select_option_by_xpath() {
+			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
+			+ "\"Index\": {\"type\": \"integer\"},"
+			+ "\"Value\": {\"type\": \"string\"},"
+			+ "\"Text\": {\"type\": \"string\"}"
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Select_Option() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String xpath = input.getString("select_tag_xpath");
-		Integer index = input.getInt("index");
-		String value = input.getString("value");
-		String text = input.getString("text");
-		long timeout = input.containsKey("timeout") ? input.getInt("timeout") : AbstractPageObject.getDefaultTimeout();
-		startTransaction("Select_option_by_xpath");
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		Integer index = input.getInt("Index");
+		String value = input.getString("Value");
+		String text = input.getString("Text");
+
+		startTransaction();
 		try {
 			page.safeWait(() -> {
-				WebElement obj = page.findBy(By.xpath(xpath));
+				WebElement obj = page.findBy(element);
 				Select sel = new Select(obj);
 				if(index != null)
 					sel.selectByIndex(index);
@@ -342,30 +315,34 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 				return true;
 			}, timeout);
 		} finally {
-			stopTransaction("Select_option_by_xpath", "xpath", xpath);
+			stopTransaction(additionalTransactionProperties);
 		}
 	}
 
 	@Keyword (schema = "{ \"properties\": { "
-			+ "\"name\": {  \"type\": \"string\"},"
-			+ "\"handle\": {\"type\": \"string\"}"
-			+ "}, \"required\" : [\"handle\"]}", properties = { "" })
-	public void SEL_Select_window_by_handle() {
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
+			+ "\"Handle\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"Handle\"]}", properties = { "" })
+	public void Select_Window() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		String handle = input.getString("handle","");
-		startTransaction("Select_window_by_handle");
+		String handle = input.getString("Handle","");
+
+		startTransaction();
 		try {
-			output.add("handles", StringUtils.join(page.getDriver().getWindowHandles(),","));
+			output.add("Handles", StringUtils.join(page.getDriver().getWindowHandles(),","));
 			page.switchToWindow(handle);
 		} finally {
-			stopTransaction("Select_window_by_handle", "handle", handle);
+			stopTransaction();
 		}
 	}
 
-	@Keyword
-	public void SEL_Get_window_handles() {
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" })
+	public void Get_Window_Handles() {
 		AbstractPageObject page = getPageObject(AbstractPageObject.class);
-		startTransaction("Get_window_handles");
+
+		startTransaction();
 		try {
 			String main = page.getDriver().getWindowHandle();
 			HashSet<String> handles = new HashSet(page.getDriver().getWindowHandles());
@@ -374,7 +351,34 @@ public class GenericSeleniumKeyword extends SeleniumKeyword {
 			output.add("main", main);
 			output.add("popups", StringUtils.join(handles, ","));
 		} finally {
-			stopTransaction("Get_window_handles");
+			stopTransaction();
 		}
+	}
+
+	/**
+	 * <p>Keyword used to set the scroll top position of any web element
+	 * Inputs (default values):
+	 * <ul>
+	 * <li>xpath of the element to scroll</li>
+	 * <li>scrollTop value to be applied (0 is top, large value fall back to max. i.e. end of the element)
+	 * </ul>
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
+			+ "\"scrollTop\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+	public void Set_ScrollTop() {
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+
+		JavascriptExecutor jse = (JavascriptExecutor) this.getDriver();
+
+		int scrollTop = Integer.parseInt(input.getString("scrollTop", "0"));
+
+		startTransaction();
+		jse.executeScript("arguments[0].scrollTop=arguments[1];", element, scrollTop);
+		stopTransaction();
 	}
 }

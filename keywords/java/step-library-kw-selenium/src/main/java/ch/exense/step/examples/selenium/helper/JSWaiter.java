@@ -8,22 +8,20 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Helper class used to wait upon different JavaScript technology executions
- * @author rubieroj
- *
  */
 public class JSWaiter {
 	/**
 	 * The WebDriver used to construct the waiter
 	 */
-	private WebDriver driver;
+	private final WebDriver driver;
 	/**
 	 * Selenium object used to wait on conditions
 	 */
-	private WebDriverWait jsWait;
+	private final WebDriverWait jsWait;
 	/**
 	 * Selenium object used to interact with JavaScript
 	 */
-	private JavascriptExecutor jsExec;
+	private final JavascriptExecutor jsExec;
 
 	/**
 	 * Constructor for the JsWaiter
@@ -48,16 +46,11 @@ public class JSWaiter {
 	 * Method waiting for JavaScript to complete
 	 */
 	public void waitUntilJSReady() {
-		try {
-			ExpectedCondition<Boolean> jsLoad = driver -> ((JavascriptExecutor) this.driver)
-					.executeScript("return document.readyState").toString().equals("complete");
-
-			boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
-
-			if (!jsReady) {
-				jsWait.until(jsLoad);
-			}
-		} catch (WebDriverException ignored) {
+		ExpectedCondition<Boolean> jsLoad = driver -> ((JavascriptExecutor) this.driver)
+				.executeScript("return document.readyState").toString().equals("complete");
+		boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
+		if (!jsReady) {
+			jsWait.until(jsLoad);
 		}
 	}
 	
@@ -148,11 +141,8 @@ public class JSWaiter {
                 "var $http = injector.get('$http');" + 
                 "return ($http.pendingRequests.length === 0)";
 
-        ExpectedCondition<Boolean> pendingHttpCallsCondition = new ExpectedCondition<Boolean>() {
-            public Boolean apply(WebDriver driver) {
-                return ((JavascriptExecutor) driver).executeScript(javaScriptToLoadAngular).equals(true);
-            }
-        };
+        ExpectedCondition<Boolean> pendingHttpCallsCondition =
+				driver -> ((JavascriptExecutor) driver).executeScript(javaScriptToLoadAngular).equals(true);
         WebDriverWait wait = new WebDriverWait(driver, 20);
         wait.until(pendingHttpCallsCondition);
     }
@@ -166,7 +156,7 @@ public class JSWaiter {
 			ExpectedCondition<Boolean> angularLoad = driver -> Boolean.valueOf(((JavascriptExecutor) driver)
 					.executeScript(angularReadyScript).toString());
 
-			boolean angularReady = Boolean.valueOf(jsExec.executeScript(angularReadyScript).toString());
+			boolean angularReady = Boolean.parseBoolean(jsExec.executeScript(angularReadyScript).toString());
 
 			if (!angularReady) {
 				jsWait.until(angularLoad);

@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 /**
  * Poller class to check the valid status of a condition every 100ms, used to avoid the most frequent Selenium exceptions encountered
- * @author rubieroj
  */
 public class Poller {
 	/**

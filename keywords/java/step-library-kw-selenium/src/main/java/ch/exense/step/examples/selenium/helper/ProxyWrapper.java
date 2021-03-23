@@ -1,15 +1,12 @@
 package ch.exense.step.examples.selenium.helper;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import net.lightbody.bmp.BrowserMobProxy;
 
 /**
  * Wrapper class for BrowserMobProxy instance. 
  * The class implements the Closeable interface in order to easily manage the ProxyWrapper instance.
- * @author rubieroj
- *
  */
 public class ProxyWrapper implements Closeable {
 	/**
@@ -30,7 +27,7 @@ public class ProxyWrapper implements Closeable {
 	 * Method to automatically and properly close the wrapped BrowserMobProxy when not used anymore
 	 */
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		proxy.stop();
 	}
 

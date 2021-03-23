@@ -16,7 +16,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Base class gathering utility methods to work on pages
- * @author rubieroj
  */
 public class AbstractPageObject {
 	/**
@@ -78,7 +77,15 @@ public class AbstractPageObject {
 	public JSWaiter getJSWaiter() {
 		return this.jsWaiter;
 	}
-	
+
+	/**
+	 * This method is called after each selenium interaction.
+	 * It can be override to wait for a on the page
+	 * */
+	protected void customWait() {
+		System.out.println("customWait");
+	}
+
 	/**
 	 * Method used to wait for an IFrame to be available. First switch to default page content.
 	 * @param by the IFrame locator
@@ -105,6 +112,7 @@ public class AbstractPageObject {
 	 */
 	public void hover(By by, long timeout) {
 		new Actions(driver).moveToElement(findBy(by, timeout)).build().perform();
+		customWait();
 	}
 	
 	/**
@@ -125,14 +133,7 @@ public class AbstractPageObject {
 	 * @see Poller#retryIfFails(Supplier, long)
 	 */
 	public WebElement findBy(By by, long timeout) {
-		return doWithoutImplicitWait(()-> {
-			return Poller.retryIfFails(new Supplier<WebElement>() {
-				@Override
-				public WebElement get() {
-					return driver.findElement(by);
-				}
-			}, timeout);
-		});
+		return doWithoutImplicitWait(()-> Poller.retryIfFails(() -> driver.findElement(by), timeout));
 	}
 	
 	/**
@@ -154,14 +155,7 @@ public class AbstractPageObject {
 	 * @see Poller#retryIfFails(Supplier, long)
 	 */
 	public List<WebElement> findAllBy(By by, long timeout) {
-		return doWithoutImplicitWait(()-> {
-			return Poller.retryIfFails(new Supplier<List<WebElement>>() {
-				@Override
-				public List<WebElement> get() {
-					return driver.findElements(by);
-				}
-			}, timeout);
-		});
+		return doWithoutImplicitWait(()-> Poller.retryIfFails(() -> driver.findElements(by), timeout));
 	}
 	
 	/**
@@ -222,6 +216,7 @@ public class AbstractPageObject {
 		Poller.retryIfFails(()-> {
 			WebElement element = driver.findElement(by);
 			element.click();
+			customWait();
 			return true;
 		}, timeout);
 	}
@@ -246,6 +241,7 @@ public class AbstractPageObject {
 		Poller.retryIfFails(()-> {
 			WebElement element = driver.findElement(by);
 			actions.moveToElement(element).build().perform();
+			customWait();
 			return true;
 		}, timeout);
 	}
@@ -261,28 +257,28 @@ public class AbstractPageObject {
 	
 	public void executeJavascript(String javascriptToExecute) {
 		((JavascriptExecutor) driver).executeScript(javascriptToExecute);
+		customWait();
 		
 	}
 	
-	public void javascriptClick(WebElement element) {
-		((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
-	}
-	
-	public void javascriptClick(String xpath) {
-		javascriptClick(findBy(By.xpath(xpath)));
+	public void javascriptClick(By by) {
+		((JavascriptExecutor) driver).executeScript("arguments[0].click();", findBy(by));
+		customWait();
 	}
 	
 	/**
 	 * Method used to fulfill an input web element in a safe manner. First clear the input web element content.
-	 * @param element the element to send the keys to
+	 * @param by the element to send the keys to
 	 * @param keys the value to insert
 	 * @param timeout the maximal amount of time to wait when trying to send the keys to the web element
 	 * @see AbstractPageObject#safeWait(Supplier, long)
 	 */
-	public void safeSendKeys(WebElement element, String keys, long timeout) {
+	public void safeSendKeys(By by, String keys, long timeout) {
 		safeWait(() -> {
+			WebElement element = driver.findElement(by);
 			element.clear();
 			element.sendKeys(keys);
+			customWait();
 			return element.getText().equals(keys);
 		}, timeout);
 	}
@@ -290,26 +286,23 @@ public class AbstractPageObject {
 	public void safeSendKeys(WebElement element, Keys keys) {
 		Poller.retryIfFails(() -> {
 			element.sendKeys(keys);
+			customWait();
 			return true;
 		}, getDefaultTimeout());
 	}
 	
 	/**
 	 * Method used to fulfill an input web element in a safe manner, using the default class timeout
-	 * @param element the element to send the keys to
+	 * @param by the element to send the keys to
 	 * @param keys the value to insert
-	 * @see #safeSendKeys(WebElement, String, long)
+	 * @see #safeSendKeys(By, String, long)
 	 */
-	public void safeSendKeys(WebElement element, String keys) {
-		safeSendKeys(element, keys, getDefaultTimeout());
-	}
-	
 	public void safeSendKeys(By by, String keys) {
-		safeSendKeys(findBy(by), keys);
+		safeSendKeys(by, keys, getDefaultTimeout());
 	}
-	
+
 	public void safeSendKeys(By by, Keys keys) {
-		safeSendKeys(findBy(by), keys);
+		safeSendKeys(by, keys);
 	}
 	
 	/**
@@ -360,9 +353,7 @@ public class AbstractPageObject {
 	public void hoverElement(String hoverElementXPath, String xpathToCheck) {
 		hover(By.xpath(hoverElementXPath));
 		safeWaitDocumentReadyState();
-		safeWait(() -> {
-			return findBy(By.xpath(xpathToCheck)).isEnabled();
-		});
+		safeWait(() -> findBy(By.xpath(xpathToCheck)).isEnabled());
 	}
 
 	/**

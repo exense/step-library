@@ -1,14 +1,12 @@
 package ch.exense.step.examples.selenium.helper;
 
 import java.io.Closeable;
-import java.io.IOException;
 
 import org.openqa.selenium.WebDriver;
 
 /**
  * Wrapper class for WebDriver instance. 
  * The class implements the Closeable interface in order to easily manage the browser instance closing.
- * @author rubieroj
  *
  */
 public class DriverWrapper implements Closeable {
@@ -30,7 +28,7 @@ public class DriverWrapper implements Closeable {
 	 * Method to automatically and properly close the wrapped WebDriver when not used anymore
 	 */
 	@Override
-	public void close() throws IOException {
+	public void close() {
 		driver.quit();
 	}
 

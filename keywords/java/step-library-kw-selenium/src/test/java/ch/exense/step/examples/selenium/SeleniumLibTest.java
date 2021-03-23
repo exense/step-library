@@ -8,10 +8,8 @@ import java.util.Map;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import ch.exense.step.examples.selenium.keyword.SeleniumKeyword;
+import ch.exense.step.examples.selenium.keyword.GenericSeleniumKeyword;
 import org.junit.Before;
-import org.junit.Test;
-
 
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
@@ -19,12 +17,11 @@ import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
 public class SeleniumLibTest {
 	private ExecutionContext ctx;
-	private Map<String,String> agentProperties;
 
 	@Before
 	public void setUp() {
 		Map<String, String> properties = new HashMap<>();
-		ctx = KeywordRunner.getExecutionContext(properties, SeleniumKeyword.class);
+		ctx = KeywordRunner.getExecutionContext(properties, GenericSeleniumKeyword.class);
 	}
 	
 	//@Test
