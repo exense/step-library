@@ -100,7 +100,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			if (javascript) {
 				page.javascriptDoubleClick(element);
 			} else {
-				page.safeClick(element);
+				page.safeDoubleClick(element,timeout);
 			}
 			waitForElement(page,timeout);
 		} finally {
