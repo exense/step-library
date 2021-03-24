@@ -27,13 +27,17 @@ import step.handlers.javahandler.Keyword;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.*;
 import java.io.*;
 import java.util.*;
 
-public class FileCompareKeywords extends AbstractKeyword {
+public class XmlFileKeywords extends AbstractKeyword {
 
-    private Document getDocument() {
+    private Document getDocument(boolean writable) {
         String fileName = input.getString("File");
 
         File file = new File(fileName);
@@ -44,6 +48,10 @@ public class FileCompareKeywords extends AbstractKeyword {
         }
         if (!file.canRead()) {
             output.setBusinessError("File \"" + fileName + "\" is not readable.");
+            return null;
+        }
+        if (writable && !file.canWrite()) {
+            output.setBusinessError("File \"" + fileName + "\" is not writable.");
             return null;
         }
 
@@ -64,9 +72,45 @@ public class FileCompareKeywords extends AbstractKeyword {
     }
 
     @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    public void Replace_XML() throws Exception {
+
+        Document doc = getDocument(true);
+        if (doc == null) return;
+
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xPath = xpathFactory.newXPath();
+
+        for (Object xpathObj : input.keySet().stream().filter(key -> !key.equals("File")).toArray()) {
+            String xpathString = (String) xpathObj;
+            String value = input.getString(xpathString);
+
+            NodeList nodeList;
+            try {
+                XPathExpression expr = xPath.compile(xpathString);
+                nodeList = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            } catch (XPathExpressionException expr) {
+                output.setError("Invalid xpath found'" + xpathString + "': " + expr.getMessage(), expr);
+                return;
+            }
+            if (nodeList.getLength() == 0) {
+                output.setBusinessError("Xpath '" + xpathString + "' not found in the document");
+                return;
+            } else if (nodeList.getLength() == 1) {
+                nodeList.item(0).setTextContent(value);
+            } else {
+                output.setBusinessError("Multiple xpath were found matching '" + xpathString + "'");
+                return;
+            }
+        }
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.transform(new DOMSource(doc), new StreamResult(new File(input.getString("File"))));
+       // transformer.
+    }
+
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
     public void Extract_XML() throws Exception {
 
-        Document doc = getDocument();
+        Document doc = getDocument(false);
         if (doc == null) return;
 
         XPathFactory xpathFactory = XPathFactory.newInstance();
@@ -103,7 +147,7 @@ public class FileCompareKeywords extends AbstractKeyword {
     @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
     public void Validate_XML() throws Exception {
 
-        Document doc = getDocument();
+        Document doc = getDocument(false);
         if (doc ==null) return;
 
         XPathFactory xpathFactory = XPathFactory.newInstance();

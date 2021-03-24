@@ -29,13 +29,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import java.io.File;
 
-public class FileCompareKeywordsTest {
+public class XmlFileKeywordsTest {
 
     private ExecutionContext ctx;
 
     @Before
     public void setUp() {
-        ctx = KeywordRunner.getExecutionContext(FileCompareKeywords.class);
+        ctx = KeywordRunner.getExecutionContext(XmlFileKeywords.class);
     }
 
     @After
@@ -58,21 +58,18 @@ public class FileCompareKeywordsTest {
                 .add("//testEmpty3/@empty", "")
                 .add("//testMultiple", ".*").build();
         output = ctx.run("Validate_XML", input.toString());
-        System.out.println(output.getPayload());
         assert output.getError() == null;
 
         input = Json.createObjectBuilder().add("File", path)
 				.add("//testMultiple", "[test1,test2,...]")
                 .add("//testMultipleDuplicate", "[testSameValue*]").build();
         output = ctx.run("Validate_XML", input.toString());
-        System.out.println(output.getPayload());
         assert output.getError() == null;
 
         input = Json.createObjectBuilder().add("File", path)
                 .add("//testMultiple", "[test1,test2,test3]")
                 .add("//testMultipleDuplicate", "[testSameValue,testSameValue,testSameValue]").build();
         output = ctx.run("Validate_XML", input.toString());
-        System.out.println(output.getPayload());
         assert output.getError() == null;
     }
 
@@ -87,7 +84,51 @@ public class FileCompareKeywordsTest {
                 .add("value2","//otherTest/@id")
                 .add("value3","//testMultiple").build();
         output = ctx.run("Extract_XML", input.toString());
-        System.out.println(output.getPayload());
+        assert output.getError() == null;
+        assert output.getPayload().getString("value1").equals("otherTestValue");
+        assert output.getPayload().getString("value2").equals("myId");
+        assert output.getPayload().getString("value3").equals("[test1, test2, test3]");
+    }
+
+    @Test
+    public void test_replace_xml() throws Exception {
+        String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
+        Output<JsonObject> output;
+        JsonObject input;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("value1","/root/otherTest")
+                .add("value2","//otherTest/@id")
+                .add("value3","(//testMultiple)[1]").build();
+        output = ctx.run("Extract_XML", input.toString());
+        assert output.getError() == null;
+
+        String xpath1Value = output.getPayload().getString("value1");
+        String xpath2Value = output.getPayload().getString("value2");
+        String xpath3Value = output.getPayload().getString("value3");
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("/root/otherTest","changed value1")
+                .add("//otherTest/@id","changed value2")
+                .add("(//testMultiple)[1]","changed value3").build();
+        output = ctx.run("Replace_XML", input.toString());
+        assert output.getError() == null;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("value1","/root/otherTest")
+                .add("value2","//otherTest/@id")
+                .add("value3","(//testMultiple)[1]").build();
+        output = ctx.run("Extract_XML", input.toString());
+        assert output.getError() == null;
+        assert output.getPayload().getString("value1").equals("changed value1");
+        assert output.getPayload().getString("value2").equals("changed value2");
+        assert output.getPayload().getString("value3").equals("changed value3");
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("/root/otherTest",xpath1Value)
+                .add("//otherTest/@id",xpath2Value)
+                .add("(//testMultiple)[1]",xpath3Value).build();
+        output = ctx.run("Replace_XML", input.toString());
         assert output.getError() == null;
     }
 }
