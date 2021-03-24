@@ -83,7 +83,6 @@ public class AbstractPageObject {
 	 * It can be override to wait for a on the page
 	 * */
 	protected void customWait() {
-		System.out.println("customWait");
 	}
 
 	/**
