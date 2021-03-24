@@ -82,8 +82,7 @@ public class AbstractPageObject {
 	 * This method is called after each selenium interaction.
 	 * It can be override to wait for a on the page
 	 * */
-	protected void customWait() {
-	}
+	protected void customWait() {}
 
 	/**
 	 * Method used to wait for an IFrame to be available. First switch to default page content.

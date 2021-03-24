@@ -29,21 +29,24 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 
 	/**
 	 * <p>Method used for lazy initialization of a page object in a generic way</p>
-	 * @param poClass the class of the page object to retrieve and instantiate if required
 	 * @return the page object
 	 */
-	protected <T extends AbstractPageObject> T getPageObject(Class<T> poClass)  {
-		T po = session.get(poClass);
+	protected <T extends AbstractPageObject> T getPageObject()  {
+		T po = (T) session.get("pageObject");
 		if (po == null) {
-			try {
-				po = poClass.getDeclaredConstructor(WebDriver.class).newInstance(getDriver());
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				throw new RuntimeException("Unable to instantiate the page object",e);
-			}
-			session.put(po);
+			AbstractPageObject apo = new AbstractPageObject(getDriver());
+			session.put("pageObject",new AbstractPageObject(getDriver()));
+			return (T) apo;
 		}
 		return po; 
+	}
+
+	/**
+	 * <p>Method used for lazy initialization of a page object in a generic way</p>
+	 * @return the page object
+	 */
+	protected <T extends AbstractPageObject> void setPageObject(T setPageObject)  {
+		session.put("pageObject",setPageObject);
 	}
 
 	private static final String INPUT_TIMEOUT = "Timeout";
@@ -220,20 +223,9 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	protected void setDriver(WebDriver driver) {
 		session.put(new DriverWrapper(driver));
 	}
-	
-	/**
-	 * Helper method used to stop a Keyword custom transaction. An optional map of measurements data can be passed to add details on the custom transaction.
-//	 * @param defaultTransactionName the name of the custom transaction to stop
-//	 * @param additionalMeasurementData the optional map of measurements data to insert into the custom transaction
-	 */
-	//protected void stopTransaction(String defaultTransactionName, Map<String, Object> additionalMeasurementData) {
-		//stopTransaction(defaultTransactionName, additionalMeasurementData);
-	//	String transactionName = getActualTransactionName(defaultTransactionName);
-//		if(isDebug()) attachScreenshot(transactionName +".jpg");
-//	}
 
 	private boolean isDebug() {
-		return Boolean.parseBoolean(properties.getOrDefault("debug", "false"));
+		return Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
 	}
 
 	/**

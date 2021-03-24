@@ -26,7 +26,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"Keys\": {\"type\": \"string\"}"
 			+ "}, \"required\" : [\"Keys\"]}", properties = { "" })
 	public void Send_Keys() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 
@@ -55,7 +55,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"AsJavascript\": {\"type\": \"boolean\"}"
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Click() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 		boolean javascript = input.getBoolean("AsJavascript",false);
@@ -87,7 +87,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"AsJavascript\": {\"type\": \"boolean\"}"
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Double_Click() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 		boolean javascript = input.getBoolean("AsJavascript",false);
@@ -124,7 +124,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_INPUTS
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Hover() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 
@@ -147,7 +147,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : [\"Javascript_To_Execute\"]}", properties = { "" })
 	public void Execute_Javascript() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		String javascriptToExecute = input.getString("Javascript_To_Execute");
 		long timeout = getTimeoutFromInput();
 
@@ -180,7 +180,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Is_Displayed() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 		boolean optional = input.containsKey("Optional") ? input.getBoolean("Optional") : false;
@@ -221,7 +221,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Get_Text() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 
@@ -255,7 +255,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Enter_Iframe() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 
@@ -287,7 +287,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Exit_Iframe() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 
 		startTransaction();
 		try {
@@ -321,7 +321,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"Text\": {\"type\": \"string\"}"
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Select_Option() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
 
@@ -356,7 +356,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"Handle\": {\"type\": \"string\"}"
 			+ "}, \"required\" : [\"Handle\"]}", properties = { "" })
 	public void Select_Window() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 		String handle = input.getString("Handle","");
 
 		startTransaction();
@@ -372,7 +372,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Get_Window_Handles() {
-		AbstractPageObject page = getPageObject(AbstractPageObject.class);
+		AbstractPageObject page = getPageObject();
 
 		startTransaction();
 		try {
