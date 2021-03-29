@@ -323,7 +323,17 @@ public class AbstractPageObject {
 	}
 
 	public void safeSendKeys(By by, Keys keys) {
-		safeSendKeys(by, keys);
+		safeSendKeys(by, keys, getDefaultTimeout());
+	}
+
+	public void safeSendKeys(By by, Keys keys,long timeout) {
+		safeWait(() -> {
+			WebElement element = driver.findElement(by);
+			element.clear();
+			element.sendKeys(keys);
+			customWait();
+			return element.getText().equals(keys);
+		}, timeout);
 	}
 	
 	/**
