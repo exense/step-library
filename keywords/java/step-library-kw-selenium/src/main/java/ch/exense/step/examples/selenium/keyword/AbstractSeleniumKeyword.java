@@ -109,39 +109,6 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			page.safeWait(() -> page.findBy(element).isDisplayed(), timeout);
 		}
 	}
-
-	/**
-	 * <p>Keyword used to navigate to a page</p>
-	 * Inputs (default values):
-	 * <ul>
-	 * <li>url (https://www.exense.ch): the url to navigate to
-	 * </ul>
-	 */
-	@Keyword (schema = "{ \"properties\": { "
-			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
-			+ "\"Url\": {\"type\": \"string\"}"
-			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
-	public void Navigate_To()  {
-		String url = input.getString("Url");
-		WebDriver driver = getDriver();
-		
-		startTransaction();
-		driver.get(url);
-		stopTransaction();
-	}
-
-	/**
-	 * <p>Keyword used to explicitly close the driver and related Chrome browser. The driver and browser automatically close when the step session ends.</p>
-	 */
-	@Keyword (schema = "{ \"properties\": { "
-			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
-	public void Close_Driver() {
-		WebDriver driver = getDriver();
-		startTransaction();
-		driver.close();
-		stopTransaction();
-	}
 	
 	/**
 	 * <p>Hook method that can be used to manage Keyword unhandled exception</p>

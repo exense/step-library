@@ -6,11 +6,8 @@ import java.util.Map;
 
 import ch.exense.step.examples.selenium.helper.AbstractPageObject;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.By;
+import org.openqa.selenium.*;
 
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
@@ -20,6 +17,39 @@ import step.handlers.javahandler.Keyword;
  */
 @Attribute(key = "category",value = "Selenium")
 public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
+
+	/**
+	 * <p>Keyword used to navigate to a page</p>
+	 * Inputs (default values):
+	 * <ul>
+	 * <li>url (https://www.exense.ch): the url to navigate to
+	 * </ul>
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
+			+ "\"Url\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
+	public void Navigate_To()  {
+		String url = input.getString("Url");
+		WebDriver driver = getDriver();
+
+		startTransaction();
+		driver.get(url);
+		stopTransaction();
+	}
+
+	/**
+	 * <p>Keyword used to explicitly close the driver and related Chrome browser. The driver and browser automatically close when the step session ends.</p>
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
+	public void Close_Driver() {
+		WebDriver driver = getDriver();
+		startTransaction();
+		driver.close();
+		stopTransaction();
+	}
 
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS + ","
