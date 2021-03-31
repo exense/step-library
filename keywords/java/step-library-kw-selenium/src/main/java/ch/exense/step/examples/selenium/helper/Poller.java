@@ -16,7 +16,7 @@ public class Poller {
 	public static <T> T retryIfFails(Supplier<T> predicate, long timeout) {
 		long t1 = System.currentTimeMillis();
 		Exception lastException = null;
-		while (timeout == 0 || System.currentTimeMillis() < t1 + (timeout * 1000)) {
+		while (System.currentTimeMillis() < t1 + (timeout * 1000)) {
 			try {
 				T result = predicate.get();
 				if (result != null) {

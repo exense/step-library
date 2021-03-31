@@ -294,22 +294,32 @@ public class AbstractPageObject {
 	 * @param timeout the maximal amount of time to wait when trying to send the keys to the web element
 	 * @see AbstractPageObject#safeWait(Supplier, long)
 	 */
-	public void safeSendKeys(By by, String keys, long timeout) {
+	public void safeSendKeys(By by, String keys, long timeout,Supplier<Boolean> condition) {
 		safeWait(() -> {
 			WebElement element = driver.findElement(by);
 			element.clear();
 			element.sendKeys(keys);
 			customWait();
-			return true;
+			return (condition!=null)? condition.get() : true;
+		}, timeout);
+	}
+
+	public void safeSendKeys(By by, Keys keys,long timeout,Supplier<Boolean> condition) {
+		safeWait(() -> {
+			WebElement element = driver.findElement(by);
+			element.clear();
+			element.sendKeys(keys);
+			customWait();
+			return (condition!=null)? condition.get() : true;
 		}, timeout);
 	}
 	
-	public void safeSendKeys(WebElement element, Keys keys) {
-		Poller.retryIfFails(() -> {
-			element.sendKeys(keys);
-			customWait();
-			return true;
-		}, getDefaultTimeout());
+	public void safeSendKeys(By by, String keys, long timeout) {
+		safeSendKeys(by,keys,timeout,null);
+	}
+
+	public void safeSendKeys(By by, Keys keys, long timeout) {
+		safeSendKeys(by, keys, timeout, null);
 	}
 	
 	/**
@@ -324,16 +334,6 @@ public class AbstractPageObject {
 
 	public void safeSendKeys(By by, Keys keys) {
 		safeSendKeys(by, keys, getDefaultTimeout());
-	}
-
-	public void safeSendKeys(By by, Keys keys,long timeout) {
-		safeWait(() -> {
-			WebElement element = driver.findElement(by);
-			element.clear();
-			element.sendKeys(keys);
-			customWait();
-			return element.getText().equals(keys);
-		}, timeout);
 	}
 	
 	/**
