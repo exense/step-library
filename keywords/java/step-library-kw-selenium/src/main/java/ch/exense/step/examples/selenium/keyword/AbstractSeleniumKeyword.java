@@ -191,7 +191,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 		session.put(new DriverWrapper(driver));
 	}
 
-	private boolean isDebug() {
+	public boolean isDebug() {
 		return Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
 	}
 
