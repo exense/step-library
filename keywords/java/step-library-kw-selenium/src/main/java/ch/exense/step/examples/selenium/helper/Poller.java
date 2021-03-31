@@ -6,6 +6,7 @@ import java.util.function.Supplier;
  * Poller class to check the valid status of a condition every 100ms, used to avoid the most frequent Selenium exceptions encountered
  */
 public class Poller {
+
 	/**
 	 * Static method to retry the execution of a predicate over a timeout
 	 * @param <T> the type of object returned by the predicate execution
@@ -16,7 +17,7 @@ public class Poller {
 	public static <T> T retryIfFails(Supplier<T> predicate, long timeout) {
 		long t1 = System.currentTimeMillis();
 		Exception lastException = null;
-		while (System.currentTimeMillis() < t1 + (timeout * 1000)) {
+		do {
 			try {
 				T result = predicate.get();
 				if (result != null) {
@@ -31,14 +32,14 @@ public class Poller {
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-		}
+		} while (System.currentTimeMillis() < t1 + (timeout * 1000));
 		throw new RuntimeException("Timeout while waiting for condition to apply.", lastException);
 	}
 
 	public static void retryWhileFalse(Supplier<Boolean> condition, long timeout) {
 		long t1 = System.currentTimeMillis();
 		Exception lastException = null;
-		while (timeout == 0 || System.currentTimeMillis() < t1 + (timeout * 1000)) {
+		do {
 			try {
 				if (condition.get()) {
 					return;
@@ -52,7 +53,7 @@ public class Poller {
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-		}
+		} while (System.currentTimeMillis() < t1 + (timeout * 1000));
 		throw new RuntimeException("Timeout while waiting for condition to apply.", lastException);
 	}
 }
