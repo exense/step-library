@@ -300,7 +300,7 @@ public class AbstractPageObject {
 			element.clear();
 			element.sendKeys(keys);
 			customWait();
-			return element.getText().equals(keys);
+			return true;
 		}, timeout);
 	}
 	
