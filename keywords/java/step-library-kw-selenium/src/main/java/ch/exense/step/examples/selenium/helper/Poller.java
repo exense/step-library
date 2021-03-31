@@ -34,4 +34,25 @@ public class Poller {
 		}
 		throw new RuntimeException("Timeout while waiting for condition to apply.", lastException);
 	}
+
+	public static void retryWhileFalse(Supplier<Boolean> condition, long timeout) {
+		long t1 = System.currentTimeMillis();
+		Exception lastException = null;
+		while (timeout == 0 || System.currentTimeMillis() < t1 + (timeout * 1000)) {
+			try {
+				if (condition.get()) {
+					return;
+				}
+			} catch (Exception e) {
+				lastException = e;
+			}
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		throw new RuntimeException("Timeout while waiting for condition to apply.", lastException);
+	}
 }

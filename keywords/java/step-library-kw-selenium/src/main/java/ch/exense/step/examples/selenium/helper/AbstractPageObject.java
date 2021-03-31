@@ -123,15 +123,15 @@ public class AbstractPageObject {
 	}
 	
 	/**
-	 * Method to find a web element by locator 
+	 * Method to find a web element by locator
 	 * @param by the web element locator
-	 * @param timeout the maximal amount of time in milliseconds to wait when searching for the web element 
+	 * @param timeout the maximal amount of time in milliseconds to wait when searching for the web element
 	 * @return the web element
 	 * @see #doWithoutImplicitWait(Callable)
 	 * @see Poller#retryIfFails(Supplier, long)
 	 */
 	public WebElement findBy(By by, long timeout) {
-		return doWithoutImplicitWait(()-> Poller.retryIfFails(() -> driver.findElement(by), timeout));
+		return Poller.retryIfFails(() -> driver.findElement(by), timeout);
 	}
 	
 	/**
@@ -141,7 +141,7 @@ public class AbstractPageObject {
 	 * @see #findBy(By, long)
 	 */
 	public WebElement findBy(By by) {
-		return findBy(by, getDefaultTimeout());
+		return doWithoutImplicitWait(()-> Poller.retryIfFails(() -> driver.findElement(by),0));
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class AbstractPageObject {
 	 * @see Poller#retryIfFails(Supplier, long)
 	 */
 	public List<WebElement> findAllBy(By by, long timeout) {
-		return doWithoutImplicitWait(()-> Poller.retryIfFails(() -> driver.findElements(by), timeout));
+		return Poller.retryIfFails(() -> driver.findElements(by), timeout);
 	}
 	
 	/**
@@ -163,7 +163,7 @@ public class AbstractPageObject {
 	 * @see #findAllBy(By, long)
 	 */
 	public List<WebElement> findAllBy(By by) {
-		return findAllBy(by, getDefaultTimeout());
+		return doWithoutImplicitWait(()-> Poller.retryIfFails(() -> driver.findElements(by), 0));
 	}
 	
 	/**
@@ -172,7 +172,7 @@ public class AbstractPageObject {
 	 * @param timeout the maximal amount of time in milliseconds to wait when trying to check the condition validity
 	 */
 	public void safeWait(Supplier<Boolean> condition, long timeout) {
-		Poller.retryIfFails(condition, timeout);
+		Poller.retryWhileFalse(condition, timeout);
 	}
 	
 	/**
