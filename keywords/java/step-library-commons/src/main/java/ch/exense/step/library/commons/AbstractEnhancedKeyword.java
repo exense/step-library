@@ -9,8 +9,7 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
 	
 	@Override
 	public boolean onError(Exception e) {
-		output.add("onError_3",e.getClass().toString());
-		if(e instanceof BusinessException) {
+		if(e instanceof BusinessException || (e.getCause()!=null && e.getCause() instanceof BusinessException)) {
 			output.setBusinessError(e.getMessage());
 			return false;
 		} else {
