@@ -205,11 +205,11 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 		if (input.containsKey(INPUT_ACTION_NAME)) {
 			result = input.getString(INPUT_ACTION_NAME);
 		} else {
-			if (input.containsKey("namePrefix")) {
-				result = input.getString("namePrefix") + result;
+			if (input.containsKey("Name_Prefix")) {
+				result = input.getString("Name_Prefix") + result;
 			}
-			if (input.containsKey("nameSuffix")) {
-				result = result + input.getString("nameSuffix");
+			if (input.containsKey("Name_Suffix")) {
+				result = result + input.getString("Name_Suffix");
 			}
 		}
 		return result;
