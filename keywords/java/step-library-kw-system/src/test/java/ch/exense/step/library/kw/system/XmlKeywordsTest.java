@@ -29,13 +29,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import java.io.File;
 
-public class XmlFileKeywordsTest {
+public class XmlKeywordsTest {
 
     private ExecutionContext ctx;
 
     @Before
     public void setUp() {
-        ctx = KeywordRunner.getExecutionContext(XmlFileKeywords.class);
+        ctx = KeywordRunner.getExecutionContext(XmlKeywords.class);
     }
 
     @After
@@ -80,6 +80,36 @@ public class XmlFileKeywordsTest {
         JsonObject input;
 
         input = Json.createObjectBuilder().add("File", path)
+                .add("value1","/root/otherTest")
+                .add("value2","//otherTest/@id")
+                .add("value3","//testMultiple").build();
+        output = ctx.run("Extract_XML", input.toString());
+        assert output.getError() == null;
+        assert output.getPayload().getString("value1").equals("otherTestValue");
+        assert output.getPayload().getString("value2").equals("myId");
+        assert output.getPayload().getString("value3").equals("[test1, test2, test3]");
+    }
+
+    @Test
+    public void test_extract_xml_text() throws Exception {
+        String xml = "<root>\n" +
+                "    <testEmpty1></testEmpty1>\n" +
+                "    <testEmpty2/>\n" +
+                "    <testEmpty3 empty=\"\" >value</testEmpty3>\n" +
+                "    <otherTest id=\"myId\" >otherTestValue</otherTest>\n" +
+                "    <testMultiple>test1</testMultiple>\n" +
+                "    <testMultiple>test2</testMultiple>\n" +
+                "    <testEmbededMultiple>\n" +
+                "        <testMultiple>test3</testMultiple>\n" +
+                "        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
+                "    </testEmbededMultiple>\n" +
+                "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
+                "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
+                "</root>";
+        Output<JsonObject> output;
+        JsonObject input;
+
+        input = Json.createObjectBuilder().add("Xml", xml)
                 .add("value1","/root/otherTest")
                 .add("value2","//otherTest/@id")
                 .add("value3","//testMultiple").build();
