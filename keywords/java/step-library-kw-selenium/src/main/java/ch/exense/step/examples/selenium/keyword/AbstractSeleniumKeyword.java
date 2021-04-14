@@ -118,10 +118,12 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	 */
 	@Override
 	public boolean onError(Exception e) {
+		output.add("onError_1","1");
 		if (isDriverCreated()) {
 			attachScreenshot();
 			attachLogs();
 		}
+		output.add("onError_2","2");
 		return super.onError(e);
 	}
 
