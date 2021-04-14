@@ -36,6 +36,28 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
     final List<String> defaultOptions = Arrays.asList("disable-infobars","ignore-certificate-errors", "no-zygote", "disable-extensions");
     final List<String> headlessOptions = Arrays.asList("headless", "disable-gpu", "disable-software-rasterizer", "no-sandbox");
 
+
+    /**
+     * <p>Keyword used to create a selenium chrome driver and start a corresponding chrome instance.
+     * The driver is stored in the current STEP session and is automatically closed once the session ends.</p>
+     *
+     * Required properties:
+     * <ul>
+     * 	<li>chromedriver: path to the chrome driver (usually set in the agent properties)</li>
+     * </ul>
+     *
+     * Inputs (default values):
+     * <ul>
+     * <li>headless (false): boolean toggle for the headless mode (headless required on server/kubernetes)
+     * </ul>
+     */
+    @Keyword(schema = "{ \"properties\": { "
+            + "\"Headless\": {  \"type\": \"boolean\"}"
+            + "}, \"required\" : []}", properties = { "" })
+    public void Open_Chrome() {
+       Open_Chrome_Advanced();
+    }
+
     /**
      * <p>Keyword used to create a selenium chrome driver and start a corresponding chrome instance.
      * The driver is stored in the current STEP session and is automatically closed once the session ends.</p>
@@ -78,7 +100,7 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
             + "\"PageLoad_Timeout\": {  \"type\": \"integer\"},"
             + "\"Maximize\": {  \"type\": \"boolean\"}"
             + "}, \"required\" : []}", properties = { "" })
-    public void Open_Chrome() {
+    public void Open_Chrome_Advanced() {
         if (properties.containsKey("chromedriver")) {
             File chromeDriverBin = new File(properties.get("chromedriver"));
             if (chromeDriverBin.exists()) {

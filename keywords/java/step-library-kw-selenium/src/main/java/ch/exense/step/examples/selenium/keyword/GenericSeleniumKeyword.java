@@ -43,7 +43,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" })
 	public void Close_Driver() {
 		WebDriver driver = getDriver();
 		startTransaction();
@@ -53,7 +53,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS + ","
-			+ "\"Keys\": {\"type\": \"string\"}"
+			+ "\"Keys\": {\"type\": \"string\"}"  + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : [\"Keys\"]}", properties = { "" })
 	public void Send_Keys() {
 		AbstractPageObject page = getPageObject();
@@ -82,7 +84,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS+ ","
-			+ "\"AsJavascript\": {\"type\": \"boolean\"}"
+			+ "\"AsJavascript\": {\"type\": \"boolean\"}"  + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Click() {
 		AbstractPageObject page = getPageObject();
@@ -114,7 +118,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS+ ","
-			+ "\"AsJavascript\": {\"type\": \"boolean\"}"
+			+ "\"AsJavascript\": {\"type\": \"boolean\"}"  + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Double_Click() {
 		AbstractPageObject page = getPageObject();
@@ -151,7 +157,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
-			+ SELENIUM_DEFAULT_INPUTS
+			+ SELENIUM_DEFAULT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
 	public void Hover() {
 		AbstractPageObject page = getPageObject();
@@ -305,11 +313,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to eit from ifame context.</p>
-	 * Inputs (default values):
-	 * <ul>
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
-	 * </ul>
+	 * <p>Generic keyword used to exit from ifame context.</p>
 	 * @see AbstractPageObject#switchToDefaultContent()
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
@@ -410,8 +414,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			HashSet<String> handles = new HashSet(page.getDriver().getWindowHandles());
 			handles.remove(main);
 
-			output.add("main", main);
-			output.add("popups", StringUtils.join(handles, ","));
+			output.add("Main", main);
+			output.add("Popups", StringUtils.join(handles, ","));
 		} finally {
 			stopTransaction();
 		}
