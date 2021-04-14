@@ -100,7 +100,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	}
 
 	protected long getTimeoutFromInput() {
-		return input.containsKey(INPUT_TIMEOUT) ? input.getInt(INPUT_TIMEOUT) : AbstractPageObject.getDefaultTimeout();
+		return input.containsKey(INPUT_TIMEOUT) ? input.getInt(INPUT_TIMEOUT) : AbstractPageObject.DEFAULT_TIMEOUT;
 	}
 
 	protected void waitForElement(AbstractPageObject page, long timeout) {

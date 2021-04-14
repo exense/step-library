@@ -34,7 +34,8 @@ public class AbstractPageObject {
     /**
      * Default timeout values on actions executed on PageObject
      */
-    protected static long DEFAULT_TIMEOUT = 30;
+    public final static long DEFAULT_TIMEOUT = 30;
+    protected long timeout = DEFAULT_TIMEOUT;
 
     /**
      * Constructor for the PageObject
@@ -45,6 +46,26 @@ public class AbstractPageObject {
         this.driver = driver;
         this.jsWaiter = new JSWaiter(driver);
         this.webDriverWait = new WebDriverWait(driver, getDefaultTimeout());
+    }
+
+    /**
+     * Constructor for the PageObject
+     *
+     * @param driver the WebDriver instance to create the page with
+     */
+    public AbstractPageObject(WebDriver driver, long timeout) {
+        this.timeout = timeout;
+        this.driver = driver;
+        this.jsWaiter = new JSWaiter(driver);
+        this.webDriverWait = new WebDriverWait(driver, getDefaultTimeout());
+    }
+
+    public long getDefaultTimeout() {
+        return timeout;
+    }
+
+    public void setDefaultTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     /**
@@ -395,10 +416,6 @@ public class AbstractPageObject {
         } finally {
             driver.manage().timeouts().implicitlyWait(getDefaultTimeout(), TimeUnit.SECONDS);
         }
-    }
-
-    public static long getDefaultTimeout() {
-        return DEFAULT_TIMEOUT;
     }
 
     /**
