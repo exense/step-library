@@ -161,4 +161,46 @@ public class XmlKeywordsTest {
         output = ctx.run("Replace_XML", input.toString());
         assert output.getError() == null;
     }
+
+    @Test
+    public void test_replace_xml_text() throws Exception {
+        String xml = "<root>\n" +
+                "    <testEmpty1></testEmpty1>\n" +
+                "    <testEmpty2/>\n" +
+                "    <testEmpty3 empty=\"\" >value</testEmpty3>\n" +
+                "    <otherTest id=\"myId\" >otherTestValue</otherTest>\n" +
+                "    <testMultiple>test1</testMultiple>\n" +
+                "    <testMultiple>test2</testMultiple>\n" +
+                "    <testEmbededMultiple>\n" +
+                "        <testMultiple>test3</testMultiple>\n" +
+                "        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
+                "    </testEmbededMultiple>\n" +
+                "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
+                "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
+                "</root>";
+        Output<JsonObject> output;
+        JsonObject input;
+
+        input = Json.createObjectBuilder().add("Xml", xml)
+                .add("/root/otherTest","changed value1")
+                .add("//otherTest/@id","changed value2")
+                .add("(//testMultiple)[1]","changed value3").build();
+        output = ctx.run("Replace_XML", input.toString());
+        assert output.getError() == null;
+        System.out.println(xml);
+        System.out.println(output.getPayload());
+
+        String newXml = output.getPayload().getString("Transformed");
+
+        input = Json.createObjectBuilder().add("Xml", newXml)
+                .add("value1","/root/otherTest")
+                .add("value2","//otherTest/@id")
+                .add("value3","(//testMultiple)[1]").build();
+        output = ctx.run("Extract_XML", input.toString());
+        assert output.getError() == null;
+        System.out.println(output.getPayload());
+        assert output.getPayload().getString("value1").equals("changed value1");
+        assert output.getPayload().getString("value2").equals("changed value2");
+        assert output.getPayload().getString("value3").equals("changed value3");
+    }
 }

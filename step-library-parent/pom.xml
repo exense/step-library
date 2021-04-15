@@ -67,8 +67,8 @@
 	
 	<properties>
 		<step-api.version>1.1.5</step-api.version>
-		<step.version>3.14.1</step.version>
-		<exense-commons.version>1.3.1</exense-commons.version>
+		<step.version>3.16.0</step.version>
+		<exense-commons.version>1.3.3</exense-commons.version>
 		
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -78,6 +78,7 @@
 	<modules>
 		<module>../keywords/java/step-library-commons</module>
 		<module>../keywords/java/step-library-kw-http</module>
+		<module>../keywords/java/step-library-kw-xml</module>
 		<module>../keywords/java/step-library-kw-system</module>
 		<module>../keywords/java/step-library-kw-monitoring-system</module>
 		<module>../keywords/java/step-library-kw-step-client</module>
@@ -86,11 +87,7 @@
 	</modules>
 
 	<dependencies>
-		<dependency>
-			<groupId>ch.exense.commons</groupId>
-			<artifactId>exense-basic-commons</artifactId>
-			<version>${exense-commons.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>ch.exense.step</groupId>
 			<artifactId>step-api-keyword</artifactId>

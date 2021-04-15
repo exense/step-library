@@ -87,7 +87,10 @@ public class XmlKeywords extends AbstractKeyword {
         return doc;
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}}}")
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}},\n" +
+            "\"oneOf\": [{\"required\":[\"File\"]}," +
+            "            {\"required\":[\"Xml\"]}]" +
+            "}")
     public void Replace_XML() throws Exception {
 
         Document doc = getDocument(true);
@@ -119,11 +122,20 @@ public class XmlKeywords extends AbstractKeyword {
             }
         }
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.transform(new DOMSource(doc), new StreamResult(new File(input.getString("File"))));
-        // transformer.
+        String fileName=input.getString("File","");
+        if (fileName.isEmpty()) {
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            output.add("Transformed",writer.getBuffer().toString());
+        } else {
+            transformer.transform(new DOMSource(doc), new StreamResult(new File(fileName)));
+        }
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}}}")
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}},\n" +
+            "\"oneOf\": [{\"required\":[\"File\"]}," +
+            "            {\"required\":[\"Xml\"]}]" +
+            "}")
     public void Extract_XML() throws Exception {
 
         Document doc = getDocument(false);
@@ -160,7 +172,10 @@ public class XmlKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}}}")
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}},\n" +
+            "\"oneOf\": [{\"required\":[\"File\"]}," +
+            "            {\"required\":[\"Xml\"]}]" +
+            "}}")
     public void Validate_XML() throws Exception {
 
         Document doc = getDocument(false);
@@ -233,7 +248,7 @@ public class XmlKeywords extends AbstractKeyword {
             else if (nodeList.getLength() == 1) {
                 String result = nodeList.item(0).getTextContent();
                 if (!result.equals(expected)) {
-                    output.setBusinessError("Error when comparing xpath '" + xpathString + "': "
+                    output.setBusinessError("Error when comparing xpath '" + xpathString
                             + "value was expected to be: '" + expected + "' but was '" + result + "'");
                     return;
                 }
