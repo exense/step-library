@@ -13,6 +13,11 @@
 	
 	<dependencies>
 		<dependency>
+			<groupId>ch.exense.step.library</groupId>
+			<artifactId>step-library-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>ch.exense.step-enterprise</groupId>
 			<artifactId>step-client</artifactId>
 			<version>${step.version}</version>
