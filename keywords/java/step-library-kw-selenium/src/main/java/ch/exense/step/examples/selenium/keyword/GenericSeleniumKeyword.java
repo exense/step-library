@@ -22,6 +22,8 @@ import org.openqa.selenium.support.ui.Select;
 import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
+import javax.json.JsonNumber;
+import javax.json.JsonString;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -376,9 +378,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 		Map<String, Object> additionalTransactionProperties = new HashMap<>();
 		additionalTransactionProperties.put("Element",element.toString());
 
-		Integer index = input.getInt("Index");
-		String value = input.getString("Value");
-		String text = input.getString("Text");
+		JsonNumber index = input.getJsonNumber("Index");
+		JsonString value = input.getJsonString("Value");
+		JsonString text = input.getJsonString("Text");
 
 		startTransaction();
 		try {
@@ -386,11 +388,11 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 				WebElement obj = page.findBy(element);
 				Select sel = new Select(obj);
 				if(index != null)
-					sel.selectByIndex(index);
+					sel.selectByIndex(index.intValue());
 				else if(value != null)
-					sel.selectByValue(value);
+					sel.selectByValue(value.toString());
 				else if(text != null)
-					sel.selectByVisibleText(text);
+					sel.selectByVisibleText(text.toString());
 
 				return true;
 			}, timeout);
