@@ -213,6 +213,26 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
     }
 
     /**
+     * <p>Keyword used to explicitly close the current windows. The driver and browser automatically close when the step session ends.</p>
+     */
+    @Keyword (schema = "{ \"properties\": { "
+            + SELENIUM_DEFAULT_ACTION_NAME_INPUT
+            + "}, \"required\" : []}", properties = { "" })
+    public void Close_Driver() {
+        WebDriver driver = getDriver();
+        startTransaction();
+        driver.quit();
+        Boolean debug = Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
+        if (debug) {
+            properties.put("debug_selenium", "false");
+        }
+        stopTransaction();
+        if (debug) {
+            properties.put("debug_selenium", "true");
+        }
+    }
+
+    /**
      * Helper method to check if the Har capture is enabled
      * @return true if enabled, otherwise false
      */

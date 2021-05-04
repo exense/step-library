@@ -55,16 +55,23 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Keyword used to explicitly close the driver and related Chrome browser. The driver and browser automatically close when the step session ends.</p>
+	 * <p>Keyword used to explicitly close the current windows. The driver and browser automatically close when the step session ends.</p>
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
-	public void Close_Driver() {
+	public void Close_Window() {
 		WebDriver driver = getDriver();
 		startTransaction();
 		driver.close();
+		Boolean debug = Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
+		if (debug) {
+			properties.put("debug_selenium", "false");
+		}
 		stopTransaction();
+		if (debug) {
+			properties.put("debug_selenium", "true");
+		}
 	}
 
 	@Keyword (schema = "{ \"properties\": { "
