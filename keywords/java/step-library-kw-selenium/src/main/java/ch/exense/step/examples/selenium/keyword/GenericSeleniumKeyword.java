@@ -27,6 +27,7 @@ import javax.json.JsonString;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Class containing generic selenium keywords
@@ -38,7 +39,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <p>Keyword used to navigate to a page</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>url (https://www.exense.ch): the url to navigate to
+	 * <li>Url (https://www.exense.ch): the url to navigate to
 	 * </ul>
 	 */
 	@Keyword (schema = "{ \"properties\": { "
@@ -55,7 +56,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Keyword used to explicitly close the current windows. The driver and browser automatically close when the step session ends.</p>
+	 * <p>Keyword used to explicitly close the current window.
+	 * The driver and browser automatically close when the step session ends.</p>
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
@@ -100,7 +102,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to click on the located by the locator given as input</p>
+	 * <p>Generic keyword used to click on the element located by the locator given as input</p>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
@@ -134,7 +136,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to click on the located by the locator given as input</p>
+	 * <p>Generic keyword used to click on the element located by the locator given as input</p>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
@@ -171,9 +173,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <p>Generic keyword used to hover on the element located by the xpath given as input</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>xpath (): the element xpath to click on
-	 * <li>elementXPathToCheckIfDisplayed (): optional element xpath to check if displayed after clicking
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
+	 * <li>Xpath(): the element xpath to click on
+	 * <li>ElementXPathToCheckIfDisplayed(): optional element xpath to check if element is displayed after clicking
+	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
@@ -222,15 +224,15 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to wait until an element is displyed on the page.</p>
+	 * <p>Generic keyword used to wait until an element is displayed on the page.</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>xpath (): the path to the element to wait for
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
+	 * <li>Xpath(): the path to the element to wait for
+	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
-	 * Outputs:
+	 * Output:
 	 * <ul>
-	 * <li>exists : true if element exists, false otherwise
+	 * <li>Exists : true if element exists, false otherwise
 	 * </ul>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
@@ -253,8 +255,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 		try {
 			page.safeWait(() -> page.findBy(element, timeout).isDisplayed());
 			output.add("Exists", true);
-		} catch(NoSuchElementException e) {
-			if(optional)
+		} catch(RuntimeException e) {
+			if(optional && (e instanceof NoSuchElementException ||
+					e.getMessage().equals("Timeout while waiting for condition to apply.")))
 				output.add("Exists", false);
 			else
 				throw e;
@@ -264,15 +267,15 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to get text from element displayed on the page.</p>
+	 * <p>Generic keyword used to get text from the element displayed on the page.</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>xpath (): the path to the element to wait for
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
+	 * <li>Xpath(): the path to the element to wait for
+	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
 	 * Outputs:
 	 * <ul>
-	 * <li>text : text of the element
+	 * <li>Text : text of the element
 	 * </ul>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
 	 */
@@ -305,8 +308,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <p>Generic keyword used to enter iframe selected by xpath.</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>xpath (): the path to the element to wait for
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
+	 * <li>Xpath(): the path to the element to wait for
+	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
@@ -336,7 +339,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to exit from ifame context.</p>
+	 * <p>Generic keyword used to exit from iframe context.</p>
 	 * @see AbstractPageObject#switchToDefaultContent()
 	 * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
 	 */
@@ -355,15 +358,15 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to select options from comboboxes by the xpath given as input.</p>
+	 * <p>Generic keyword used to select options from combo boxes by the xpath given as input.</p>
 	 * <p>Only one method of selection can be used, in order by priority index, value or text.</p>
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>select_tag_xpath (): the element xpath to the combobox
-	 * <li>index (): optional index to select
-	 * <li>value (): optional value to select
-	 * <li>text (): optional visible text to select
-	 * <li>timeout (): optional time to wait in seconds for the element xpath to be checked
+	 * <li>Select_tag_xpath(): the element xpath to the combo box
+	 * <li>Index(): optional index to select
+	 * <li>Value(): optional value to select
+	 * <li>Text(): optional visible text to select
+	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
 	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
@@ -448,26 +451,27 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <p>Keyword used to set the scroll top position of any web element
 	 * Inputs (default values):
 	 * <ul>
-	 * <li>xpath of the element to scroll</li>
-	 * <li>scrollTop value to be applied (0 is top, large value fall back to max. i.e. end of the element)
+	 * <li>Xpath of the element to scroll</li>
+	 * <li>ScrollTop value to be applied (0 is top, large value falls back to max. i.e. end of the element)
 	 * </ul>
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
-			+ "\"scrollTop\": {\"type\": \"string\"}"
-			+ "}, \"required\" : [\"xpath\"]}", properties = { "" })
+			+ "\"ScrollTop\": {\"type\": \"string\"}"
+			+ "}, \"required\" : [\"Xpath\"]}", properties = { "" })
 	public void Set_ScrollTop() {
-		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
+		AbstractPageObject page = getPageObject();
+		WebElement obj = page.findBy(element);
 
 		JavascriptExecutor jse = (JavascriptExecutor) this.getDriver();
 
-		int scrollTop = Integer.parseInt(input.getString("scrollTop", "0"));
+		int scrollTop = Integer.parseInt(input.getString("ScrollTop", "0"));
 
 		startTransaction();
-		jse.executeScript("arguments[0].scrollTop=arguments[1];", element, scrollTop);
+		jse.executeScript("arguments[0].scrollTop=arguments[1];", obj, scrollTop);
 		stopTransaction();
 	}
 }
