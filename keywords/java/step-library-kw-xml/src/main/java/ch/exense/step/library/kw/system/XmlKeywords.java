@@ -17,6 +17,7 @@ package ch.exense.step.library.kw.system;
 
 import ch.exense.step.library.commons.BusinessException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -26,7 +27,9 @@ import step.handlers.javahandler.Keyword;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -129,11 +132,15 @@ public class XmlKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}},\n" +
+    private List<String> listOptionsExtract = Arrays.asList(new String[]{"ExtractXml", "File", "Xml"});
+
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"},\"ExtractXml\":{\"type\":\"boolean\"}},\n" +
             "\"oneOf\": [{\"required\":[\"File\"]}," +
             "            {\"required\":[\"Xml\"]}]" +
             "}")
     public void Extract_XML() throws Exception {
+
+        boolean extractXML = input.getBoolean("ExtractXml",false);
 
         Document doc = getDocument(false);
         if (doc == null) return;
@@ -141,7 +148,7 @@ public class XmlKeywords extends AbstractKeyword {
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xPath = xpathFactory.newXPath();
 
-        for (Object xpathObj : input.keySet().stream().filter(key -> !key.equals("File") && !key.equals("Xml")).toArray()) {
+        for (Object xpathObj : input.keySet().stream().filter(key -> !listOptionsExtract.contains(key)).toArray()) {
             String name = (String) xpathObj;
 
             String xpathString = input.getString(name);
@@ -158,15 +165,33 @@ public class XmlKeywords extends AbstractKeyword {
                 output.setBusinessError("Xpath '" + xpathString + "' not found in the document");
                 return;
             } else if (nodeList.getLength() == 1) {
-                output.add(name, nodeList.item(0).getTextContent());
+                if (extractXML) {
+                    output.add(name, nodeToString(nodeList.item(0)));
+                } else {
+                    output.add(name, nodeList.item(0).getTextContent());
+                }
             } else {
                 List<String> actualValues = new LinkedList<>();
                 for (int i = 0; i < nodeList.getLength(); i++) {
-                    actualValues.add(nodeList.item(i).getTextContent());
+                    if (extractXML) {
+                        actualValues.add(nodeToString(nodeList.item(i)));
+                    } else {
+                        actualValues.add(nodeList.item(i).getTextContent());
+                    }
                 }
                 output.add(name, actualValues.toString());
             }
         }
+    }
+
+    private static String nodeToString(Node node)
+            throws TransformerException
+    {
+        StringWriter buf = new StringWriter();
+        Transformer xform = TransformerFactory.newInstance().newTransformer();
+        xform.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        xform.transform(new DOMSource(node), new StreamResult(buf));
+        return(buf.toString());
     }
 
     @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Xml\":{\"type\":\"string\"}},\n" +

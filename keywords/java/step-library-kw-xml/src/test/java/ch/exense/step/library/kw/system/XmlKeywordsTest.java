@@ -71,7 +71,7 @@ public class XmlKeywordsTest {
     }
 
     @Test
-    public void test_extract_xml() throws Exception {
+    public void test_extract_value() throws Exception {
         String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
         Output<JsonObject> output;
         JsonObject input;
@@ -81,12 +81,31 @@ public class XmlKeywordsTest {
                 .add("value2","//otherTest/@id")
                 .add("value3","//testMultiple").build();
         output = ctx.run("Extract_XML", input.toString());
+        System.out.println(output.getPayload());
         assert output.getError() == null;
         assert output.getPayload().getString("value1").equals("otherTestValue");
         assert output.getPayload().getString("value2").equals("myId");
         assert output.getPayload().getString("value3").equals("[test1, test2, test3]");
     }
 
+    @Test
+    public void test_extract_xml() throws Exception {
+        String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
+        Output<JsonObject> output;
+        JsonObject input;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("ExtractXml",true)
+                .add("value1","/root")
+                .add("value2","//otherTest")
+                .add("value3","//testMultiple").build();
+        output = ctx.run("Extract_XML", input.toString());
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+        assert output.getPayload().getString("value1").equals("otherTestValue");
+        assert output.getPayload().getString("value2").equals("myId");
+        assert output.getPayload().getString("value3").equals("[test1, test2, test3]");
+    }
     @Test
     public void test_extract_xml_text() throws Exception {
         String xml = "<root>\n" +
