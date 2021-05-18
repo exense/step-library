@@ -102,9 +102,9 @@ public class XmlKeywordsTest {
         output = ctx.run("Extract_XML", input.toString());
         System.out.println(output.getPayload());
         assert output.getError() == null;
-        assert output.getPayload().getString("value1").equals("otherTestValue");
-        assert output.getPayload().getString("value2").equals("myId");
-        assert output.getPayload().getString("value3").equals("[test1, test2, test3]");
+        assert output.getPayload().getString("value1").equals("<root>\r\n    <testEmpty1/>\r\n    <testEmpty2/>\r\n    <testEmpty3 empty=\"\">value</testEmpty3>\r\n    <otherTest id=\"myId\">otherTestValue</otherTest>\r\n    <testMultiple>test1</testMultiple>\r\n    <testMultiple>test2</testMultiple>\r\n    <testEmbeddedMultiple>\r\n        <testMultiple>test3</testMultiple>\r\n        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n    </testEmbeddedMultiple>\r\n    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n</root>");
+        assert output.getPayload().getString("value2").equals("<otherTest id=\"myId\">otherTestValue</otherTest>");
+        assert output.getPayload().getString("value3").equals("[<testMultiple>test1</testMultiple>, <testMultiple>test2</testMultiple>, <testMultiple>test3</testMultiple>]");
     }
     @Test
     public void test_extract_xml_text() throws Exception {
@@ -115,10 +115,10 @@ public class XmlKeywordsTest {
                 "    <otherTest id=\"myId\" >otherTestValue</otherTest>\n" +
                 "    <testMultiple>test1</testMultiple>\n" +
                 "    <testMultiple>test2</testMultiple>\n" +
-                "    <testEmbededMultiple>\n" +
+                "    <testEmbeddedMultiple>\n" +
                 "        <testMultiple>test3</testMultiple>\n" +
                 "        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
-                "    </testEmbededMultiple>\n" +
+                "    </testEmbeddedMultiple>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "</root>";
@@ -187,10 +187,10 @@ public class XmlKeywordsTest {
                 "    <otherTest id=\"myId\" >otherTestValue</otherTest>\n" +
                 "    <testMultiple>test1</testMultiple>\n" +
                 "    <testMultiple>test2</testMultiple>\n" +
-                "    <testEmbededMultiple>\n" +
+                "    <testEmbeddedMultiple>\n" +
                 "        <testMultiple>test3</testMultiple>\n" +
                 "        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
-                "    </testEmbededMultiple>\n" +
+                "    </testEmbeddedMultiple>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "</root>";
