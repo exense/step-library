@@ -63,15 +63,23 @@ public class XmlKeywordsTest {
         output = ctx.run("Validate_XML", input.toString());
         assert output.getError() == null;
 
+        //Note the order is not guarantied:
         input = Json.createObjectBuilder().add("File", path)
-                .add("//testMultiple", "[test1,test2,test3]")
+                .add("//testMultiple", "[test1,test3,test2]")
                 .add("//testMultipleDuplicate", "[testSameValue,testSameValue,testSameValue]").build();
+        output = ctx.run("Validate_XML", input.toString());
+        assert output.getError() == null;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("//otherTest/@id", ".*")
+                .add("//testMultiple", ".*")
+                .add("//testDoNotExist", "!.*").build();
         output = ctx.run("Validate_XML", input.toString());
         assert output.getError() == null;
     }
 
     @Test
-    public void test_extract_xml() throws Exception {
+    public void test_extract_value() throws Exception {
         String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
         Output<JsonObject> output;
         JsonObject input;
@@ -81,6 +89,7 @@ public class XmlKeywordsTest {
                 .add("value2","//otherTest/@id")
                 .add("value3","//testMultiple").build();
         output = ctx.run("Extract_XML", input.toString());
+        System.out.println(output.getPayload());
         assert output.getError() == null;
         assert output.getPayload().getString("value1").equals("otherTestValue");
         assert output.getPayload().getString("value2").equals("myId");
@@ -88,7 +97,25 @@ public class XmlKeywordsTest {
     }
 
     @Test
-    public void test_extract_xml_text() throws Exception {
+    public void test_extract_xml() throws Exception {
+        String path = new File(getClass().getClassLoader().getResource("test.xml").getFile()).getAbsolutePath();
+        Output<JsonObject> output;
+        JsonObject input;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("ExtractXml",true)
+                .add("value1","/root")
+                .add("value2","//otherTest")
+                .add("value3","//testMultiple").build();
+        output = ctx.run("Extract_XML", input.toString());
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+        assert output.getPayload().getString("value1").equals("<root>\r\n    <testEmpty1/>\r\n    <testEmpty2/>\r\n    <testEmpty3 empty=\"\">value</testEmpty3>\r\n    <otherTest id=\"myId\">otherTestValue</otherTest>\r\n    <testMultiple>test1</testMultiple>\r\n    <testMultiple>test2</testMultiple>\r\n    <testEmbeddedMultiple>\r\n        <testMultiple>test3</testMultiple>\r\n        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n    </testEmbeddedMultiple>\r\n    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n</root>");
+        assert output.getPayload().getString("value2").equals("<otherTest id=\"myId\">otherTestValue</otherTest>");
+        assert output.getPayload().getString("value3").equals("[<testMultiple>test1</testMultiple>, <testMultiple>test2</testMultiple>, <testMultiple>test3</testMultiple>]");
+    }
+    @Test
+    public void test_extract_value_from_input() throws Exception {
         String xml = "<root>\n" +
                 "    <testEmpty1></testEmpty1>\n" +
                 "    <testEmpty2/>\n" +
@@ -96,10 +123,10 @@ public class XmlKeywordsTest {
                 "    <otherTest id=\"myId\" >otherTestValue</otherTest>\n" +
                 "    <testMultiple>test1</testMultiple>\n" +
                 "    <testMultiple>test2</testMultiple>\n" +
-                "    <testEmbededMultiple>\n" +
+                "    <testEmbeddedMultiple>\n" +
                 "        <testMultiple>test3</testMultiple>\n" +
                 "        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
-                "    </testEmbededMultiple>\n" +
+                "    </testEmbeddedMultiple>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "</root>";
@@ -168,10 +195,10 @@ public class XmlKeywordsTest {
                 "    <otherTest id=\"myId\" >otherTestValue</otherTest>\n" +
                 "    <testMultiple>test1</testMultiple>\n" +
                 "    <testMultiple>test2</testMultiple>\n" +
-                "    <testEmbededMultiple>\n" +
+                "    <testEmbeddedMultiple>\n" +
                 "        <testMultiple>test3</testMultiple>\n" +
                 "        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
-                "    </testEmbededMultiple>\n" +
+                "    </testEmbeddedMultiple>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\n" +
                 "</root>";

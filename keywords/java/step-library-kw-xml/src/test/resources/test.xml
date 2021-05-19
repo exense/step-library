@@ -5,10 +5,10 @@
     <otherTest id="myId" >otherTestValue</otherTest>
     <testMultiple>test1</testMultiple>
     <testMultiple>test2</testMultiple>
-    <testEmbededMultiple>
+    <testEmbeddedMultiple>
         <testMultiple>test3</testMultiple>
         <testMultipleDuplicate>testSameValue</testMultipleDuplicate>
-    </testEmbededMultiple>
+    </testEmbeddedMultiple>
     <testMultipleDuplicate>testSameValue</testMultipleDuplicate>
     <testMultipleDuplicate>testSameValue</testMultipleDuplicate>
 </root>
