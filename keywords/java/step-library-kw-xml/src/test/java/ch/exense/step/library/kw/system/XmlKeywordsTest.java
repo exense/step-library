@@ -63,9 +63,17 @@ public class XmlKeywordsTest {
         output = ctx.run("Validate_XML", input.toString());
         assert output.getError() == null;
 
+        //Note the order is not guarantied:
         input = Json.createObjectBuilder().add("File", path)
-                .add("//testMultiple", "[test1,test2,test3]")
+                .add("//testMultiple", "[test1,test3,test2]")
                 .add("//testMultipleDuplicate", "[testSameValue,testSameValue,testSameValue]").build();
+        output = ctx.run("Validate_XML", input.toString());
+        assert output.getError() == null;
+
+        input = Json.createObjectBuilder().add("File", path)
+                .add("//otherTest/@id", ".*")
+                .add("//testMultiple", ".*")
+                .add("//testDoNotExist", "!.*").build();
         output = ctx.run("Validate_XML", input.toString());
         assert output.getError() == null;
     }
@@ -107,7 +115,7 @@ public class XmlKeywordsTest {
         assert output.getPayload().getString("value3").equals("[<testMultiple>test1</testMultiple>, <testMultiple>test2</testMultiple>, <testMultiple>test3</testMultiple>]");
     }
     @Test
-    public void test_extract_xml_text() throws Exception {
+    public void test_extract_value_from_input() throws Exception {
         String xml = "<root>\n" +
                 "    <testEmpty1></testEmpty1>\n" +
                 "    <testEmpty2/>\n" +
