@@ -15,12 +15,57 @@
  ******************************************************************************/
 package ch.exense.step.library.ldap.keywords;
 
+import ch.exense.step.library.kw.ldap.LdapKeywords;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import step.functions.io.Output;
+import step.handlers.javahandler.KeywordRunner;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertNull;
 
 public class LdapKeywordsTest {
 
+	private KeywordRunner.ExecutionContext ctx;
+	private Output<JsonObject> output;
+	private String inputs;
+
+	@Before
+	public void setUp() throws Exception{
+		Map<String, String> properties = new HashMap<>();
+		ctx = KeywordRunner.getExecutionContext(properties, LdapKeywords.class);
+	}
+
+	@After
+	public void tearDown(){
+
+	}
+
 	@Test
-	public void simpleLdapSearch() {
+	public void simpleLdapSearch() throws Exception {
+	 inputs = Json.createObjectBuilder()
+			.add("LdapUrl", "ldaps://ldap.exense.ch")
+			.add("BindingUser", "cn=Test User,ou=users,dc=exense,dc=ch")
+			.add("BindingPassword", "100%Test")
+			.build().toString();
+	output = ctx.run("InitLdapClient", inputs);
+		System.out.println(output.getPayload());
+	assertNull(output.getError());
+
+
+	inputs = Json.createObjectBuilder()
+			.add("BaseDN", "dc=exense,dc=ch")
+				.add("UserFilter", "cn={user}")
+				.add("User", "Gianluca Notaro")
+				.build().toString();
+	output = ctx.run("LdapSimpleSearch", inputs);
+		System.out.println(output.getPayload());
+	assertNull(output.getError());
 	}
 }
 
