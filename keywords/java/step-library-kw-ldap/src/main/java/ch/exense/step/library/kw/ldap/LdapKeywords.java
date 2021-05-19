@@ -42,7 +42,7 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
             + "\"TimeoutInMs\":{\"type\":\"string\"},"
             + "\"CustomDnsResolverTargetIP\":{\"type\":\"string\"},"
             + "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"}"
-            + "},\"required\":[\"LdapUrl\",]}", properties = { "" })
+            + "},\"required\":[\"LdapUrl\"]}", properties = { "" })
     public void InitLdapClient() {
 
         String ldapUrl = input.getString("LdapUrl");
@@ -59,8 +59,8 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
         }
 
         // Ldap certificate
-        String pathToJks =  input.getString("KeyStorePath");
-        String jksPassword = input.getString("KeyStorePassword");
+//        String pathTbJks =  input.getString("KeyStorePath");
+//        String jksPassword = input.getString("KeyStorePassword");
 
         ConnectionConfig connConfig = builder.build();
 
@@ -74,11 +74,11 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
      */
     @Keyword(schema = "{\"properties\":{"
             + "\"BaseDN\":{\"type\":\"string\"},"
-            + "\"UserFiler\":{\"type\":\"string\"},"
-            + "\"SubtreeSearch\":{\"type\":\"boolean\"}"
-            + "\"AllowMultipleDns\":{\"type\":\"boolean\"}"
+            + "\"UserFilter\":{\"type\":\"string\"},"
+            + "\"SubtreeSearch\":{\"type\":\"boolean\"},"
+            + "\"AllowMultipleDns\":{\"type\":\"boolean\"},"
             + "\"User\":{\"type\":\"string\"}"
-            + "},\"required\":[\"BaseDN\",\"UserFiler\",\"User\"]}", properties = { "" })
+            + "},\"required\":[\"BaseDN\",\"UserFilter\",\"User\"]}", properties = { "" })
     public void LdapSimpleSearch() {
 
         String baseDN = input.getString("BaseDN");
