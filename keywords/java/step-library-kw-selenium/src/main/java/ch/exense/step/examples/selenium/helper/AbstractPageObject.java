@@ -15,19 +15,15 @@
  ******************************************************************************/
 package ch.exense.step.examples.selenium.helper;
 
+import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Base class gathering utility methods to work on pages
@@ -446,6 +442,36 @@ public class AbstractPageObject {
         safeWaitDocumentReadyState();
         safeWait(() -> findBy(By.xpath(xpathToCheck)).isEnabled());
     }
+
+    public WebElement expandShadowPath(String[] cssSelectorPath, String lastSelector) {
+        WebDriver driver = getDriver();
+        long timeout = 15;
+
+        return doWithoutImplicitWait(()->{
+            return Poller.retryIfFails(() -> expandShadowPath(cssSelectorPath, lastSelector, driver), timeout);
+        });
+    }
+
+    public WebElement expandShadowPath(String[] cssSelectorPath, String lastSelector, WebDriver driver) {
+        WebElement current = null;
+        for (String cssSelector : cssSelectorPath) {
+            current = expandRootElement(driver, current, cssSelector);
+        }
+        return current.findElement(By.cssSelector(lastSelector));
+    }
+
+    public WebElement expandRootElement(WebDriver driver, WebElement element, String cssSelector) {
+        if(element == null) {
+            return expandRootElement(driver, driver.findElement(By.cssSelector(cssSelector)));
+        } else {
+            return expandRootElement(driver, element.findElement(By.cssSelector(cssSelector)));
+        }
+    }
+
+    public WebElement expandRootElement(WebDriver driver, WebElement element) {
+        return (WebElement) ((JavascriptExecutor) driver).executeScript("return arguments[0].shadowRoot",	element);
+    }
+
 
     /**
      * Method to exit a iframe

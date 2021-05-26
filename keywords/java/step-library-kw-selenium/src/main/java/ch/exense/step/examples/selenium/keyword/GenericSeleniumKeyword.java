@@ -474,4 +474,24 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 		jse.executeScript("arguments[0].scrollTop=arguments[1];", obj, scrollTop);
 		stopTransaction();
 	}
+
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
+			+ "}, \"required\" : []}", properties = { "" })
+	public void expandShadowPath() {
+		AbstractPageObject page = getPageObject();
+		long timeout = getTimeoutFromInput();
+		By element = getElementFromInput();
+		WebElement obj = page.findBy(element);
+
+		Map<String, Object> additionalTransactionProperties = new HashMap<>();
+		additionalTransactionProperties.put("Element",element.toString());
+
+		startTransaction();
+				WebElement elem = page.expandRootElement(page.getDriver(),obj);
+				stopTransaction();
+	}
+
 }
