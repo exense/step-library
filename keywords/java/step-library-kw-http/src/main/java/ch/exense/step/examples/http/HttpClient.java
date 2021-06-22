@@ -181,10 +181,14 @@ public class HttpClient {
 	protected byte[] readResponse(CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
 		if (response.getEntity() != null) {
 			int length = (int) response.getEntity().getContentLength();
-			InputStream stream = response.getEntity().getContent();
-			byte[] result = new byte[length];
-			stream.read(result);
-			return result;
+			if (length > 0 ) {
+				InputStream stream = response.getEntity().getContent();
+				byte[] result = new byte[length];
+				stream.read(result);
+				return result;
+			} else {
+				return response.getEntity().getContent().toString().getBytes();
+			}
 		} else {
 			return null;
 		}
