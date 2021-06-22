@@ -178,11 +178,15 @@ public class HttpClient {
 		//this.client = HttpClients.custom().setSSLContext(sc).build();
 	}
 
-	protected String readResponse(CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
+	protected byte[] readResponse(CloseableHttpResponse response) throws UnsupportedOperationException, IOException {
 		if (response.getEntity() != null) {
-			return EntityUtils.toString(response.getEntity());
+			int length = (int) response.getEntity().getContentLength();
+			InputStream stream = response.getEntity().getContent();
+			byte[] result = new byte[length];
+			stream.read(result);
+			return result;
 		} else {
-			return "";
+			return null;
 		}
 	}
 
@@ -196,7 +200,7 @@ public class HttpClient {
 		try(CloseableHttpResponse httpResponse = this.client.execute(request, context)) {
 			int status = httpResponse.getStatusLine().getStatusCode();
 			List<BasicNameValuePair> responseHeaders = toNameValues(Arrays.asList(httpResponse.getAllHeaders()));
-			String response = readResponse(httpResponse);
+			byte[] response = readResponse(httpResponse);
 			return new HttpResponse(response, responseHeaders, status);
 		}
 	}

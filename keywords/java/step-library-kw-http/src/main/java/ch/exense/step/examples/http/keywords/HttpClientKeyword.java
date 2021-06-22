@@ -30,12 +30,14 @@ import java.util.regex.Pattern;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
+import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import ch.exense.step.examples.http.HttpClient;
 import ch.exense.step.examples.http.HttpRequest;
 import ch.exense.step.examples.http.HttpResponse;
+import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
 public class HttpClientKeyword extends AbstractEnhancedKeyword {
@@ -179,6 +181,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"Check_myFieldToChec1\":{\"type\":\"string\"},"
 			+ "\"Data\":{\"type\":\"string\"},"
 			+ "\"ReturnResponse\":{\"type\":\"boolean\"},"
+			+ "\"SaveResponseAsAttachment\":{\"type\":\"boolean\"},"
 			+ "\"Name\":{\"type\":\"string\"}"
 			+ "}, \"required\":[\"URL\"]}", properties = {})
 	public void HttpRequest() throws Exception {
@@ -186,6 +189,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		String method = input.getString("Method", "GET");
 		String requestName = input.getString("Name", url);
 		boolean returnResponse = input.getBoolean("ReturnResponse", true);
+		boolean saveAsAttachment = input.getBoolean("SaveResponseAsAttachment", false);
 
 		HashMap<String, String> headers = new HashMap<String, String>();
 		// Extract all dynamic and optional inputs
@@ -253,7 +257,21 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		output.add("Headers", httpResponse.getResponseHeaders().toString());
 		output.add("Cookies", httpResponse.getCookies().toString());
 		if (returnResponse) {
-			output.add("Response", httpResponse.getResponsePayload());
+			if (saveAsAttachment) {
+				String name = "attachment.data";
+
+				BasicNameValuePair result;
+				if ((result = httpResponse.getResponseHeader("Content-Disposition"))!=null) {
+					Matcher m = Pattern.compile(".*filename = (.+?);.*").matcher(result.getValue());
+					if(m.find()) {
+						name = m.group(1);
+					}
+				}
+				output.addAttachment(AttachmentHelper.
+						generateAttachmentFromByteArray(httpResponse.getResponsePayloadAsBytes(),name));
+			} else {
+				output.add("Response", httpResponse.getResponsePayload());
+			}
 		}
 
 		// extract all fields

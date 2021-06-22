@@ -22,12 +22,12 @@ import org.apache.http.message.BasicNameValuePair;
 
 public class HttpResponse {
 
-	private final String responsePayload;
+	private final byte[] responsePayload;
 	private final List<BasicNameValuePair> responseHeaders;
 	private final List<String> cookies;
 	private final int status;
 
-	public HttpResponse(String responsePayload, List<BasicNameValuePair> responseHeaders, int status) throws Exception {
+	public HttpResponse(byte[] responsePayload, List<BasicNameValuePair> responseHeaders, int status) throws Exception {
 		super();
 		this.responsePayload = responsePayload;
 		this.responseHeaders = responseHeaders;
@@ -36,7 +36,21 @@ public class HttpResponse {
 	}
 
 	public String getResponsePayload() {
+		return responsePayload.toString();
+	}
+
+	public byte[] getResponsePayloadAsBytes() {
 		return responsePayload;
+	}
+
+	public BasicNameValuePair getResponseHeader(String name) {
+		BasicNameValuePair result;
+		for (BasicNameValuePair header: responseHeaders) {
+			if (header.getName().toLowerCase().equals(name.toLowerCase())) {
+				return header;
+			}
+		}
+		return null;
 	}
 
 	public List<BasicNameValuePair> getResponseHeaders() {
