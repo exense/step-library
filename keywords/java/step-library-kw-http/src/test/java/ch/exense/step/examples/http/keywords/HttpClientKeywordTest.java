@@ -111,6 +111,8 @@ public class HttpClientKeywordTest {
 			.build().toString();
 		output = ctx.run("HttpRequest", input);
 
+		System.err.println(output.getPayload());
+
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getString("Response").contains("My content"));
 	}

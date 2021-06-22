@@ -187,7 +187,7 @@ public class HttpClient {
 				stream.read(result);
 				return result;
 			} else {
-				return response.getEntity().getContent().toString().getBytes();
+				return EntityUtils.toString(response.getEntity()).getBytes();
 			}
 		} else {
 			return null;
