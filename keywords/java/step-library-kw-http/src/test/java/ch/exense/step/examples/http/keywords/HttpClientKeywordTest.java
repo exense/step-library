@@ -71,7 +71,7 @@ public class HttpClientKeywordTest {
 		output = ctx.run("HttpRequest", input);
 
 		ctx.run("CloseHttpClient", "{}");
-		
+
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getBoolean("Check_Title"));
 		assertEquals(output.getPayload().getString("Extract_Title"),"Google");
@@ -110,8 +110,6 @@ public class HttpClientKeywordTest {
 			.add("Data", "My content")
 			.build().toString();
 		output = ctx.run("HttpRequest", input);
-
-		System.err.println(output.getPayload());
 
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getString("Response").contains("My content"));

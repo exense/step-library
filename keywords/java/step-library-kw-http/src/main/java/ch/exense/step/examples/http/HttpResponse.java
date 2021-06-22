@@ -36,7 +36,7 @@ public class HttpResponse {
 	}
 
 	public String getResponsePayload() {
-		return responsePayload.toString();
+		return new String(responsePayload);
 	}
 
 	public byte[] getResponsePayloadAsBytes() {
