@@ -262,9 +262,13 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
 				BasicNameValuePair result;
 				if ((result = httpResponse.getResponseHeader("Content-Disposition"))!=null) {
-					Matcher m = Pattern.compile(".*filename = (.+?);.*").matcher(result.getValue());
-					if(m.find()) {
-						name = m.group(1);
+					Matcher pattern_1 = Pattern.compile(".*filename ?= ?([^\"]+?);?.*").matcher(result.getValue());
+					if(pattern_1.find()) {
+						name = pattern_1.group(1);
+					}
+					Matcher pattern_2 = Pattern.compile(".*filename ?= ?\"([^\"]+?)\".*").matcher(result.getValue());
+					if(pattern_2.find()) {
+						name = pattern_2.group(1);
 					}
 				}
 				output.addAttachment(AttachmentHelper.
