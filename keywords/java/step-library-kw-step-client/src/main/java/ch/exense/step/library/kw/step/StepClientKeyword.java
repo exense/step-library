@@ -15,7 +15,10 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.step;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -31,98 +34,213 @@ import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
 import step.core.repositories.RepositoryObjectReference;
+import step.grid.filemanager.FileManagerException;
+import step.grid.io.Attachment;
+import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
+import step.resources.Resource;
+import step.resources.ResourceRevisionContent;
 
 public class StepClientKeyword extends AbstractEnhancedKeyword {
 
-	private static final String DEFAULT_USER = "admin";
-	private static final String DEFAULT_PASSWORD = "init";
-	
-	private static final String DEFAULT_TIMEOUT = Integer.toString(60*1000);
+    private static final String DEFAULT_USER = "admin";
+    private static final String DEFAULT_PASSWORD = "init";
 
-	@Keyword(schema = "{\"properties\":{" 
-				+ "\"User\":{\"type\":\"string\"}," 
-				+ "\"Password\":{\"type\":\"string\"},"
-				+ "\"Url\":{\"type\":\"string\"}" 
-				+ "},\"required\":[\"Url\"]}", 
-			properties = { "" })
-	public void InitStepClient() throws BusinessException {
-		
-		String url = getMandatoryInputString("Url");
-		String user = input.getString("User",DEFAULT_USER);
-		String password = input.getString("Password",DEFAULT_PASSWORD);
-		
-		getSession().put(new StepClient(url,user,password));
-		getSession().put("User",user);
-	}
+    private static final String DEFAULT_TIMEOUT = Integer.toString(60 * 1000);
 
-	@Keyword(schema = "{\"properties\":{" 
-				+ "\"RepositoryID\":{\"type\":\"string\"}," 
-				+ "\"RepositoryParameters\":{\"type\":\"string\"},"
-				+ "\"Description\":{\"type\":\"string\"},"
-				+ "\"CustomParameters\":{\"type\":\"string\"},"
-				+ "\"Timeout\":{\"type\":\"string\"}"
-				+ "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}", 
-			properties = { "" })
-	public void RunExecution() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
-		
-		StepClient client = getSession().get(StepClient.class); 
-		
-		String repoId = getMandatoryInputString("RepositoryID");
-		String repoParametersJson = getMandatoryInputString("RepositoryParameters");
-		String description = getMandatoryInputString("Description");
-		String customParametersJson = getMandatoryInputString("CustomParameters");
-		
-		long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
-		
-		ExecutionParameters executionParams = new ExecutionParameters();
+    @Keyword(schema = "{\"properties\":{"
+            + "\"User\":{\"type\":\"string\"},"
+            + "\"Password\":{\"type\":\"string\"},"
+            + "\"Url\":{\"type\":\"string\"}"
+            + "},\"required\":[\"Url\"]}",
+            properties = {""})
+    public void InitStepClient() throws BusinessException {
 
-		executionParams.setMode(ExecutionMode.RUN);
-		executionParams.setUserID((String) getSession().get("User"));
-		
-		RepositoryObjectReference repoObject = new RepositoryObjectReference();
-		
-		executionParams.setDescription(description);
-		
-		repoObject.setRepositoryID(repoId);
-		
-		ObjectMapper mapper = new ObjectMapper();
-		Map<String, String> repoParameters = mapper.readValue(repoParametersJson, new TypeReference<Map<String, String>>() {});
-		
-		repoObject.setRepositoryParameters(repoParameters);
-		executionParams.setRepositoryObject(repoObject);
-		
-		Map<String, String> customParameters = new HashMap<String, String>();
+        String url = getMandatoryInputString("Url");
+        String user = input.getString("User", DEFAULT_USER);
+        String password = input.getString("Password", DEFAULT_PASSWORD);
 
-		customParameters = mapper.readValue(customParametersJson, new TypeReference<Map<String, String>>() {});
-		
-		executionParams.setCustomParameters(customParameters);
-		
-		String executionID = client.getExecutionManager().execute(executionParams);
-		
-		output.add("Id", executionID);
-		
-		Execution exec;
-		try {
-			exec = client.getExecutionManager().waitForTermination(executionID, timeout);
-		} catch (TimeoutException e) {
-			output.setBusinessError("Execution '"+executionID+"' did not terminate before the timeout of "+timeout+"ms");
-			return;
-		}
+        getSession().put(new StepClient(url, user, password));
+        getSession().put("User", user);
+    }
 
-		if (exec.getImportResult().isSuccessful()) {
-			output.add("Result",exec.getResult().toString());
-		} else {
-			output.add("Result","IMPORT_ERROR");
-			output.add("Import_Error",String.join(",", exec.getImportResult().getErrors()));
-		}
-	}
+    @Keyword(schema = "{\"properties\":{"
+            + "\"TenantName\":{\"type\":\"string\"},"
+            + "\"ProjectId\":{\"type\":\"string\"}"
+            + "}, \"oneOf\": [{\"required\":[\"TenantName\"]},"
+            + "{\"required\":[\"ProjectId\"]}]}",
+            properties = {""})
+    public void SelectTenant() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
 
-	private String getMandatoryInputString(String inputName) throws BusinessException {
-		if (!input.containsKey(inputName)) {
-			throw new BusinessException("The mandatory input parameter '"+inputName+"' is missing");
-		} else {
-			return input.getString(inputName);
-		}
-	}
+        StepClient client = getSession().get(StepClient.class);
+
+        String tenantName = input.getString("TenantName","");
+        String projectId = input.getString("ProjectId","");
+
+        try {
+            if (tenantName.isEmpty()) {
+                client.getAvailableTenants().forEach(tenant -> {
+                    if (tenant.getProjectId().equals(projectId)) {
+                        try {
+                            client.selectTenant(tenant.getName());
+                        } catch (Exception e) {
+                            throw new BusinessException("Exception when trying to select the tenant");
+                        }
+                    }
+                });
+            } else {
+                client.selectTenant(tenantName);
+            }
+        } catch (Exception e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("Exception when trying to select the tenant");
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{},\"required\":[]}",
+            properties = {""})
+    public void ListTenants() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+
+        StepClient client = getSession().get(StepClient.class);
+
+        try {
+            output.add("CurrentTenant",client.getCurrentTenant().getName());
+            String id = client.getCurrentTenant().getProjectId();
+            if (id!=null) {
+                output.add("CurrentProjectId", id);
+            }
+            List<String> result = new ArrayList<String>();
+            client.getAvailableTenants().forEach(tenant -> result.add(tenant.getName()));
+            output.add("Tenants",result.toString());
+
+            result.clear();
+            client.getAvailableTenants().forEach(tenant -> result.add(tenant.getProjectId()));
+            output.add("Projects",result.toString());
+        } catch (Exception e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("Exception when trying to list the tenants");
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{"
+            + "\"ResourceID\":{\"type\":\"string\"},"
+            + "\"Destination\":{\"type\":\"string\"},"
+            + "\"DeleteAfter\":{\"type\":\"boolean\"}"
+            + "},\"required\":[\"ResourceID\",\"Destination\"]}",
+            properties = {""})
+    public void DownloadResource() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+
+        StepClient client = getSession().get(StepClient.class);
+
+        String resourceID = input.getString("ResourceID");
+        String destination = input.getString("Destination");
+        boolean deleteAfter = input.getBoolean("DeleteAfter", false);
+
+        try {
+            if (client.getResourceManager().getResource(resourceID) == null) {
+                throw new BusinessException("Resource id '" + resourceID + "' was not found");
+            }
+            ResourceRevisionContent resource = client.getResourceManager().getResourceContent(resourceID);
+            File file = new File(destination);
+            File resourceFile;
+            if (!file.isDirectory()) {
+                resourceFile = file;
+            } else {
+                String fileName = resource.getResourceName();
+                resourceFile = new File(destination + File.separatorChar + fileName);
+            }
+            output.add("File", resourceFile.getAbsolutePath());
+            if (!resourceFile.exists() && !resourceFile.createNewFile()) {
+                throw new BusinessException("Could not create destination file \"" + resourceFile.getAbsolutePath() + "\".");
+            }
+            try (InputStream inputStream = resource.getResourceStream();
+                 OutputStream outStream = new FileOutputStream(resourceFile)) {
+
+                byte[] buffer = new byte[8 * 1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outStream.write(buffer, 0, bytesRead);
+                }
+            }
+
+            if (deleteAfter) {
+                client.getResourceManager().deleteResource(resourceID);
+            }
+        } catch (IOException e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("IOException when trying to download the resource '" + resourceID + "'");
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{"
+            + "\"RepositoryID\":{\"type\":\"string\"},"
+            + "\"RepositoryParameters\":{\"type\":\"string\"},"
+            + "\"Description\":{\"type\":\"string\"},"
+            + "\"CustomParameters\":{\"type\":\"string\"},"
+            + "\"Timeout\":{\"type\":\"string\"}"
+            + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
+            properties = {""})
+    public void RunExecution() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+
+        StepClient client = getSession().get(StepClient.class);
+
+        String repoId = getMandatoryInputString("RepositoryID");
+        String repoParametersJson = getMandatoryInputString("RepositoryParameters");
+        String description = getMandatoryInputString("Description");
+        String customParametersJson = getMandatoryInputString("CustomParameters");
+
+        long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
+
+        ExecutionParameters executionParams = new ExecutionParameters();
+
+        executionParams.setMode(ExecutionMode.RUN);
+        executionParams.setUserID((String) getSession().get("User"));
+
+        RepositoryObjectReference repoObject = new RepositoryObjectReference();
+
+        executionParams.setDescription(description);
+
+        repoObject.setRepositoryID(repoId);
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> repoParameters = mapper.readValue(repoParametersJson, new TypeReference<Map<String, String>>() {
+        });
+
+        repoObject.setRepositoryParameters(repoParameters);
+        executionParams.setRepositoryObject(repoObject);
+
+        Map<String, String> customParameters = new HashMap<String, String>();
+
+        customParameters = mapper.readValue(customParametersJson, new TypeReference<Map<String, String>>() {
+        });
+
+        executionParams.setCustomParameters(customParameters);
+
+        String executionID = client.getExecutionManager().execute(executionParams);
+
+        output.add("Id", executionID);
+
+        Execution exec;
+        try {
+            exec = client.getExecutionManager().waitForTermination(executionID, timeout);
+        } catch (TimeoutException e) {
+            output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
+            return;
+        }
+
+        if (exec.getImportResult().isSuccessful()) {
+            output.add("Result", exec.getResult().toString());
+        } else {
+            output.add("Result", "IMPORT_ERROR");
+            output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
+        }
+    }
+
+    private String getMandatoryInputString(String inputName) throws BusinessException {
+        if (!input.containsKey(inputName)) {
+            throw new BusinessException("The mandatory input parameter '" + inputName + "' is missing");
+        } else {
+            return input.getString(inputName);
+        }
+    }
 }
