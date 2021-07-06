@@ -15,31 +15,28 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.step;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import step.client.ControllerClientException;
 import step.client.StepClient;
+import step.controller.multitenancy.Tenant;
 import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
 import step.core.repositories.RepositoryObjectReference;
-import step.grid.filemanager.FileManagerException;
-import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
-import step.resources.Resource;
 import step.resources.ResourceRevisionContent;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 public class StepClientKeyword extends AbstractEnhancedKeyword {
 
@@ -70,52 +67,55 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "}, \"oneOf\": [{\"required\":[\"TenantName\"]},"
             + "{\"required\":[\"ProjectId\"]}]}",
             properties = {""})
-    public void SelectTenant() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+    public void SelectTenant() throws BusinessException {
 
         StepClient client = getSession().get(StepClient.class);
 
-        String tenantName = input.getString("TenantName","");
-        String projectId = input.getString("ProjectId","");
+        String tenantName = input.getString("TenantName", "");
+        String projectId = input.getString("ProjectId", "");
 
-        try {
-            if (tenantName.isEmpty()) {
-                client.getAvailableTenants().forEach(tenant -> {
-                    if (tenant.getProjectId().equals(projectId)) {
-                        try {
-                            client.selectTenant(tenant.getName());
-                        } catch (Exception e) {
-                            throw new BusinessException("Exception when trying to select the tenant");
-                        }
+        if (tenantName.isEmpty()) {
+            for (Tenant tenant: client.getAvailableTenants()) {
+                if (tenant.getProjectId() != null && tenant.getProjectId().equals(projectId)) {
+                    try {
+                        client.selectTenant(tenant.getName());
+                        return;
+                    } catch (Exception e) {
+                        output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+                        throw new BusinessException("Exception when trying to select the tenant by id");
                     }
-                });
-            } else {
-                client.selectTenant(tenantName);
+                }
             }
-        } catch (Exception e) {
-            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-            throw new BusinessException("Exception when trying to select the tenant");
+        } else {
+            try {
+                client.selectTenant(tenantName);
+                return;
+            } catch (Exception e) {
+                output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+                throw new BusinessException("Exception when trying to select the tenant by name");
+            }
         }
+        throw new BusinessException("No tenant was found for "+
+                (tenantName.isEmpty()? "project id '"+projectId+"'" : "project name '"+tenantName+"'"));
     }
 
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
             properties = {""})
-    public void ListTenants() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+    public void ListTenants() throws BusinessException {
 
         StepClient client = getSession().get(StepClient.class);
 
         try {
-            output.add("CurrentTenant",client.getCurrentTenant().getName());
+            output.add("CurrentTenant", client.getCurrentTenant().getName());
             String id = client.getCurrentTenant().getProjectId();
-            if (id!=null) {
+            if (id != null) {
                 output.add("CurrentProjectId", id);
             }
-            List<String> result = new ArrayList<String>();
-            client.getAvailableTenants().forEach(tenant -> result.add(tenant.getName()));
-            output.add("Tenants",result.toString());
-
-            result.clear();
-            client.getAvailableTenants().forEach(tenant -> result.add(tenant.getProjectId()));
-            output.add("Projects",result.toString());
+            List<String> result = new ArrayList<>();
+            client.getAvailableTenants().forEach(tenant ->
+                    result.add("{\"name\":\"" + tenant.getName() + "\",\"id\":\"" + tenant.getProjectId() + "\"}")
+            );
+            output.add("Tenants", result.toString());
         } catch (Exception e) {
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
             throw new BusinessException("Exception when trying to list the tenants");
@@ -128,7 +128,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"DeleteAfter\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"ResourceID\",\"Destination\"]}",
             properties = {""})
-    public void DownloadResource() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+    public void DownloadResource() throws BusinessException {
 
         StepClient client = getSession().get(StepClient.class);
 
@@ -137,7 +137,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         boolean deleteAfter = input.getBoolean("DeleteAfter", false);
 
         try {
-            if (client.getResourceManager().getResource(resourceID) == null) {
+            if (client.getResourceManager().getResourceContent(resourceID) == null) {
                 throw new BusinessException("Resource id '" + resourceID + "' was not found");
             }
             ResourceRevisionContent resource = client.getResourceManager().getResourceContent(resourceID);
@@ -164,7 +164,10 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             }
 
             if (deleteAfter) {
-                client.getResourceManager().deleteResource(resourceID);
+                try {
+                    client.getResourceManager().deleteResource(resourceID);
+                } catch (ControllerClientException e) {
+                }
             }
         } catch (IOException e) {
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
@@ -180,7 +183,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"Timeout\":{\"type\":\"string\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""})
-    public void RunExecution() throws BusinessException, JsonMappingException, JsonProcessingException, InterruptedException {
+    public void RunExecution() throws BusinessException, IOException, InterruptedException {
 
         StepClient client = getSession().get(StepClient.class);
 
@@ -209,9 +212,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         repoObject.setRepositoryParameters(repoParameters);
         executionParams.setRepositoryObject(repoObject);
 
-        Map<String, String> customParameters = new HashMap<String, String>();
-
-        customParameters = mapper.readValue(customParametersJson, new TypeReference<Map<String, String>>() {
+        Map<String, String> customParameters = mapper.readValue(customParametersJson, new TypeReference<Map<String, String>>() {
         });
 
         executionParams.setCustomParameters(customParameters);
