@@ -42,7 +42,7 @@ public class StepKeywordsTest {
 		ctx.close();
 	}
 
-	@Test
+	//@Test
 	public void test1() throws Exception {
 		input = Json.createObjectBuilder().add("User", "admin")
 			.add("Password", "init")

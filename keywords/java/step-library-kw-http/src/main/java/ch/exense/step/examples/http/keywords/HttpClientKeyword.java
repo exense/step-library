@@ -121,7 +121,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 				if (input.containsKey("BasicAuthHost")) {
 					if (!input.containsKey("BasicAuthPort") || !input.containsKey("BasicAuthHostScheme")) {
 						throw new BusinessException(
-								"BasicAuthHost provided wihtout 'BasicAuthPort' or 'BasicAuthHostScheme'.");
+								"BasicAuthHost provided without 'BasicAuthPort' or 'BasicAuthHostScheme'.");
 					} else {
 						basicAuthHost = input.getString("BasicAuthHost");
 						basicAuthHostScheme = input.getString("BasicAuthHostScheme");
