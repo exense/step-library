@@ -57,7 +57,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String user = input.getString("User", DEFAULT_USER);
         String password = input.getString("Password", DEFAULT_PASSWORD);
 
-        getSession().put(new StepClient(url, user, password));
+        StepClient client = new StepClient(url, user, password);
+
+        // check if correctly logged in: get the current tenant:
+        Tenant tenant = client.getCurrentTenant();
+        output.add("Tenant", tenant.getName());
+
+        getSession().put(client);
         getSession().put("User", user);
     }
 
