@@ -60,8 +60,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         StepClient client = new StepClient(url, user, password);
 
         // check if correctly logged in: get the current tenant:
-        Tenant tenant = client.getCurrentTenant();
-        output.add("Tenant", tenant.getName());
+        try {
+            Tenant tenant = client.getCurrentTenant();
+            output.add("Tenant", tenant.getName());
+        } catch (ControllerClientException e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("Could not log into the step controller");
+        }
 
         getSession().put(client);
         getSession().put("User", user);
@@ -110,8 +115,15 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     public void ListTenants() throws BusinessException {
 
         StepClient client = getSession().get(StepClient.class);
+        if (client==null) {
+            throw new BusinessException("Client was not initialized");
+        }
 
         try {
+            if (client.getCurrentTenant()==null) {
+                throw new BusinessException("client.getCurrentTenant() is null");
+            }
+
             output.add("CurrentTenant", client.getCurrentTenant().getName());
             String id = client.getCurrentTenant().getProjectId();
             if (id != null) {
