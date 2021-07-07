@@ -19,16 +19,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
+
+import javax.json.Json;
+import javax.json.JsonObject;
 
 public class StepKeywordsTest {
 
 	private ExecutionContext ctx;
+	private Output<JsonObject> output;
+	private JsonObject input;
 
 	@Before
 	public void setUp() {
-		ctx = KeywordRunner.getExecutionContext(StepKeywordsTest.class);
+		ctx = KeywordRunner.getExecutionContext(StepClientKeyword.class);
 	}
 
 	@After
@@ -38,5 +44,14 @@ public class StepKeywordsTest {
 
 	@Test
 	public void test1() throws Exception {
+		input = Json.createObjectBuilder().add("User", "admin")
+			.add("Password", "init")
+			.add("Url", "http://localhost:8080/").build();
+		output = ctx.run("InitStepClient", input.toString());
+		assert output.getError() == null;
+
+		output = ctx.run("ListTenants");
+		System.out.println(output.getPayload());
+		assert output.getError() == null;
 	}
 }

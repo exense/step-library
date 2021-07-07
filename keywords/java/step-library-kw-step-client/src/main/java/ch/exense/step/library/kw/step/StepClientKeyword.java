@@ -129,11 +129,14 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             if (id != null) {
                 output.add("CurrentProjectId", id);
             }
-            List<String> result = new ArrayList<>();
-            client.getAvailableTenants().forEach(tenant ->
-                    result.add("{\"name\":\"" + tenant.getName() + "\",\"id\":\"" + tenant.getProjectId() + "\"}")
-            );
-            output.add("Tenants", result.toString());
+            List<String> resultName = new ArrayList<>();
+            List<String> resultId = new ArrayList<>();
+            client.getAvailableTenants().forEach(tenant -> {
+                resultName.add(tenant.getName());
+                resultId.add(tenant.getProjectId());
+            });
+            String oldJson = "{\"name\":[\""+"".join("\",\"",resultName)+"\"],\"id\":[\""+"".join("\",\"",resultId)+"\"]}";
+            output.add("Tenants", oldJson);
         } catch (Exception e) {
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
             throw new BusinessException("Exception when trying to list the tenants");
