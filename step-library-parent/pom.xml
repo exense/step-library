@@ -84,7 +84,7 @@
 		<module>../keywords/java/step-library-kw-step-client</module>
 		<module>../keywords/java/step-library-kw-selenium</module>
 		<module>../keywords/java/step-library-kw-excel</module>
-		<module>../keywords/java/step-library-kw-ldap</module>
+		<module>../keywords/java/step-library-kw-network</module>
 	</modules>
 
 	<dependencies>
@@ -110,7 +110,6 @@
 				<artifactId>maven-deploy-plugin</artifactId>
 				<version>3.0.0-M1</version>
 				<configuration>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
 			<!-- Source -->

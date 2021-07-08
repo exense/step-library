@@ -32,7 +32,6 @@ import org.openqa.selenium.logging.LogEntry;
 import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
-import step.handlers.javahandler.Keyword;
 
 /**
  * Central class containing the STEP Selenium Keywords and helper methods used to start / stop a Chrome instance via chromedriver.

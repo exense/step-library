@@ -43,7 +43,7 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
             + "\"CustomDnsResolverTargetIP\":{\"type\":\"string\"},"
             + "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"}"
             + "},\"required\":[\"LdapUrl\"]}", properties = { "" })
-    public void InitLdapClient() {
+    public void Init_Ldap_Client() {
 
         String ldapUrl = input.getString("LdapUrl");
         boolean useTls = input.getBoolean("BindingPassword",false);
@@ -79,7 +79,7 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
             + "\"AllowMultipleDns\":{\"type\":\"boolean\"},"
             + "\"User\":{\"type\":\"string\"}"
             + "},\"required\":[\"BaseDN\",\"UserFilter\",\"User\"]}", properties = { "" })
-    public void LdapSimpleSearch() {
+    public void Ldap_Simple_Search() {
 
         String baseDN = input.getString("BaseDN");
         String userFilter = input.getString("UserFilter");
