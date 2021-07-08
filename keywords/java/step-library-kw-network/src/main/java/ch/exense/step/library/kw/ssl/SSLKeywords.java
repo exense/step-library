@@ -20,10 +20,7 @@ import ch.exense.step.library.commons.BusinessException;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.net.ConnectException;
 import java.security.cert.*;
 import java.text.DateFormat;
@@ -48,7 +45,7 @@ public class SSLKeywords extends AbstractEnhancedKeyword {
         boolean all = input.getBoolean("ExtractAll", false);
 
         SSLContext sslContext = SSLContext.getInstance("TLS");
-        X509TrustManager passthroughTrustManager = new X509TrustManager() {
+        X509TrustManager passThroughTrustManager = new X509TrustManager() {
             @Override
             public void checkClientTrusted(X509Certificate[] chain,
                                            String authType) throws CertificateException {
@@ -64,7 +61,7 @@ public class SSLKeywords extends AbstractEnhancedKeyword {
                 return null;
             }
         };
-        sslContext.init(null, new TrustManager[]{passthroughTrustManager}, null);
+        sslContext.init(null, new TrustManager[]{passThroughTrustManager}, null);
 
         try (SSLSocket socket = (SSLSocket) sslContext.getSocketFactory().createSocket(url, port)) {
 
@@ -105,6 +102,9 @@ public class SSLKeywords extends AbstractEnhancedKeyword {
         } catch (ConnectException e) {
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
             throw new BusinessException("Connection error when trying to connect to the host '" + url + "' on port '" + port + "'");
+        } catch (SSLPeerUnverifiedException e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("The host '" + url + "' does not seems to provide a server certificate on port '" + port + "'");
         }
     }
 }
