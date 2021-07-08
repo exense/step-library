@@ -56,7 +56,7 @@ public class ExcelKeywords extends AbstractEnhancedKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{" + "\"File\":{\"type\":\"string\"}," + "\"Sheet\":{\"type\":\"string\"}"
-			 + "},\"required\":[\"File\", \"Cell\"]}", properties = { "" })
+			 + "},\"required\":[\"File\"]}", properties = { "" })
 	public void Read_Excel_Sheet() throws FileNotFoundException, IOException {
 		String fileName = input.getString("File");
 		String sheetName = input.getString("Sheet", null);
