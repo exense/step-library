@@ -15,10 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.examples.http;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -183,11 +180,13 @@ public class HttpClient {
 			int length = (int) response.getEntity().getContentLength();
 			if (length > 0 ) {
 				InputStream stream = response.getEntity().getContent();
+				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 				byte[] result = new byte[length];
-				while (length>0) {
-					length -= stream.read(result);
+				int nRead;
+				while ((nRead = stream.read(result, 0, result.length)) != -1) {
+					buffer.write(result, 0, nRead);
 				}
-				return result;
+				return buffer.toByteArray();
 			} else {
 				return EntityUtils.toString(response.getEntity()).getBytes();
 			}
