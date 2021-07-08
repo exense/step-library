@@ -184,7 +184,9 @@ public class HttpClient {
 			if (length > 0 ) {
 				InputStream stream = response.getEntity().getContent();
 				byte[] result = new byte[length];
-				stream.read(result);
+				while (length>0) {
+					length -= stream.read(result);
+				}
 				return result;
 			} else {
 				return EntityUtils.toString(response.getEntity()).getBytes();
