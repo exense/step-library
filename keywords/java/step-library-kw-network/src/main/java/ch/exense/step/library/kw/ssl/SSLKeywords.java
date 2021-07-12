@@ -75,7 +75,7 @@ public class SSLKeywords extends AbstractEnhancedKeyword {
             int suffix = 0;
             String stringSuffix = "";
 
-            DateFormat dateFormat = new SimpleDateFormat("dd.MM.YYYY HH.mm.ss");
+            DateFormat dateFormat = new SimpleDateFormat("dd.MM.YYYY HH:mm:ss");
 
             for (Certificate cert : listCert) {
                 if (all) {
