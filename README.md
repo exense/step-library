@@ -9,3 +9,4 @@ The followigs keywords libraries are available for you to use
 - *step-library-step-client*: to perform various step operations via keywords
 - *step-library-kw-system*: to perform various filesystem operation and to start individual processes
 - *step-library-kw-monitoring-system*: for monitoring java process or window OS
+- *step-library-kw-network*: for quering different network protocols. For the moment, allows to query ldap servers and extract ssl certificate information
