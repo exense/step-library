@@ -187,9 +187,15 @@ public class FileSystemKeywords extends AbstractKeyword {
     }
 
     private String formatFileOutput(File file) {
+        String sizeInfo = "";
+        if (file.canRead()) {
+            try {
+                sizeInfo = "\"size\":" + Files.size(file.toPath()) + ",";
+            } catch (Exception e) {}
+        }
         return "{\"name\":\""+file.getName()+"\",\"lastModified\":"+ file.lastModified()+"," +
-                "\"isDirectory\":"+ file.isDirectory()+"," +
-                "\"canRead\":"+file.canRead()+",\"canWrite\":"+file.canWrite()+"}";
+                "\"isDirectory\":"+ file.isDirectory()+"," + sizeInfo +
+                "\"canRead\":"+file.canRead()+",\"canWrite\":"+file.canWrite()+",\"canExecute\":"+file.canExecute()+"}";
     }
 
     @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
