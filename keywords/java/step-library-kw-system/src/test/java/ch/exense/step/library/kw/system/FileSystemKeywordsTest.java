@@ -53,11 +53,22 @@ public class FileSystemKeywordsTest {
 		
 		System.out.println(output.getPayload());
 	}
-	
+
+	@Test
+	public void test_ls() throws Exception {
+		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
+
+		JsonObject input = Json.createObjectBuilder().add("Folder", path).build();
+
+		Output<JsonObject> output = ctx.run("Ls", input.toString());
+
+		System.out.println(output.getPayload());
+	}
+
 	@Test
 	public void test_zip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
-		
+
 		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+ File.separator +".." + File.separator + "test_zip.zip").build();
 		
 		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
