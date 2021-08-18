@@ -15,20 +15,18 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
-import java.awt.AWTException;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
+import org.apache.commons.io.FileUtils;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 
 public class SystemKeywords extends AbstractKeyword {
 
@@ -48,5 +46,19 @@ public class SystemKeywords extends AbstractKeyword {
 		Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(outputStream.toByteArray(),
 				DEFAULT_FILENAME);
 		output.addAttachment(attachment);
+	}
+
+	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    public void AttachFileToLog() {
+		String zipName = input.getString("File");
+
+		File file = new File(zipName);
+		try {
+			byte[] bytes = FileUtils.readFileToByteArray(file);
+			Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(bytes, file.getName());
+			output.addAttachment(attachment);
+		} catch (Exception ex) {
+			output.appendError("Unable to upload file");
+		}
 	}
 }
