@@ -33,12 +33,14 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 public class SeleniumLibTest {
+	private static final String TEST_FOLDER = "src\\test\\resources\\";
 	private ExecutionContext ctx;
 	private Output<JsonObject> output;
 	private String inputs;
 
 	@Before
 	public void setUp() throws Exception {
+		System.setProperty("webdriver.chrome.driver","C:\\Tools\\chromedriver.exe");
 		Map<String, String> properties = new HashMap<>();
 		ctx = KeywordRunner.getExecutionContext(properties, GenericSeleniumKeyword.class, ChromeDriverKeyword.class);
 
@@ -50,9 +52,9 @@ public class SeleniumLibTest {
 	
 	@Test
 	public void TestNavigateTo() throws Exception{
-	    File testfile = new File("test.html");
+	    File testfile = new File(TEST_FOLDER+"test.html");
 		inputs = Json.createObjectBuilder()
-				.add("Url", "file:///" +testfile.getAbsolutePath())
+				.add("Url", "file:///" + testfile.getAbsolutePath())
 				.build().toString();
 		output = ctx.run("Navigate_To", inputs);
 		System.out.println(output.getError());
