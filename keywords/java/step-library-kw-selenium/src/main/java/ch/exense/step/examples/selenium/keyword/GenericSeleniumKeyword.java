@@ -478,9 +478,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
-			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" })
-	public void expandShadowPath() {
+	public void Expand_Shadow_Path() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
 		By element = getElementFromInput();
