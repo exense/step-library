@@ -100,6 +100,7 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
      * </ul>
      */
     @Keyword(schema = "{ \"properties\": { "
+            + "\"Chrome_Driver\": {\"type\": \"string\"},"
             + "\"Headless\": {  \"type\": \"boolean\"},"
             + "\"Disable_Shm\": {\"type\": \"boolean\"},"
             + "\"Proxy_Host\": {\"type\": \"string\"},"
@@ -116,8 +117,8 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
             + "\"Maximize\": {  \"type\": \"boolean\"}"
             + "}, \"required\" : []}", properties = { "" })
     public void Open_Chrome_Advanced() {
-        if (properties.containsKey("chromedriver")) {
-            File chromeDriverBin = new File(properties.get("chromedriver"));
+        if (properties.containsKey("Chrome_Driver")) {
+            File chromeDriverBin = new File(properties.get("Chrome_Driver"));
             if (chromeDriverBin.exists()) {
                 System.setProperty(chromeDriverProperty, chromeDriverBin.getAbsolutePath());
             }
@@ -147,7 +148,7 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
         if(enableHarCapture || readBytesPerSecond > 0 || writeBytesPerSecond > 0) {
             BrowserMobProxy browserProxy = new BrowserMobProxyServer();
             browserProxy.setTrustAllServers(true);
-            if (input.containsKey("Proxy_Host") && input.containsKey("proxyPort")) {
+            if (input.containsKey("Proxy_Host") && input.containsKey("Proxy_Port")) {
                 browserProxy.setChainedProxy(
                         new InetSocketAddress(
                                 input.getString("Proxy_Host"), input.getInt("Proxy_Port")));
@@ -177,10 +178,10 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
             seleniumCapabilities.setCapability(CapabilityType.PROXY, seleniumProxy);
             options.merge(seleniumCapabilities);
             setProxy(browserProxy);
-        } else if (input.containsKey("Proxy_Host") && input.containsKey("proxyPort")) {
+        } else if (input.containsKey("Proxy_Host") && input.containsKey("Proxy_Port")) {
             Proxy proxy = new Proxy();
-            proxy.setHttpProxy(input.getString("Proxy_Host")+":"+input.getInt("proxyPort"));
-            proxy.setSslProxy(input.getString("Proxy_Host")+":"+input.getInt("proxyPort"));
+            proxy.setHttpProxy(input.getString("Proxy_Host")+":"+input.getInt("Proxy_Port"));
+            proxy.setSslProxy(input.getString("Proxy_Host")+":"+input.getInt("Proxy_Port"));
             proxy.setNoProxy(input.getString("No_Proxy",""));
             options.setCapability(CapabilityType.PROXY, proxy);
         }
@@ -200,14 +201,14 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
 
         final WebDriver driver = new ChromeDriver(options);
 
-        driver.manage().timeouts().implicitlyWait(input.getInt("implicitlyWait", 10), TimeUnit.SECONDS);
-        driver.manage().timeouts().pageLoadTimeout(input.getInt("pageLoadTimeout", 10), TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(input.getInt("Implicitly_Wait", 10), TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(input.getInt("PageLoad_Timeout", 10), TimeUnit.SECONDS);
         driver.manage().window().setSize(new Dimension(1920, 1080));
 
-        if (input.getBoolean("maximize", false)) {
+        if (input.getBoolean("Maximize", false)) {
             driver.manage().window().maximize();
         }
-
+        
         setDriver(driver);
         //stopTransaction(transactionName);
     }
