@@ -51,7 +51,6 @@ public class ChromeDriverKeyword extends AbstractSeleniumKeyword {
     final List<String> defaultOptions = Arrays.asList("disable-infobars","ignore-certificate-errors", "no-zygote", "disable-extensions");
     final List<String> headlessOptions = Arrays.asList("headless", "disable-gpu", "disable-software-rasterizer", "no-sandbox");
 
-
     /**
      * <p>Keyword used to create a selenium chrome driver and start a corresponding chrome instance.
      * The driver is stored in the current STEP session and is automatically closed once the session ends.</p>
