@@ -43,7 +43,7 @@ public class SeleniumLibTest {
 		Map<String, String> properties = new HashMap<>();
 		ctx = KeywordRunner.getExecutionContext(properties, GenericSeleniumKeyword.class, ChromeDriverKeyword.class);
 
-		inputs = Json.createObjectBuilder().add("headless", true).build().toString();
+		inputs = Json.createObjectBuilder().add("Headless", true).build().toString();
 		output = ctx.run("Open_Chrome", inputs);
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
