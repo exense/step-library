@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.examples.selenium.keyword;
 
+import ch.exense.step.examples.selenium.helper.AbstractSeleniumKeyword;
 import ch.exense.step.examples.selenium.helper.ProxyWrapper;
 import net.lightbody.bmp.BrowserMobProxy;
 import net.lightbody.bmp.BrowserMobProxyServer;

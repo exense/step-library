@@ -17,40 +17,41 @@ package ch.exense.step.examples.selenium.helper;
 
 import java.io.Closeable;
 
-import net.lightbody.bmp.BrowserMobProxy;
+import org.openqa.selenium.WebDriver;
 
 /**
- * Wrapper class for BrowserMobProxy instance. 
- * The class implements the Closeable interface in order to easily manage the ProxyWrapper instance.
+ * Wrapper class for WebDriver instance. 
+ * The class implements the Closeable interface in order to easily manage the browser instance closing.
+ *
  */
-public class ProxyWrapper implements Closeable {
+public class DriverWrapper implements Closeable {
 	/**
-	 * The BrowserMobProxy instance to be wrapped.
+	 * The WebDriver instance to be wrapped.
 	 */
-	final BrowserMobProxy proxy;
+	final WebDriver driver;
 
 	/**
-	 * Constructor for ProxyWrapper
-	 * @param proxy the BrowserMobProxy instance to be wrapped
+	 * Constructor for DriverWrapper
+	 * @param driver the WebDriver instance to be wrapped
 	 */
-	public ProxyWrapper(BrowserMobProxy proxy) {
+	public DriverWrapper(WebDriver driver) {
 		super();
-		this.proxy = proxy;
+		this.driver = driver;
 	}
 
 	/**
-	 * Method to automatically and properly close the wrapped BrowserMobProxy when not used anymore
+	 * Method to automatically and properly close the wrapped WebDriver when not used anymore
 	 */
 	@Override
 	public void close() {
-		proxy.stop();
+		driver.quit();
 	}
 
 	/**
-	 * Getter to retrieve the wrapped proxy
-	 * @return the wrapped BrowserMobProxy instance
+	 * Getter to retrieve the wrapped driver
+	 * @return the wrapped WebDriver instance
 	 */
-	public BrowserMobProxy getProxy() {
-		return proxy;
+	public WebDriver getDriver() {
+		return driver;
 	}
 }

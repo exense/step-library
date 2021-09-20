@@ -36,9 +36,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ch.exense.step</groupId>
-			<artifactId>step-core-model</artifactId>
-			<version>${step.version}</version>
+			<groupId>ch.exense.step.library</groupId>
+			<artifactId>step-library-selenium-3</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>

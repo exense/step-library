@@ -15,9 +15,6 @@
  ******************************************************************************/
 package ch.exense.step.examples.selenium.keyword;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import ch.exense.step.examples.selenium.helper.AbstractPageObject;
 import ch.exense.step.examples.selenium.helper.DriverWrapper;
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
@@ -28,10 +25,15 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
-
 import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Central class containing the STEP Selenium Keywords and helper methods used to start / stop a Chrome instance via chromedriver.
