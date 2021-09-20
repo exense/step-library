@@ -25,7 +25,6 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
-import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 
@@ -39,7 +38,6 @@ import java.util.Set;
  * Central class containing the STEP Selenium Keywords and helper methods used to start / stop a Chrome instance via chromedriver.
  * Please have a look at the <a href="https://step.exense.ch/knowledgebase/3.15/userdocs/keywords/">Exense documentation</a> to learn how to use Keywords.
  */
-@Attribute(key = "category",value = "Selenium")
 public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 
 	/**
