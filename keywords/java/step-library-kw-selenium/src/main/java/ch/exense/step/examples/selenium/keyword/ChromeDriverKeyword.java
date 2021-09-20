@@ -34,11 +34,6 @@ import java.util.Map;
 @Attribute(key = "category",value = "Selenium")
 public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
 
-    final String chromeDriverProperty = "webdriver.chrome.driver";
-
-    final List<String> defaultOptions = Arrays.asList("disable-infobars","ignore-certificate-errors", "no-zygote", "disable-extensions");
-    final List<String> headlessOptions = Arrays.asList("headless", "disable-gpu", "disable-software-rasterizer", "no-sandbox");
-
     /**
      * <p>Keyword used to create a selenium chrome driver and start a corresponding chrome instance.
      * The driver is stored in the current STEP session and is automatically closed once the session ends.</p>
@@ -57,7 +52,7 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
             + "\"Headless\": {  \"type\": \"boolean\"}"
             + "}, \"required\" : []}", properties = { "" })
     public void Open_Chrome() {
-       Open_Chrome_Advanced();
+        openChrome();
     }
 
     /**
@@ -115,59 +110,5 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
             + "}, \"required\" : []}", properties = { "" })
     public void Close_Driver() {
         closeDriver();
-    }
-
-    /**
-     * Helper method to check if the Har capture is enabled
-     * @return true if enabled, otherwise false
-     */
-    protected boolean isHarCaptureEnabled() {
-        return (boolean) session.get("enableHarCapture");
-    }
-    /**
-     * Helper method used to insert the HTTP measurement details captured by an instance of the BrowserMobProxy (if enabled)
-     * @param har the Har object containing the HTTP measurement details
-     * @param transactionName the transaction to insert the HTTP measurments to
-     * @param attachHarFile define if the Har object should be streamed to a file and attached to the Keyword output
-     */
-    protected void insertHarMeasures(Har har, String transactionName, boolean attachHarFile) {
-        List<HarEntry> harEntries = har.getLog().getEntries();
-        harEntries.stream()
-                .forEach(e -> {
-                    Map<String, Object> measurementData = new HashMap<>();
-                    measurementData.put("type", "http");
-                    measurementData.put("request_url", e.getRequest().getUrl());
-                    measurementData.put("request_method", e.getRequest().getMethod());
-                    measurementData.put("response_status",e.getResponse().getStatus() + " - " + e.getResponse().getStatusText());
-                    measurementData.put("response_content_size", e.getResponse().getContent().getSize());
-                    measurementData.put("response_content_type", e.getResponse().getContent().getMimeType());
-                    output.addMeasure(transactionName, e.getTime(), measurementData);
-                    System.out.println("Inserting har measurement recorded at " + e.getStartedDateTime());
-                });
-        if(attachHarFile) {
-            StringWriter sw = new StringWriter();
-            try {
-                har.writeTo(sw);
-            } catch (IOException e) {
-                AttachmentHelper.generateAttachmentForException(e);
-            }
-            output.addAttachment(AttachmentHelper.generateAttachmentFromByteArray(sw.toString().getBytes(), transactionName + ".har"));
-        }
-    }
-
-    /**
-     * Helper method to get a BrowserMobProxy instance from a STEP session
-     * @return the BrowserMobProxy instance from a STEP session
-     */
-    protected BrowserMobProxy getProxy() {
-        return session.get(ProxyWrapper.class).getProxy();
-    }
-
-    /**
-     * <p>Helper method to put a BrowserMobProxy instance into a STEP session</p>
-     * @param proxy the BrowserMobProxy instance to put in session
-     */
-    protected void setProxy(BrowserMobProxy proxy) {
-        session.put(new ProxyWrapper(proxy));
     }
 }
