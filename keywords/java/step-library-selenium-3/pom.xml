@@ -36,9 +36,15 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>ch.exense.step</groupId>
+			<artifactId>step-core-model</artifactId>
+			<version>3.15.2</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
 			<version>3.141.59</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 </project>

@@ -16,7 +16,6 @@
 package ch.exense.step.examples.selenium.keyword;
 
 import ch.exense.step.examples.selenium.helper.AbstractPageObject;
-import ch.exense.step.examples.selenium.helper.AbstractSeleniumKeyword;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.Select;
