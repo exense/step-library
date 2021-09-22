@@ -13,12 +13,11 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package ch.exense.step.examples.selenium.keyword;
+package ch.exense.step.library.selenium;
 
-import ch.exense.step.examples.selenium.helper.AbstractPageObject;
-import ch.exense.step.examples.selenium.helper.DriverWrapper;
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;

@@ -15,19 +15,25 @@
  ******************************************************************************/
 package ch.exense.step.examples.selenium.keyword;
 
-import ch.exense.step.examples.selenium.helper.AbstractPageObject;
-import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.Select;
-import step.core.accessors.Attribute;
-import step.handlers.javahandler.Keyword;
-
-import javax.json.JsonNumber;
-import javax.json.JsonString;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
+import javax.json.JsonNumber;
+import javax.json.JsonString;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
+
+import ch.exense.step.library.selenium.AbstractPageObject;
+import ch.exense.step.library.selenium.AbstractSeleniumKeyword;
+import step.core.accessors.Attribute;
+import step.handlers.javahandler.Keyword;
 
 /**
  * Class containing generic selenium keywords
@@ -103,9 +109,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 	/**
 	 * <p>Generic keyword used to click on the element located by the locator given as input</p>
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeClick(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeWait(java.util.function.Supplier, long)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS+ ","
@@ -137,9 +143,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 	/**
 	 * <p>Generic keyword used to click on the element located by the locator given as input</p>
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeClick(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeWait(java.util.function.Supplier, long)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS+ ","
@@ -177,9 +183,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <li>ElementXPathToCheckIfDisplayed(): optional element xpath to check if element is displayed after clicking
 	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeClick(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeWait(java.util.function.Supplier, long)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS + ","
@@ -234,7 +240,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <ul>
 	 * <li>Exists : true if element exists, false otherwise
 	 * </ul>
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ "\"Optional\": {\"type\": \"boolean\"},"
@@ -277,7 +283,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <ul>
 	 * <li>Text : text of the element
 	 * </ul>
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
@@ -368,9 +374,9 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 * <li>Text(): optional visible text to select
 	 * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
 	 * </ul>
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeClick(By)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#safeWait(java.util.function.Supplier, long)
-	 * @see ch.exense.step.examples.selenium.helper.AbstractPageObject#findBy(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeClick(By)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#safeWait(java.util.function.Supplier, long)
+	 * @see ch.exense.step.library.selenium.AbstractPageObject#findBy(By)
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
@@ -437,7 +443,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 		startTransaction();
 		try {
 			String main = page.getDriver().getWindowHandle();
-			HashSet<String> handles = new HashSet(page.getDriver().getWindowHandles());
+			HashSet<String> handles = new HashSet<>(page.getDriver().getWindowHandles());
 			handles.remove(main);
 
 			output.add("Main", main);

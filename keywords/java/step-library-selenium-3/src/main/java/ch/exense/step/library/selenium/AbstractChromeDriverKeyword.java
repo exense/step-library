@@ -13,9 +13,8 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package ch.exense.step.examples.selenium.helper;
+package ch.exense.step.library.selenium;
 
-import ch.exense.step.examples.selenium.keyword.AbstractSeleniumKeyword;
 import net.lightbody.bmp.BrowserMobProxy;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.client.ClientUtil;

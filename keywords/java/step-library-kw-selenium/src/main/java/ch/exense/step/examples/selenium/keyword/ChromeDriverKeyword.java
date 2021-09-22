@@ -15,21 +15,9 @@
  ******************************************************************************/
 package ch.exense.step.examples.selenium.keyword;
 
-import ch.exense.step.examples.selenium.helper.AbstractChromeDriverKeyword;
-import ch.exense.step.examples.selenium.helper.ProxyWrapper;
-import net.lightbody.bmp.BrowserMobProxy;
-import net.lightbody.bmp.core.har.Har;
-import net.lightbody.bmp.core.har.HarEntry;
+import ch.exense.step.library.selenium.AbstractChromeDriverKeyword;
 import step.core.accessors.Attribute;
-import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Attribute(key = "category",value = "Selenium")
 public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
