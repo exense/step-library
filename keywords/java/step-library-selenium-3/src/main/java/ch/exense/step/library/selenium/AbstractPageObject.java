@@ -307,10 +307,14 @@ public class AbstractPageObject {
         safeHover(by, getDefaultTimeout());
     }
 
+    public void executeJavascript(String javascriptToExecute,WebElement element) {
+        ((JavascriptExecutor) driver).executeScript(javascriptToExecute, element);
+        customWait();
+    }
+
     public void executeJavascript(String javascriptToExecute) {
         ((JavascriptExecutor) driver).executeScript(javascriptToExecute);
         customWait();
-
     }
 
     public void javascriptClick(By by) {
