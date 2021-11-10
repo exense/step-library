@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.library.selenium;
 
+import ch.exense.step.library.commons.BusinessException;
 import net.lightbody.bmp.BrowserMobProxy;
 import net.lightbody.bmp.BrowserMobProxyServer;
 import net.lightbody.bmp.client.ClientUtil;
@@ -66,6 +67,8 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
             File chromeDriverBin = new File(properties.get("Chrome_Driver"));
             if (chromeDriverBin.exists()) {
                 System.setProperty(chromeDriverProperty, chromeDriverBin.getAbsolutePath());
+            } else {
+                throw new BusinessException("Could not find path to the chrome executable specified in 'Chrome_Driver', value was '"+chromeDriverBin.getPath()+"'");
             }
         }
 
@@ -75,6 +78,15 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
         ChromeOptions options = new ChromeOptions();
         options.setAcceptInsecureCerts(true);
         options.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+
+        if (properties.containsKey("Chrome_Path")) {
+            File chromeBin = new File(properties.get("Chrome_Path"));
+            if (chromeBin.exists()) {
+                options.setBinary(chromeBin);
+            } else {
+                throw new BusinessException("Could not find path to the chrome executable specified in 'Chrome_Path', value was '"+chromeBin.getPath()+"'");
+            }
+        }
 
         options.addArguments(defaultOptions);
         options.setExperimentalOption("w3c", false);

@@ -71,6 +71,7 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
      */
     @Keyword(schema = "{ \"properties\": { "
             + "\"Chrome_Driver\": {\"type\": \"string\"},"
+            + "\"Chrome_Path\": {\"type\": \"string\"},"
             + "\"Headless\": {  \"type\": \"boolean\"},"
             + "\"Disable_Shm\": {\"type\": \"boolean\"},"
             + "\"Proxy_Host\": {\"type\": \"string\"},"
