@@ -16,19 +16,14 @@
 package ch.exense.step.library.kw.mail;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
-import ch.exense.step.library.commons.BusinessException;
-import org.ldaptive.auth.SearchDnResolver;
 import step.handlers.javahandler.Keyword;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import java.io.Closeable;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Properties;
-import java.io.Closeable;
 
 public class MailKeywords extends AbstractEnhancedKeyword {
 
@@ -64,7 +59,8 @@ public class MailKeywords extends AbstractEnhancedKeyword {
             + "\"Username\":{\"type\":\"string\"},"
             + "\"Password\":{\"type\":\"string\"},"
             + "\"StoreProtocol\":{\"type\":\"string\"},"
-            + "\"StorePort\":{\"type\":\"integer\"}"
+            + "\"StorePort\":{\"type\":\"integer\"},"
+            + "\"StoreUser\":{\"type\":\"String\"}"
             + "},\"required\":[\"SmtpHost\",\"Username\",\"Password\"]}", properties = { "" })
     public void Init_Mail_Client() throws MessagingException {
 
@@ -76,19 +72,30 @@ public class MailKeywords extends AbstractEnhancedKeyword {
 
         String storeProtocol =  input.getString("StoreProtocol","pop3");
         int storePort = input.getInt("StorePort",-1);
+        String storeUser =  input.getString("StoreUser",username);
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", true);
         props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", port);
         props.put("mail.smtp.ssl.trust", host);
 
-        props.put("mail.imap.auth", true);
-        props.put("mail.imap.starttls.enable", "true");
-        props.put("mail.imap.host", host);
-        props.put("mail.imap.port", storePort);
-        props.put("mail.imap.ssl.trust", host);
+        props.put("mail.imaps.auth", true);
+        props.put("mail.imaps.starttls.enable", "true");
+        props.put("mail.imaps.ssl.protocols", "TLSv1.2");
+        props.put("mail.imaps.host", host);
+        props.put("mail.imaps.port", storePort);
+        props.put("mail.imaps.ssl.trust", host);
+
+        props.put("mail.debug", true);
+
+        for (String key : input.keySet()) {
+            if (key.contains(".")) {
+                props.put(key,input.getString(key));
+            }
+        }
 
         Session mailSession = Session.getInstance(props, new Authenticator() {
             @Override
@@ -98,10 +105,11 @@ public class MailKeywords extends AbstractEnhancedKeyword {
         });
 
         Store store = mailSession.getStore(storeProtocol);
+
         if (storePort==-1) {
-            store.connect(host, username, password);
+            store.connect(host, storeUser, password);
         } else {
-            store.connect(host, storePort, username, password);
+            store.connect(host, storePort, storeUser, password);
         }
 
         MailWrapper wrapper = new MailWrapper(mailSession,store);
