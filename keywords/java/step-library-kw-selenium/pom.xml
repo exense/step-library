@@ -41,14 +41,9 @@
 			<version>${step.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-java</artifactId>
-			<version>3.141.59</version>
-		</dependency>
-		<dependency>
-			<groupId>net.lightbody.bmp</groupId>
-			<artifactId>browsermob-core</artifactId>
-			<version>2.1.5</version>
+			<groupId>ch.exense.step.library</groupId>
+			<artifactId>step-library-selenium-3</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>

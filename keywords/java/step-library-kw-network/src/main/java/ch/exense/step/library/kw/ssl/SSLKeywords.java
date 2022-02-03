@@ -93,7 +93,7 @@ public class SSLKeywords extends AbstractEnhancedKeyword {
                 } else {
                     throw new Exception("Unknown certificate type '" + cert.getType() + "'");
                 }
-                if (!all && suffix == 0) {
+                if (!all) {
                     break;
                 } else {
                     suffix++;

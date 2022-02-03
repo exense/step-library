@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>step-library-kw-xml</artifactId>
+	<artifactId>step-library-selenium-3</artifactId>
 
 	<parent>
 		<groupId>ch.exense.step.library</groupId>
@@ -17,5 +17,15 @@
 			<artifactId>step-library-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>3.141.59</version>
+		</dependency>
+		<dependency>
+			<groupId>net.lightbody.bmp</groupId>
+			<artifactId>browsermob-core</artifactId>
+			<version>2.1.5</version>
+		</dependency>
+    </dependencies>
 </project>

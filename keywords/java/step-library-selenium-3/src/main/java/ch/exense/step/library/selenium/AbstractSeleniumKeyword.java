@@ -13,31 +13,30 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  ******************************************************************************/
-package ch.exense.step.examples.selenium.keyword;
+package ch.exense.step.library.selenium;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import ch.exense.step.examples.selenium.helper.AbstractPageObject;
-import ch.exense.step.examples.selenium.helper.DriverWrapper;
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
-
-import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Central class containing the STEP Selenium Keywords and helper methods used to start / stop a Chrome instance via chromedriver.
  * Please have a look at the <a href="https://step.exense.ch/knowledgebase/3.15/userdocs/keywords/">Exense documentation</a> to learn how to use Keywords.
  */
-@Attribute(key = "category",value = "Selenium")
 public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 
 	/**
