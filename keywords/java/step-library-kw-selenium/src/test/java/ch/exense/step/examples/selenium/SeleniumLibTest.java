@@ -17,6 +17,7 @@ package ch.exense.step.examples.selenium;
 
 import ch.exense.step.examples.selenium.keyword.ChromeDriverKeyword;
 import ch.exense.step.examples.selenium.keyword.GenericSeleniumKeyword;
+import ch.exense.step.examples.selenium.keyword.ShadowSeleniumKeyword;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,14 +42,14 @@ public class SeleniumLibTest {
 	@Before
 	public void setUp() throws Exception {
 		Map<String, String> properties = new HashMap<>();
-		ctx = KeywordRunner.getExecutionContext(properties, GenericSeleniumKeyword.class, ChromeDriverKeyword.class);
+		ctx = KeywordRunner.getExecutionContext(properties, ShadowSeleniumKeyword.class, GenericSeleniumKeyword.class, ChromeDriverKeyword.class);
 
 		inputs = Json.createObjectBuilder().add("Headless", true).build().toString();
 		output = ctx.run("Open_Chrome", inputs);
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
 	}
-	
+
 	@Test
 	public void TestNavigateTo() throws Exception{
 	    File testFile = new File(TEST_FOLDER+"test.html");
@@ -86,6 +87,30 @@ public class SeleniumLibTest {
 				.add("Xpath", "/html/body/p[1]/button")
 				.build().toString();
 		output = ctx.run("Double_Click", inputs);
+		System.out.println(output.getPayload());
+		assertNull(output.getError());
+
+		inputs = Json.createObjectBuilder()
+				.add("Xpath", "/html/body/div[3]" )
+				.build().toString();
+		output = ctx.run("Get_Text", inputs);
+		assertEquals("3", output.getPayload().getString("Text"));
+	}
+
+	@Test
+	public void TestShadowClick() throws Exception{
+		TestNavigateTo();
+		inputs = Json.createObjectBuilder()
+				.add("Shadow_Selectors", "#shadow, p > button")
+				.build().toString();
+		output = ctx.run("Shadow_Click", inputs);
+		System.out.println(output.getPayload());
+		assertNull(output.getError());
+
+		inputs = Json.createObjectBuilder()
+				.add("Shadow_Selectors", "#shadow, p > button")
+				.build().toString();
+		output = ctx.run("Shadow_Double_Click", inputs);
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
 
@@ -147,6 +172,17 @@ public class SeleniumLibTest {
 		output = ctx.run("Get_Text", inputs);
 		assertNull(output.getError());
 		assertEquals("This is a p element.", output.getPayload().getString("Text"));
+	}
+
+	@Test
+	public void TestShadowGetText() throws Exception{
+		TestNavigateTo();
+		inputs = Json.createObjectBuilder()
+				.add("Shadow_Selectors", "#container, #inside")
+				.build().toString();
+		output = ctx.run("Shadow_Get_Text", inputs);
+		assertNull(output.getError());
+		assertEquals("Inside Shadow DOM\nH2", output.getPayload().getString("Text"));
 	}
 
 	@Test

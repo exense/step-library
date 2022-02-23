@@ -17,10 +17,15 @@ package ch.exense.step.library.selenium;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -280,6 +285,19 @@ public class AbstractPageObject {
         safeClick(by, getDefaultTimeout());
     }
 
+    public void safeClick(String[] selectors, long timeout) {
+        Poller.retryIfFails(() -> {
+            WebElement element = expandShadowPath(selectors);
+            element.click();
+            customWait();
+            return true;
+        }, timeout);
+    }
+
+    public void safeClick(String[] selectors) {
+        safeClick(selectors, getDefaultTimeout());
+    }
+
     /**
      * Method used to hover on a web element in a safe manner
      *
@@ -322,10 +340,22 @@ public class AbstractPageObject {
         customWait();
     }
 
+    public void javascriptClick(String[] selectors) {
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", expandShadowPath(selectors));
+        customWait();
+    }
+
     public void javascriptDoubleClick(By by) {
         ((JavascriptExecutor) driver).executeScript("var clickEvent  = document.createEvent ('MouseEvents');\n" +
                 "clickEvent.initEvent ('dblclick', true, true);\n" +
                 "arguments[0].dispatchEvent (clickEvent);", findBy(by));
+        customWait();
+    }
+
+    public void javascriptDoubleClick(String[] selectors) {
+        ((JavascriptExecutor) driver).executeScript("var clickEvent  = document.createEvent ('MouseEvents');\n" +
+                "clickEvent.initEvent ('dblclick', true, true);\n" +
+                "arguments[0].dispatchEvent (clickEvent);", expandShadowPath(selectors));
         customWait();
     }
 
@@ -339,6 +369,16 @@ public class AbstractPageObject {
     public void safeDoubleClick(By by, long timeout) {
         safeWait(() -> {
             WebElement element = driver.findElement(by);
+            Actions actions = new Actions(driver);
+            actions.doubleClick(element).perform();
+            customWait();
+            return true;
+        }, timeout);
+    }
+
+    public void safeDoubleClick(String[] selectors, long timeout) {
+        safeWait(() -> {
+            WebElement element = expandShadowPath(timeout, selectors);
             Actions actions = new Actions(driver);
             actions.doubleClick(element).perform();
             customWait();
@@ -364,6 +404,16 @@ public class AbstractPageObject {
         }, timeout);
     }
 
+    public void safeSendKeys(String[] selectors, String keys, Supplier<Boolean> condition, long timeout) {
+        safeWait(() -> {
+            WebElement element = expandShadowPath(selectors);
+            element.clear();
+            element.sendKeys(keys);
+            customWait();
+            return (condition != null) ? condition.get() : true;
+        }, timeout);
+    }
+
     public void safeSendKeys(By by, Keys keys, Supplier<Boolean> condition, long timeout) {
         safeWait(() -> {
             WebElement element = driver.findElement(by);
@@ -380,6 +430,10 @@ public class AbstractPageObject {
 
     public void safeSendKeys(By by, Keys keys, long timeout) {
         safeSendKeys(by, keys, null, timeout);
+    }
+
+    public void safeSendKeys(String[] selectors, String keys, long timeout) {
+        safeSendKeys(selectors, keys, () -> expandShadowPath(selectors).getAttribute("value").equals(keys), timeout);
     }
 
     /**
@@ -447,25 +501,33 @@ public class AbstractPageObject {
         safeWait(() -> findBy(By.xpath(xpathToCheck)).isEnabled());
     }
 
-    public WebElement expandShadowPath(String[] cssSelectorPath, String lastSelector) {
-        WebDriver driver = getDriver();
-        long timeout = 15;
-
-        return doWithoutImplicitWait(()->{
-            return Poller.retryIfFails(() -> expandShadowPath(cssSelectorPath, lastSelector, driver), timeout);
-        });
+    public WebElement expandShadowPath(String[]... cssSelectorPath) {
+        return expandShadowPath(getDefaultTimeout(), cssSelectorPath);
     }
 
-    public WebElement expandShadowPath(String[] cssSelectorPath, String lastSelector, WebDriver driver) {
-        WebElement current = null;
-        for (String cssSelector : cssSelectorPath) {
+    public WebElement expandShadowPath(long timeout, String[]... cssSelectorPath) {
+        List<String> fullPath = toFullPathList(cssSelectorPath);
+        WebDriver driver = getDriver();
+        return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> expandShadowPath(fullPath, driver), timeout));
+    }
+
+    private WebElement expandShadowPath(List<String> cssSelectorPath, WebDriver driver) {
+        return expandShadowPath(cssSelectorPath, driver, null);
+    }
+
+    private WebElement expandShadowPath(List<String> cssSelectorPath, WebDriver driver, WebElement fromElement) {
+        ArrayList<String> pathWithoutLastElement = new ArrayList<>(cssSelectorPath);
+        String lastSelector = pathWithoutLastElement.remove(pathWithoutLastElement.size() - 1);
+
+        WebElement current = fromElement;
+        for (String cssSelector : pathWithoutLastElement) {
             current = expandRootElement(driver, current, cssSelector);
         }
-        return current.findElement(By.cssSelector(lastSelector));
+        return lastSelector == null || lastSelector.isEmpty() ? current : current.findElement(By.cssSelector(lastSelector));
     }
 
-    public WebElement expandRootElement(WebDriver driver, WebElement element, String cssSelector) {
-        if(element == null) {
+    private WebElement expandRootElement(WebDriver driver, WebElement element, String cssSelector) {
+        if (element == null) {
             return expandRootElement(driver, driver.findElement(By.cssSelector(cssSelector)));
         } else {
             return expandRootElement(driver, element.findElement(By.cssSelector(cssSelector)));
@@ -473,7 +535,36 @@ public class AbstractPageObject {
     }
 
     public WebElement expandRootElement(WebDriver driver, WebElement element) {
-        return (WebElement) ((JavascriptExecutor) driver).executeScript("return arguments[0].shadowRoot",	element);
+        Object shadowRoot = ((JavascriptExecutor) driver).executeScript("return arguments[0].shadowRoot", element);
+        return shadowRootToWebElement(shadowRoot);
+    }
+
+    private WebElement shadowRootToWebElement(Object shadowRoot) {
+        WebElement returnObj;
+
+        if (shadowRoot instanceof WebElement) {
+            // Chromedriver 95-
+            returnObj = (WebElement) shadowRoot;
+        } else if (shadowRoot instanceof Map) {
+            // Chromedriver 96+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> shadowRootMap = (Map<String, Object>) shadowRoot;
+            String shadowRootKey = (String) shadowRootMap.keySet().toArray()[0];
+            String id = (String) shadowRootMap.get(shadowRootKey);
+            RemoteWebElement remoteWebElement = new RemoteWebElement();
+            remoteWebElement.setParent((RemoteWebDriver) driver);
+            remoteWebElement.setId(id);
+            returnObj = remoteWebElement;
+        } else {
+            throw new RuntimeException("Unexpected return type for shadowRoot in expandRootElement");
+        }
+        return returnObj;
+    }
+
+    private ArrayList<String> toFullPathList(String[][] cssSelectorPath) {
+        ArrayList<String> fullPath = new ArrayList<>();
+        Arrays.stream(cssSelectorPath).forEach(partialPath -> fullPath.addAll(List.of(partialPath)));
+        return fullPath;
     }
 
 

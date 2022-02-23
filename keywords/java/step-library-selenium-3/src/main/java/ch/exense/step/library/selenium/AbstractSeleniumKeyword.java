@@ -65,7 +65,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	private static final String INPUT_XPATH = "Xpath";
 	private static final String INPUT_ID = "Id";
 	private static final String INPUT_NAME = "Name";
-	private static final String INPUT_WAIT_FOR_PREFIX = "Wait_For_";
+	protected static final String INPUT_WAIT_FOR_PREFIX = "Wait_For_";
 
 	protected static final String SELENIUM_DEFAULT_TIMEOUT_INPUT = ""
 			+"\""+INPUT_TIMEOUT+"\": {\"type\": \"integer\"}";
