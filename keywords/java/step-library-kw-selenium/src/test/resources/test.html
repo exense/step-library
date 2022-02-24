@@ -132,7 +132,30 @@ function myFunction() {
 <div id="shadow">
     <template shadowroot="open">
         <slot></slot>
+        <style>
+           .hiddenText {
+              display: none;
+           }
+           .hoverDiv:hover + .hiddenText {
+              display: block;
+              color: rgb(71, 0, 65);
+              font-size: 22px;
+              font-weight: bold;
+           }
+        </style>
+        <input type="text" id="shadow_fname" name="shadow_fname"><br>
         <p><button onclick="clickCounter()" type="button">Click me!</button></p>
+        <div class="hoverDiv" style="font-size: 18px;">Hover over me.</div>
+        <div class="hiddenText">This text is shown by hovering on the above div</div>
+
+        <label for="cars">Choose a car:</label>
+        <select name="shadow_cars" id="shadow_cars">
+            <option value="volvo">Volvo</option>
+            <option value="saab">Saab</option>
+            <option value="opel">Opel</option>
+            <option value="audi">Audi</option>
+        </select>
+        <br><br>
     </template>
 </div>
 </body>

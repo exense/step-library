@@ -315,6 +315,16 @@ public class AbstractPageObject {
         }, timeout);
     }
 
+    public void safeHover(String[] selectors, long timeout) {
+        Actions actions = new Actions(driver);
+        Poller.retryIfFails(() -> {
+            WebElement element = expandShadowPath(selectors);
+            actions.moveToElement(element).build().perform();
+            customWait();
+            return true;
+        }, timeout);
+    }
+
     /**
      * Method used to click on a web element in a safe manner, using the default class timeout
      *
@@ -323,6 +333,10 @@ public class AbstractPageObject {
      */
     public void safeHover(By by) {
         safeHover(by, getDefaultTimeout());
+    }
+
+    public void safeHover(String[] selectors) {
+        safeHover(selectors, getDefaultTimeout());
     }
 
     public void executeJavascript(String javascriptToExecute,WebElement element) {
