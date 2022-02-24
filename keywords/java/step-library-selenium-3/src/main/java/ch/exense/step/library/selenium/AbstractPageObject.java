@@ -138,6 +138,17 @@ public class AbstractPageObject {
     }
 
     /**
+     * Method used to wait for an IFrame to be available. First switch to default page content.
+     *
+     * @param element the IFrame element locator
+     */
+    public void waitForFrame(WebElement element) {
+        this.driver.switchTo().defaultContent();
+        this.webDriverWait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(element));
+    }
+
+
+    /**
      * Method used to switch the WebDriver content to an IFrame. First switch to default page content and wait for the IFrame to be available.
      *
      * @param by the IFrame locator

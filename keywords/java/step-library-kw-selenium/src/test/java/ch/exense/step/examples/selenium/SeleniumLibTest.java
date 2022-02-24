@@ -292,6 +292,32 @@ public class SeleniumLibTest {
 	}
 
 	@Test
+	public void TestShadowIFrame() throws Exception{
+		TestNavigateTo();
+		inputs = Json.createObjectBuilder()
+				.add("Shadow_Selectors", "#shadow, iframe")
+				.build().toString();
+		output = ctx.run("Shadow_Enter_Iframe", inputs);
+		assertNull(output.getError());
+		inputs = Json.createObjectBuilder()
+				.add("Xpath", "/html/body/p")
+				.build().toString();
+		output = ctx.run("Get_Text", inputs);
+		assertNull(output.getError());
+		assertEquals("Le Iframe text", output.getPayload().getString("Text"));
+		inputs = Json.createObjectBuilder()
+				.add("Xpath", "/html/body/iframe")
+				.build().toString();
+		output = ctx.run("Exit_Iframe", inputs);
+		assertNull(output.getError());
+		inputs = Json.createObjectBuilder()
+				.add("Xpath", "/html/body/p")
+				.build().toString();
+		output = ctx.run("Get_Text", inputs);
+		assertNull(output.getError());
+	}
+
+	@Test
 	public void TestSelectOption()throws Exception{
 	    TestNavigateTo();
 	    inputs = Json.createObjectBuilder()

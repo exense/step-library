@@ -3,6 +3,7 @@ package ch.exense.step.examples.selenium.keyword;
 import ch.exense.step.library.commons.BusinessException;
 import ch.exense.step.library.selenium.AbstractPageObject;
 import ch.exense.step.library.selenium.AbstractSeleniumKeyword;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -326,6 +327,40 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
         startTransaction();
         jse.executeScript("arguments[0].scrollIntoView(true);", obj);
         stopTransaction();
+    }
+
+    /**
+     * <p>Generic keyword used to enter iframe selected by xpath.</p>
+     * Inputs (default values):
+     * <ul>
+     * <li>Xpath(): the path to the element to wait for
+     * <li>Timeout(): optional time to wait in seconds for the element xpath to be checked
+     * </ul>
+     * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
+     */
+    @Keyword (schema = "{ \"properties\": { "
+            + SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
+            + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
+            + SELENIUM_DEFAULT_ACTION_NAME_INPUT
+            + "}, \"required\" : []}", properties = { "" })
+    public void Shadow_Enter_Iframe() {
+        AbstractPageObject page = getPageObject();
+        long timeout = getTimeoutFromInput();
+        String selectors = getSelectorsFromInput();
+
+        Map<String, Object> additionalTransactionProperties = new HashMap<>();
+        additionalTransactionProperties.put("Selectors", selectors);
+
+        startTransaction();
+        try {
+            page.safeWait(() -> {
+                page.waitForFrame(page.expandShadowPath(timeout, selectors.split(","))); // This will also do the switch
+                return true;
+            },timeout);
+        } finally {
+            stopTransaction(additionalTransactionProperties);
+        }
+
     }
 
     private String getSelectorsFromInput() {
