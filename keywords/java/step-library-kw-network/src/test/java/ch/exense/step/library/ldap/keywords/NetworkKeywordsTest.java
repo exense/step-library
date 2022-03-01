@@ -82,11 +82,12 @@ public class NetworkKeywordsTest {
         inputs = Json.createObjectBuilder()
                 .add("BaseDN", "dc=exense,dc=ch")
                 .add("UserFilter", "cn={user}")
-                .add("User", "Gianluca Notaro")
+                .add("User", "Jerome Brongniart")
                 .build().toString();
         output = ctx.run("Ldap_Simple_Search", inputs);
         System.out.println(output.getPayload());
         assertNull(output.getError());
+        assertEquals(output.getPayload().getString("Result"),"cn=Jerome Brongniart,ou=users,dc=exense,dc=ch");
     }
 }
 
