@@ -198,7 +198,7 @@ public class FileSystemKeywords extends AbstractKeyword {
                 "\"canRead\":"+file.canRead()+",\"canWrite\":"+file.canWrite()+",\"canExecute\":"+file.canExecute()+"}";
     }
 
-    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Regex\":{\"type\":\"string\"}},\"required\":[\"Folder\",\"Name\"]}")
+    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Regex\":{\"type\":\"string\"}},\"required\":[\"Folder\",\"Regex\"]}")
     public void Find_file() {
         String folderName = input.getString("Folder");
         String regex = input.getString("Regex");
