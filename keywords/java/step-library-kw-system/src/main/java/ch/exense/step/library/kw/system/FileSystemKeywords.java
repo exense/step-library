@@ -193,7 +193,7 @@ public class FileSystemKeywords extends AbstractKeyword {
                 sizeInfo = "\"size\":" + Files.size(file.toPath()) + ",";
             } catch (Exception e) {}
         }
-        return "{\"name\":\""+file.getName()+",\"path\":\""+file.getPath()+"\",\"lastModified\":"+ file.lastModified()+"," +
+        return "{\"name\":\""+file.getName()+"\",\"path\":\""+file.getPath()+"\",\"lastModified\":"+ file.lastModified()+"," +
                 "\"isDirectory\":"+ file.isDirectory()+"," + sizeInfo +
                 "\"canRead\":"+file.canRead()+",\"canWrite\":"+file.canWrite()+",\"canExecute\":"+file.canExecute()+"}";
     }
