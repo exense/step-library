@@ -66,6 +66,24 @@ public class FileSystemKeywordsTest {
 	}
 
 	@Test
+	public void test_find() throws Exception {
+		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
+
+/*
+		JsonObject input = Json.createObjectBuilder()
+				.add("Folder", "C:\\tmp\\")
+				.add("Regex",".*\\\\conf\\\\.*\\.json").build();
+*/
+		JsonObject input = Json.createObjectBuilder()
+				.add("Folder", path)
+				.add("Regex",".*\\.json").build();
+
+		Output<JsonObject> output = ctx.run("Find_file", input.toString());
+
+		System.out.println(output.getPayload());
+	}
+
+	@Test
 	public void test_zip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
 

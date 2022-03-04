@@ -193,9 +193,59 @@ public class FileSystemKeywords extends AbstractKeyword {
                 sizeInfo = "\"size\":" + Files.size(file.toPath()) + ",";
             } catch (Exception e) {}
         }
-        return "{\"name\":\""+file.getName()+"\",\"lastModified\":"+ file.lastModified()+"," +
+        return "{\"name\":\""+file.getName()+"\",\"path\":\""+file.getPath()+"\",\"lastModified\":"+ file.lastModified()+"," +
                 "\"isDirectory\":"+ file.isDirectory()+"," + sizeInfo +
                 "\"canRead\":"+file.canRead()+",\"canWrite\":"+file.canWrite()+",\"canExecute\":"+file.canExecute()+"}";
+    }
+
+    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Regex\":{\"type\":\"string\"}},\"required\":[\"Folder\",\"Regex\"]}")
+    public void Find_file() {
+        String folderName = input.getString("Folder");
+        String regex = input.getString("Regex");
+
+        File folder = new File(folderName);
+
+        if (!folder.exists()) {
+            output.setBusinessError("Folder \"" + folderName + "\" do not exist.");
+            return;
+        }
+        if (!folder.canRead()) {
+            output.setBusinessError("Folder \"" + folderName + "\" is not readable.");
+            return;
+        }
+        if (!folder.isDirectory()) {
+            output.setBusinessError("\"" + folderName + "\" is not a folder.");
+            return;
+        }
+        try {
+            Pattern.compile(regex);
+        } catch (Exception e) {
+            output.setBusinessError("Regex \"" + regex + "\" is invalid. Error is \"" + e.getMessage() + "\"");
+            return;
+        }
+
+        try {
+            List<String> files = new ArrayList<>();
+            recursiveSearch(folder, regex).forEach(f -> { files.add(formatFileOutput(f));} );
+            output.add("Files",files.toString());
+        } catch (Exception e) {
+            output.setBusinessError(
+                    "Exception when zipping \"" + folderName + "\". Error message was: \"" + e.getMessage() + "\"");
+        }
+    }
+
+    private List<File> recursiveSearch(File folder, String regex) {
+        List<File> result = new ArrayList<>();
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.getPath().matches(regex)) {
+                    result.add(file);
+                }
+                result.addAll(recursiveSearch(file,regex));
+            }
+        }
+        return result;
     }
 
     @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")

@@ -96,7 +96,8 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
         dnResolver.setAllowMultipleDns(allowMultipleDns);
 
         try {
-            output.add("Result",dnResolver.resolve(new User(user)));
+            String res = dnResolver.resolve(new User(user));
+            output.add("Result",res!=null?res:"null");
 
         } catch (LdapException e) {
             output.setError("Error when executing the search",e);
