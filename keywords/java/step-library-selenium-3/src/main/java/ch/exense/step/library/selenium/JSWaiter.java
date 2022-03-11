@@ -60,13 +60,8 @@ public class JSWaiter {
 	/**
 	 * Method waiting for JavaScript to complete
 	 */
-	public void waitUntilJSReady() {
-		ExpectedCondition<Boolean> jsLoad = driver -> ((JavascriptExecutor) this.driver)
-				.executeScript("return document.readyState").toString().equals("complete");
-		boolean jsReady = jsExec.executeScript("return document.readyState").toString().equals("complete");
-		if (!jsReady) {
-			jsWait.until(jsLoad);
-		}
+	public boolean waitUntilJSReady() {
+		return jsExec.executeScript("return document.readyState").toString().equals("complete");
 	}
 	
 	/**
@@ -82,23 +77,10 @@ public class JSWaiter {
 	/**
 	 * Method waiting for JQuery activity to end, only if enabled
 	 */
-	public void waitUntilJQueryReady() {
-		Boolean jQueryDefined = (Boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
-		if (jQueryDefined) {
-			poll(20);
-			try {
-				ExpectedCondition<Boolean> jQueryLoad = driver -> ((Long) ((JavascriptExecutor) this.driver)
-						.executeScript("return jQuery.active") == 0);
-
-				boolean jqueryReady = (Boolean) jsExec.executeScript("return jQuery.active==0");
-
-				if (!jqueryReady) {
-					jsWait.until(jQueryLoad);
-				}
-			} catch (WebDriverException ignored) {
-			}
-			poll(20);
-		}
+	public boolean waitUntilJQueryReady() {
+		boolean jQueryDefined = (boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
+		if(!jQueryDefined) return true;
+		return (boolean) jsExec.executeScript("return jQuery.active==0");
 	}
 
 	/**
@@ -128,20 +110,14 @@ public class JSWaiter {
 	/**
 	 * Method waiting for Angular version 5 activity to end, only if enabled
 	 */
-	public void waitUntilAngular5Ready() {
+	public boolean waitUntilAngular5Ready() {
 		try {
 			Object angular5Check = jsExec.executeScript("return getAllAngularRootElements()[0].attributes['ng-version']");
-			if (angular5Check != null) {
-				Boolean angularPageLoaded = (Boolean) jsExec.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1");
-				if (!angularPageLoaded) {
-					poll(20);
-					String angularReadyScript = "return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1";
-					angularLoads(angularReadyScript);
-					poll(20);
-				}
-			}
-		} catch (WebDriverException ignored) {
+			if (angular5Check == null) return true;
+		} catch (WebDriverException e) {
+			return true;
 		}
+		return(boolean) jsExec.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1");
 	}
 	
 	/**
