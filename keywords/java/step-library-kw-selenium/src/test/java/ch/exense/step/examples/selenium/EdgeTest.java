@@ -24,7 +24,6 @@ public class EdgeTest {
     @Before
     public void setUp() throws Exception {
         Map<String, String> properties = new HashMap<>();
-        properties.put("Edge_Driver", "C:\\Path\\To\\EdgeDriver\\msedgedriver.exe");
         ctx = KeywordRunner.getExecutionContext(properties, ShadowSeleniumKeyword.class, GenericSeleniumKeyword.class, EdgeDriverKeyword.class);
 
         inputs = Json.createObjectBuilder()
@@ -39,7 +38,7 @@ public class EdgeTest {
         assertNull(output.getError());
     }
 
-    @Test
+    //@Test
     public void TestNavigateTo() throws Exception{
         inputs = Json.createObjectBuilder()
                 // URL MUST START WITH HTTP
