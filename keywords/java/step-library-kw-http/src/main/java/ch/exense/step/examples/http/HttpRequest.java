@@ -15,12 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.examples.http;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.util.List;
-
-import javax.json.JsonObject;
-
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -28,8 +23,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.json.JsonObject;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class HttpRequest extends HttpEntityEnclosingRequestBase {
 
@@ -64,13 +73,35 @@ public class HttpRequest extends HttpEntityEnclosingRequestBase {
 		return this;
 	}
 
-	public HttpRequest setRowPayload(String payload) throws UnsupportedEncodingException {
+	public void setMultiPartParams(List<NameValuePair> multiPartFormData) {
+		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+		multiPartFormData.forEach(nvp -> {
+			if(nvp.getName().equals("filepath")) {
+				File fileToUpload = new File(nvp.getValue());
+				FileBody fileBody = null;
+				try {
+					fileBody = new FileBody(fileToUpload, ContentType.parse(Files.probeContentType(Paths.get(fileToUpload.toURI()))));
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+				builder.addPart("file", fileBody);
+			} else {
+				builder.addPart(nvp.getName(), new StringBody(nvp.getValue(), ContentType.MULTIPART_FORM_DATA));
+			}
+		});
+		HttpEntity entity = builder.build();
+		setEntity(entity);
+	}
+
+	public HttpRequest setRowPayload(String payload) {
 		body = payload;
 		setEntity(new StringEntity(payload, ContentType.create("text/plain", "UTF-8")));
 		return this;
 	}
 
-	protected void logDebugInfo() {
+	public void logDebugInfo() {
 		if(logger.isDebugEnabled()) {
 			logger.debug("Request URI: " + (this.getURI()));
 			logger.debug("Request headers: " + this.getAllHeaders());
@@ -80,5 +111,4 @@ public class HttpRequest extends HttpEntityEnclosingRequestBase {
 			}
 		}
 	}
-
 }

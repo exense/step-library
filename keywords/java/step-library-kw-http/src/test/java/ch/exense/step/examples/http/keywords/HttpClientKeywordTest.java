@@ -15,18 +15,20 @@
  ******************************************************************************/
 package ch.exense.step.examples.http.keywords;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
+import step.functions.io.Output;
+import step.handlers.javahandler.KeywordRunner;
+import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import org.junit.Assert;
-import org.junit.Test;
+import java.nio.file.Paths;
 
-import step.functions.io.Output;
-import step.handlers.javahandler.KeywordRunner;
-import step.handlers.javahandler.KeywordRunner.ExecutionContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 
 public class HttpClientKeywordTest {
 
@@ -38,7 +40,33 @@ public class HttpClientKeywordTest {
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 	}
-	
+
+	@Test
+	public void simpleHttpGetRequestRedirect() throws Exception {
+		String input = Json.createObjectBuilder().add("URL", "https://lh3.google.com/u/0/ogw/ADea4I4hEDIRpLqTIrBziyxcym7YCTNtDLFduNiCVnc=s128-b16-cc-rp-mo")
+				.add("Method", "GET")
+				.add("Name", "Google 200")
+				.add("Enable_Redirect", true)
+				.build().toString();
+		Output<JsonObject> output = ctx.run("HttpRequest", input);
+		assertEquals("200", output.getPayload().getString("StatusCode"));
+
+		input = Json.createObjectBuilder().add("URL", "https://lh3.google.com/u/0/ogw/ADea4I4hEDIRpLqTIrBziyxcym7YCTNtDLFduNiCVnc=s128-b16-cc-rp-mo")
+				.add("Method", "GET")
+				.add("Name", "Google 302")
+				.add("Enable_Redirect", false)
+				.build().toString();
+		output = ctx.run("HttpRequest", input);
+		assertEquals("302", output.getPayload().getString("StatusCode"));
+
+		input = Json.createObjectBuilder().add("URL", "https://lh3.google.com/u/0/ogw/ADea4I4hEDIRpLqTIrBziyxcym7YCTNtDLFduNiCVnc=s128-b16-cc-rp-mo")
+				.add("Method", "GET")
+				.add("Name", "Google 200")
+				.build().toString();
+		output = ctx.run("HttpRequest", input);
+		assertEquals("200", output.getPayload().getString("StatusCode"));
+	}
+
 	@Test
 	public void simpleHttpGetRequestTimeoutWithExplicitClientInit() throws Exception {
 		
@@ -61,6 +89,7 @@ public class HttpClientKeywordTest {
 	public void simpleHttpGetRequestWithExplicitClientInit() throws Exception {
 		// Open http client
 		Output<JsonObject> output = ctx.run("InitHttpClient", "{}");
+		System.out.println(output.getPayload());
 
 		// HTTP GET www.google.ch
 		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/")
@@ -70,11 +99,11 @@ public class HttpClientKeywordTest {
 			.add("Extract_Title", "<title>(.+?)</title>").build().toString();
 		output = ctx.run("HttpRequest", input);
 
-		ctx.run("CloseHttpClient", "{}");
-
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getBoolean("Check_Title"));
 		assertEquals(output.getPayload().getString("Extract_Title"),"Google");
+
+		ctx.run("CloseHttpClient", "{}");
 	}
 	
 	@Test
@@ -124,8 +153,25 @@ public class HttpClientKeywordTest {
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
+		assertTrue(output.getPayload().getString("Response").contains("My form value 1"));
+	}
+
+	@Test
+	public void httpPostMultiPartFormData() throws Exception {
+		String input = Json.createObjectBuilder().add("URL", "https://postman-echo.com/post")
+				.add("Method", "POST")
+				.add("MultiPartFormData_input1", "My form value 1")
+				.add("MultiPartFormData_input2", "My form value 2")
+				.add("MultiPartFormData_filepath", Paths.get(this.getClass().getResource("/test.txt").toURI()).toString())
+				.build().toString();
+
+		Output<JsonObject> output = ctx.run("HttpRequest", input);
+
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		assertTrue(output.getPayload().getString("Response").contains("My form value 1"));
+		assertTrue(output.getPayload().getString("Response").contains("My form value 2"));
+		assertTrue(output.getPayload().getString("Response").contains("files"));
+		assertTrue(output.getPayload().getString("Response").contains("test.txt"));
 	}
 	
 	@Test

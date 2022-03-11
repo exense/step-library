@@ -15,30 +15,26 @@
  ******************************************************************************/
 package ch.exense.step.examples.http.keywords;
 
+import ch.exense.step.examples.http.HttpClient;
+import ch.exense.step.examples.http.HttpRequest;
+import ch.exense.step.examples.http.HttpResponse;
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
+import ch.exense.step.library.commons.BusinessException;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.message.BasicNameValuePair;
+import step.grid.io.AttachmentHelper;
+import step.handlers.javahandler.Keyword;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import ch.exense.step.library.commons.AbstractEnhancedKeyword;
-import ch.exense.step.library.commons.BusinessException;
-import org.apache.http.Header;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
-import ch.exense.step.examples.http.HttpClient;
-import ch.exense.step.examples.http.HttpRequest;
-import ch.exense.step.examples.http.HttpResponse;
-import step.grid.io.AttachmentHelper;
-import step.handlers.javahandler.Keyword;
 
 public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
@@ -48,11 +44,12 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	public static final String PARAM_PREFIX = "FormData_";
 	public static final String EXTRACT_PREFIX = "Extract_";
 	public static final String CHECK_PREFIX = "Check_";
+	public static final String MULTIPART_PARAM_PREFIX = "MultiPartFormData_";
 
 	/**
 	 * step Keyword to init an Apache HTTP client the client will be placed in the
 	 * current step session
-	 * 
+	 *
 	 * Keyword inputs BasicAuthUser: set basic authenticate user name (require
 	 * password) BasicAuthPassword: set basic authentication password BasicAuthHost:
 	 * enable preemptive authentication (require the 5 bascic_auth fields)
@@ -61,20 +58,20 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	 * keyStorePath is provided) CustomDnsResolverTargetIP: enable a custom DNS
 	 * resolver, requires hostWithCustomDns CustomDnsResolverHostWithCustomDns:
 	 * requests to this host will be resolved to the "targetIP"
-	 * 
+	 *
 	 * @throws IOException
 	 * @throws CertificateException
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyStoreException
 	 * @throws KeyManagementException
 	 * @throws UnrecoverableKeyException
-	 * 
+	 *
 	 */
 	@Keyword(schema = "{\"properties\":{"
 			+ "\"BasicAuthUser\":{\"type\":\"string\"},"
 			+ "\"BasicAuthPassword\":{\"type\":\"string\"},"
 			+ "\"BasicAuthHost\":{\"type\":\"string\"},"
-			+ "\"BasicAuthHostScheme\":{\"type\":\"string\"}," 
+			+ "\"BasicAuthHostScheme\":{\"type\":\"string\"},"
 			+ "\"BasicAuthPort\":{\"type\":\"string\"},"
 			+ "\"KeyStorePath\":{\"type\":\"string\"},"
 			+ "\"KeyStorePassword\":{\"type\":\"string\"},"
@@ -149,7 +146,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
 	/**
 	 * step Keyword to execute one HTTP request
-	 * 
+	 *
 	 * Keyword inputs: Name (optional): name of the request used for RTM
 	 * measurements (default: URL) URL: the URL of the request Method: GET, POST
 	 * (other methods might be supported) Header_* (optional): naming convention to
@@ -163,20 +160,22 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	 * extract_myId, value: regexp as string with one group Check_* (optional):
 	 * naming convention to pass content check strings, ex: key: check_pageTitle,
 	 * value: 'my web site title' ReturnResponse: default true
-	 * 
-	 * 
+	 *
+	 *
 	 * Keyword output StatusCode: Request status code Headers: headers Cookies:
 	 * cookies set in this response's header Response: response payload (depends on
 	 * input returnResponsePayload, default true) Extract_*: extracted fields
 	 * Check_*: content checks result (true if found)
-	 * 
+	 *
 	 * @throws Exception
 	 */
-	@Keyword(schema = "{\"properties\":{" 
+	@Keyword(schema = "{\"properties\":{"
 			+ "\"URL\":{\"type\":\"string\"},"
 			+ "\"Method\":{\"type\":\"string\"},"
+			+ "\"Enable_Redirect\":{\"type\":\"boolean\"},"
 			+ "\"Header_myheader1\":{\"type\":\"string\"},"
 			+ "\"FormData_myFormData1\":{\"type\":\"string\"},"
+			+ "\"MultiPartFormData_myFormData1\":{\"type\":\"string\"},"
 			+ "\"Extract_myField1ToExtract1\":{\"type\":\"string\"},"
 			+ "\"Check_myFieldToChec1\":{\"type\":\"string\"},"
 			+ "\"Data\":{\"type\":\"string\"},"
@@ -195,6 +194,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		// Extract all dynamic and optional inputs
 		String payload = "";
 		List<NameValuePair> formData = new ArrayList<NameValuePair>();
+		List<NameValuePair> multiPartFormData = new ArrayList<>();
 		Map<String, Pattern> extractRegexp = new HashMap<String, Pattern>();
 		Map<String, String> textChecks = headers;
 		for (String key : input.keySet()) {
@@ -206,6 +206,9 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 				} else if (key.startsWith(PARAM_PREFIX)) {
 					String name = key.substring(PARAM_PREFIX.length());
 					formData.add(new BasicNameValuePair(name, value));
+				} else if (key.startsWith(MULTIPART_PARAM_PREFIX)) {
+					String name = key.substring(MULTIPART_PARAM_PREFIX.length());
+					multiPartFormData.add(new BasicNameValuePair(name, value));
 				} else if (key.startsWith(EXTRACT_PREFIX)) {
 					String name = key.substring(EXTRACT_PREFIX.length());
 					extractRegexp.put(name, Pattern.compile(value, Pattern.DOTALL));
@@ -217,7 +220,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 				}
 			} catch(ClassCastException e) {
 				logger.warn("Input " + key + " is not a String but a " + input.get(key).getClass().getSimpleName() + " so it will not be parsed");
-			}			
+			}
 		}
 
 		HttpClient httpClient = getHttpClientFromSession();
@@ -229,12 +232,24 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
 		// Init request
 		HttpRequest request = new HttpRequest(url, method);
+
+		RequestConfig clientDefaultRequestConfig = httpClient.getRequestConfig();
+		RequestConfig config = RequestConfig.custom()
+				.setConnectTimeout(clientDefaultRequestConfig.getConnectTimeout())
+				.setConnectionRequestTimeout(clientDefaultRequestConfig.getConnectionRequestTimeout())
+				.setSocketTimeout(clientDefaultRequestConfig.getSocketTimeout())
+				.setRedirectsEnabled(input.getBoolean("Enable_Redirect", true))
+				.build();
+
+		request.setConfig(config);
 		headers.forEach((k, v) -> request.appendHeader(k, v));
 
 		if (!formData.isEmpty()) {
 			request.setParams(formData);
 		} else if (!payload.isEmpty()) {
 			request.setRowPayload(payload);
+		} else if(!multiPartFormData.isEmpty()) {
+			request.setMultiPartParams(multiPartFormData);
 		}
 
 		Map<String, Object> measureData = new HashMap<>();
@@ -352,10 +367,13 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
 	@Keyword
 	public void ShowProxySettings() {
-		output.add("http.proxyHost", System.getProperty("http.proxyHost"));
-		output.add("http.proxyPort", System.getProperty("http.proxyPort"));
-		output.add("https.proxyHost", System.getProperty("https.proxyHost"));
-		output.add("https.proxyPort", System.getProperty("https.proxyPort"));
-		output.add("java.net.preferIPv4Stack", System.getProperty("java.net.preferIPv4Stack"));
+		output.add("http.proxyHost", Optional.ofNullable(System.getProperty("http.proxyHost")).orElse(""));
+		output.add("http.proxyPort", Optional.ofNullable(System.getProperty("http.proxyPort")).orElse(""));
+		output.add("http.nonProxyHosts", Optional.ofNullable(System.getProperty("http.nonProxyHosts")).orElse(""));
+		output.add("https.proxyHost", Optional.ofNullable(System.getProperty("https.proxyHost")).orElse(""));
+		output.add("https.proxyPort", Optional.ofNullable(System.getProperty("https.proxyPort")).orElse(""));
+		output.add("https.nonProxyHosts", Optional.ofNullable(System.getProperty("https.nonProxyHosts")).orElse(""));
+		output.add("java.net.preferIPv4Stack", Optional.ofNullable(System.getProperty("java.net.preferIPv4Stack")).orElse(""));
+
 	}
 }

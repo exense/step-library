@@ -45,12 +45,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.*;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -65,7 +60,13 @@ public class HttpClient {
 	protected HttpRequestBase request = null;
 	protected HttpClientContext context = null;
 	protected String targetIP = "";
-				 
+
+	private RequestConfig requestConfig;
+
+	public RequestConfig getRequestConfig() {
+		return requestConfig;
+	}
+
 	/**
 	 * Create a client and its context with provided SSL information, auth cache and
 	 * optionally a custom DNS resolved for load balancing
@@ -129,13 +130,13 @@ public class HttpClient {
 			httpClientBuilder.setDefaultCredentialsProvider(provider);
 		}
 		
-		RequestConfig config = RequestConfig.custom()
+		requestConfig = RequestConfig.custom()
 				  .setConnectTimeout(timeoutInMs)
 				  .setConnectionRequestTimeout(timeoutInMs)
 				  .setSocketTimeout(timeoutInMs).build();
 		
 		//Build the client
-		this.client = httpClientBuilder.setDefaultRequestConfig(config).build();
+		this.client = httpClientBuilder.setDefaultRequestConfig(requestConfig).build();
 		
 		// context.setCredentialsProvider(credsProvider);
 		// Add AuthCache to the execution context
