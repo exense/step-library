@@ -163,7 +163,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         boolean deleteAfter = input.getBoolean("DeleteAfter", false);
 
         try {
-            if (client.getResourceManager().getResourceContent(resourceID) == null) {
+            if (!client.getResourceManager().resourceExists(resourceID)) {
                 throw new BusinessException("Resource id '" + resourceID + "' was not found");
             }
             ResourceRevisionContent resource = client.getResourceManager().getResourceContent(resourceID);
