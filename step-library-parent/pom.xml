@@ -48,9 +48,9 @@
 	</repositories>
 	
 	<properties>
-		<step-api.version>1.1.5</step-api.version>
-		<step.version>3.17.0</step.version>
-		<exense-commons.version>1.3.3</exense-commons.version>
+		<step-api.version>1.1.7</step-api.version>
+		<step.version>3.18.2</step.version>
+		<exense-commons.version>1.3.5</exense-commons.version>
 		
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
