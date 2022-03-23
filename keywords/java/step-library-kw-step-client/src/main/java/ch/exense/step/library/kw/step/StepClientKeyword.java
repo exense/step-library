@@ -80,7 +80,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             properties = {""})
     public void SelectTenant() throws BusinessException {
 
-        StepClient client = getSession().get(StepClient.class);
+        StepClient client = getClient();
 
         String tenantName = input.getString("TenantName", "");
         String projectId = input.getString("ProjectId", "");
@@ -110,14 +110,19 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                 (tenantName.isEmpty()? "project id '"+projectId+"'" : "project name '"+tenantName+"'"));
     }
 
+    private StepClient getClient() {
+        StepClient client = getSession().get(StepClient.class);
+        if (client==null) {
+            throw new BusinessException("The Step Client should be initialized with the 'InitStepClient' keyword");
+        }
+        return client;
+    }
+
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
             properties = {""})
     public void ListTenants() throws BusinessException {
 
-        StepClient client = getSession().get(StepClient.class);
-        if (client==null) {
-            throw new BusinessException("Client was not initialized");
-        }
+        StepClient client = getClient();
 
         try {
             if (client.getCurrentTenant()==null) {
@@ -151,7 +156,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             properties = {""})
     public void DownloadResource() throws BusinessException {
 
-        StepClient client = getSession().get(StepClient.class);
+        StepClient client = getClient();
 
         String resourceID = input.getString("ResourceID");
         String destination = input.getString("Destination");
@@ -206,7 +211,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             properties = {""})
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
 
-        StepClient client = getSession().get(StepClient.class);
+        StepClient client = getClient();
 
         String repoId = getMandatoryInputString("RepositoryID");
         String repoParametersJson = getMandatoryInputString("RepositoryParameters");
