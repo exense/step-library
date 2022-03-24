@@ -96,6 +96,33 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    public void Rmfile() {
+        String fileName = input.getString("File");
+        boolean failIfDontExist = Boolean.parseBoolean(input.getString("Fail_if_dont_exist", "false"));
+
+        File file = new File(fileName);
+
+        if (file.isDirectory()) {
+            output.setBusinessError("\"" + fileName + "\" is a folder.");
+        }
+
+        if (!file.exists()) {
+            if (failIfDontExist) {
+                output.setBusinessError("\"" + file + "\" do not exist.");
+            } else {
+                output.add("Exist", "false");
+            }
+        } else {
+            try {
+                FileUtils.forceDelete(file);
+            } catch (Exception e) {
+                output.setBusinessError("Error when deleting file \"" + fileName + "\". Message was: \""
+                        + e.getMessage() + "\"");
+            }
+        }
+    }
+
     @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
     public void Rmdir() {
         String folderName = input.getString("Folder");
