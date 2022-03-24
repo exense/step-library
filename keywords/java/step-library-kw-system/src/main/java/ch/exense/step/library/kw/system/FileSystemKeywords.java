@@ -50,11 +50,12 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"}},"
+    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"},{\"Move\":{\"type\":\"boolean\"}},"
             + "\"required\":[\"Source\",\"Destination\"]}")
     public void Copy() throws Exception {
         String source = input.getString("Source");
         String destination = input.getString("Destination");
+        boolean move = input.getBoolean("Move",false);
 
         boolean toFile = Boolean.parseBoolean(input.getString("ToFile", "false"));
 
@@ -89,6 +90,9 @@ public class FileSystemKeywords extends AbstractKeyword {
         } catch (SecurityException e) {
             output.setBusinessError(
                     "Security error when copying folder \"" + source + "\". Message was: \"" + e.getMessage() + "\"");
+        }
+        if (move) {
+            FileUtils.deleteDirectory(fileDestination);
         }
     }
 
