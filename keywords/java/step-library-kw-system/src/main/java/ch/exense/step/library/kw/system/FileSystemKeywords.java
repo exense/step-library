@@ -50,7 +50,7 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"},{\"Move\":{\"type\":\"boolean\"}},"
+    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"},\"Move\":{\"type\":\"boolean\"}},"
             + "\"required\":[\"Source\",\"Destination\"]}")
     public void Copy() throws Exception {
         String source = input.getString("Source");
