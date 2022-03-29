@@ -17,10 +17,9 @@ package ch.exense.step.library.kw.step;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import step.client.AbstractRemoteClient;
 import step.client.ControllerClientException;
 import step.client.StepClient;
 import step.controller.multitenancy.Tenant;
@@ -28,10 +27,12 @@ import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
 import step.core.repositories.RepositoryObjectReference;
+import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 import step.resources.ResourceRevisionContent;
 
+import javax.ws.rs.client.Invocation;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -163,23 +164,26 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         boolean deleteAfter = input.getBoolean("DeleteAfter", false);
 
         try {
-            if (!client.getResourceManager().resourceExists(resourceID)) {
+/*            if (client.getResourceManager().getResourceContent(resourceID) == null) {
                 throw new BusinessException("Resource id '" + resourceID + "' was not found");
             }
             ResourceRevisionContent resource = client.getResourceManager().getResourceContent(resourceID);
+            */
+            Downloader downloader = new Downloader();
+
             File file = new File(destination);
             File resourceFile;
             if (!file.isDirectory()) {
                 resourceFile = file;
             } else {
-                String fileName = resource.getResourceName();
+                String fileName = "tmp"; //resource.getResourceName();
                 resourceFile = new File(destination + File.separatorChar + fileName);
             }
             output.add("File", resourceFile.getAbsolutePath());
             if (!resourceFile.exists() && !resourceFile.createNewFile()) {
                 throw new BusinessException("Could not create destination file \"" + resourceFile.getAbsolutePath() + "\".");
             }
-            try (InputStream inputStream = resource.getResourceStream();
+            try (InputStream inputStream = downloader.getResourceContent(resourceID,destination);
                  OutputStream outStream = new FileOutputStream(resourceFile)) {
 
                 byte[] buffer = new byte[8 * 1024];
@@ -198,6 +202,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         } catch (IOException e) {
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
             throw new BusinessException("IOException when trying to download the resource '" + resourceID + "'");
+        }
+    }
+
+    class Downloader extends AbstractRemoteClient {
+        private InputStream getResourceContent(String resourceId, String destination) throws IOException {
+            final Invocation.Builder b = requestBuilder("/rest/resources/" + resourceId + "/content");
+            return (InputStream) b.get().getEntity();
         }
     }
 
