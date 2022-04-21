@@ -17,10 +17,9 @@ package ch.exense.step.library.kw.step;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import step.client.AbstractRemoteClient;
 import step.client.ControllerClientException;
 import step.client.StepClient;
 import step.controller.multitenancy.Tenant;
@@ -28,10 +27,12 @@ import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
 import step.core.repositories.RepositoryObjectReference;
+import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 import step.resources.ResourceRevisionContent;
 
+import javax.ws.rs.client.Invocation;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             properties = {""})
     public void SelectTenant() throws BusinessException {
 
-        StepClient client = getSession().get(StepClient.class);
+        StepClient client = getClient();
 
         String tenantName = input.getString("TenantName", "");
         String projectId = input.getString("ProjectId", "");
@@ -110,14 +111,19 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                 (tenantName.isEmpty()? "project id '"+projectId+"'" : "project name '"+tenantName+"'"));
     }
 
+    private StepClient getClient() {
+        StepClient client = getSession().get(StepClient.class);
+        if (client==null) {
+            throw new BusinessException("The Step Client should be initialized with the 'InitStepClient' keyword");
+        }
+        return client;
+    }
+
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
             properties = {""})
     public void ListTenants() throws BusinessException {
 
-        StepClient client = getSession().get(StepClient.class);
-        if (client==null) {
-            throw new BusinessException("Client was not initialized");
-        }
+        StepClient client = getClient();
 
         try {
             if (client.getCurrentTenant()==null) {
@@ -151,30 +157,33 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             properties = {""})
     public void DownloadResource() throws BusinessException {
 
-        StepClient client = getSession().get(StepClient.class);
+        StepClient client = getClient();
 
         String resourceID = input.getString("ResourceID");
         String destination = input.getString("Destination");
         boolean deleteAfter = input.getBoolean("DeleteAfter", false);
 
         try {
-            if (client.getResourceManager().getResourceContent(resourceID) == null) {
+/*            if (client.getResourceManager().getResourceContent(resourceID) == null) {
                 throw new BusinessException("Resource id '" + resourceID + "' was not found");
             }
             ResourceRevisionContent resource = client.getResourceManager().getResourceContent(resourceID);
+            */
+            Downloader downloader = new Downloader();
+
             File file = new File(destination);
             File resourceFile;
             if (!file.isDirectory()) {
                 resourceFile = file;
             } else {
-                String fileName = resource.getResourceName();
+                String fileName = "tmp"; //resource.getResourceName();
                 resourceFile = new File(destination + File.separatorChar + fileName);
             }
             output.add("File", resourceFile.getAbsolutePath());
             if (!resourceFile.exists() && !resourceFile.createNewFile()) {
                 throw new BusinessException("Could not create destination file \"" + resourceFile.getAbsolutePath() + "\".");
             }
-            try (InputStream inputStream = resource.getResourceStream();
+            try (InputStream inputStream = downloader.getResourceContent(resourceID,destination);
                  OutputStream outStream = new FileOutputStream(resourceFile)) {
 
                 byte[] buffer = new byte[8 * 1024];
@@ -196,6 +205,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         }
     }
 
+    class Downloader extends AbstractRemoteClient {
+        private InputStream getResourceContent(String resourceId, String destination) throws IOException {
+            final Invocation.Builder b = requestBuilder("/rest/resources/" + resourceId + "/content");
+            return (InputStream) b.get().getEntity();
+        }
+    }
+
     @Keyword(schema = "{\"properties\":{"
             + "\"RepositoryID\":{\"type\":\"string\"},"
             + "\"RepositoryParameters\":{\"type\":\"string\"},"
@@ -206,7 +222,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             properties = {""})
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
 
-        StepClient client = getSession().get(StepClient.class);
+        StepClient client = getClient();
 
         String repoId = getMandatoryInputString("RepositoryID");
         String repoParametersJson = getMandatoryInputString("RepositoryParameters");

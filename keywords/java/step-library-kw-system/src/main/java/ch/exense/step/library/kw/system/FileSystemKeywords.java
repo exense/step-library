@@ -50,11 +50,12 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"}},"
+    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"},\"Move\":{\"type\":\"boolean\"}},"
             + "\"required\":[\"Source\",\"Destination\"]}")
     public void Copy() throws Exception {
         String source = input.getString("Source");
         String destination = input.getString("Destination");
+        boolean move = input.getBoolean("Move",false);
 
         boolean toFile = Boolean.parseBoolean(input.getString("ToFile", "false"));
 
@@ -89,6 +90,36 @@ public class FileSystemKeywords extends AbstractKeyword {
         } catch (SecurityException e) {
             output.setBusinessError(
                     "Security error when copying folder \"" + source + "\". Message was: \"" + e.getMessage() + "\"");
+        }
+        if (move) {
+            FileUtils.deleteDirectory(fileDestination);
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    public void Rmfile() {
+        String fileName = input.getString("File");
+        boolean failIfDontExist = Boolean.parseBoolean(input.getString("Fail_if_dont_exist", "false"));
+
+        File file = new File(fileName);
+
+        if (file.isDirectory()) {
+            output.setBusinessError("\"" + fileName + "\" is a folder.");
+        }
+
+        if (!file.exists()) {
+            if (failIfDontExist) {
+                output.setBusinessError("\"" + file + "\" do not exist.");
+            } else {
+                output.add("Exist", "false");
+            }
+        } else {
+            try {
+                FileUtils.forceDelete(file);
+            } catch (Exception e) {
+                output.setBusinessError("Error when deleting file \"" + fileName + "\". Message was: \""
+                        + e.getMessage() + "\"");
+            }
         }
     }
 
