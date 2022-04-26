@@ -223,7 +223,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>step.client.tests.commons.LocalOnly</excludedGroups>
+                            <excludedGroups>ch.exense.step.library.tests.LocalOnly</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
