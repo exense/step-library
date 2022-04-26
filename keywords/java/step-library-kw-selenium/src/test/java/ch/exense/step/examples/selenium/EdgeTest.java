@@ -24,7 +24,7 @@ public class EdgeTest {
     @Before
     public void setUp() throws Exception {
         Map<String, String> properties = new HashMap<>();
-        properties.put("Edge_Driver", "C:\\Path\\To\\EdgeDriver\\msedgedriver.exe");
+        //properties.put("Edge_Driver", "C:\\Path\\To\\EdgeDriver\\msedgedriver.exe");
         ctx = KeywordRunner.getExecutionContext(properties, ShadowSeleniumKeyword.class, GenericSeleniumKeyword.class, EdgeDriverKeyword.class);
 
         inputs = Json.createObjectBuilder()
