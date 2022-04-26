@@ -78,9 +78,22 @@ public class JSWaiter {
 	 * Method waiting for JQuery activity to end, only if enabled
 	 */
 	public boolean waitUntilJQueryReady() {
+		return waitUntilJQueryReady(0);
+	}
+
+	/**
+	 * Method waiting for JQuery activity to end, only if enabled
+	 */
+	public boolean waitUntilJQueryReady(int defaultActive) {
 		boolean jQueryDefined = (boolean) jsExec.executeScript("return typeof jQuery != 'undefined'");
-		if(!jQueryDefined) return true;
-		return (boolean) jsExec.executeScript("return jQuery.active==0");
+		boolean dollarDefined = (boolean) jsExec.executeScript("return typeof $ != 'undefined'");
+		if(jQueryDefined) {
+			return (boolean) jsExec.executeScript("return jQuery.active=="+defaultActive);
+		} else if (dollarDefined) {
+			return (boolean) jsExec.executeScript("return $.active=="+defaultActive);
+		} else {
+			return true;
+		}
 	}
 
 	/**
