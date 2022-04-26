@@ -3,9 +3,11 @@ package ch.exense.step.examples.selenium;
 import ch.exense.step.examples.selenium.keyword.EdgeDriverKeyword;
 import ch.exense.step.examples.selenium.keyword.GenericSeleniumKeyword;
 import ch.exense.step.examples.selenium.keyword.ShadowSeleniumKeyword;
+import ch.exense.step.library.tests.LocalOnly;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
 
@@ -16,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNull;
 
+@Category(LocalOnly.class)
 public class EdgeTest {
     private KeywordRunner.ExecutionContext ctx;
     private Output<JsonObject> output;
