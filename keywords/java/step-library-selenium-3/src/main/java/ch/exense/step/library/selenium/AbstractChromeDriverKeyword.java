@@ -68,7 +68,7 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
             if (chromeDriverBin.exists()) {
                 System.setProperty(chromeDriverProperty, chromeDriverBin.getAbsolutePath());
             } else {
-                throw new BusinessException("Could not find path to the chrome executable specified in 'Chrome_Driver', value was '"+chromeDriverBin.getPath()+"'");
+                throw new BusinessException("Could not find path to the chrome driver executable specified in 'Chrome_Driver', value was '"+chromeDriverBin.getPath()+"'");
             }
         }
 

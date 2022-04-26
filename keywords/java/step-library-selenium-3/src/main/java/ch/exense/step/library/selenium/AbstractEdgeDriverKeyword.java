@@ -75,7 +75,7 @@ public class AbstractEdgeDriverKeyword extends AbstractSeleniumKeyword {
             if (edgeDriverBin.exists()) {
                 System.setProperty(edgeDriverProperty, edgeDriverBin.getAbsolutePath());
             } else {
-                throw new BusinessException("Could not find path to the chrome executable specified in 'Edge_Driver', value was '"+edgeDriverBin.getPath()+"'");
+                throw new BusinessException("Could not find path to the edge driver executable specified in 'Edge_Driver', value was '"+edgeDriverBin.getPath()+"'");
             }
         }
 
