@@ -15,30 +15,14 @@
  ******************************************************************************/
 package ch.exense.step.examples.http;
 
-import java.io.*;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.*;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -51,6 +35,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.*;
+import java.io.*;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HttpClient {
 
@@ -97,10 +90,8 @@ public class HttpClient {
 		//((ch.qos.logback.classic.Logger) LOG).setLevel(Level.DEBUG);
 		
 		HttpClientBuilder httpClientBuilder = HttpClients.custom();
-		if (jksPath != null && password != null) {
-			SSLContext sc = setSSLContext(jksPath, password);
-			httpClientBuilder.setSSLContext(sc);		
-		}
+		SSLContext sc = setSSLContext(jksPath, password);
+		httpClientBuilder.setSSLContext(sc);
 		// If provided add a custom DNS resolver which will resolve the
 		// 'hostWithCustomDns' to the provided 'targetIP'
 		if (targetIP != null && !targetIP.isEmpty()) {
@@ -145,13 +136,18 @@ public class HttpClient {
 	
 	private SSLContext setSSLContext(String jksPath, String password) throws KeyStoreException, NoSuchAlgorithmException,
 			CertificateException, IOException, UnrecoverableKeyException, KeyManagementException {
-		FileInputStream instream = new FileInputStream(new File(jksPath));
-		KeyStore keyStore = KeyStore.getInstance("jks");
-		keyStore.load((InputStream) instream, password.toCharArray());
+		KeyManager[] keyManagers;
+		if (jksPath != null && password != null) {
+			FileInputStream instream = new FileInputStream(new File(jksPath));
+			KeyStore keyStore = KeyStore.getInstance("jks");
+			keyStore.load((InputStream) instream, password.toCharArray());
 
-		KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		keyFactory.init(keyStore, password.toCharArray());
-		KeyManager[] keyManagers = keyFactory.getKeyManagers();
+			KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			keyFactory.init(keyStore, password.toCharArray());
+			keyManagers = keyFactory.getKeyManagers();
+		} else {
+			keyManagers = new KeyManager[0];
+		}
 
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
 			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
