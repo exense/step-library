@@ -19,6 +19,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -55,7 +56,7 @@ public class FileSystemKeywords extends AbstractKeyword {
     public void Copy() throws Exception {
         String source = input.getString("Source");
         String destination = input.getString("Destination");
-        boolean move = input.getBoolean("Move",false);
+        boolean move = input.getBoolean("Move", false);
 
         boolean toFile = Boolean.parseBoolean(input.getString("ToFile", "false"));
 
@@ -208,9 +209,10 @@ public class FileSystemKeywords extends AbstractKeyword {
                     directories.add(formatFileOutput(f.toFile()));
                 } else {
                     files.add(formatFileOutput(f.toFile()));
-                }});
-            output.add("Files",files.toString());
-            output.add("Directories",directories.toString());
+                }
+            });
+            output.add("Files", files.toString());
+            output.add("Directories", directories.toString());
         } catch (IOException e) {
             output.setBusinessError("I/O error when creating folder \"" + folderName + "\". Message was: \""
                     + e.getMessage() + "\"");
@@ -222,11 +224,12 @@ public class FileSystemKeywords extends AbstractKeyword {
         if (file.canRead()) {
             try {
                 sizeInfo = "\"size\":" + Files.size(file.toPath()) + ",";
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
-        return "{\"name\":\""+file.getName()+"\",\"path\":\""+file.getPath()+"\",\"lastModified\":"+ file.lastModified()+"," +
-                "\"isDirectory\":"+ file.isDirectory()+"," + sizeInfo +
-                "\"canRead\":"+file.canRead()+",\"canWrite\":"+file.canWrite()+",\"canExecute\":"+file.canExecute()+"}";
+        return "{\"name\":\"" + file.getName() + "\",\"path\":\"" + file.getPath() + "\",\"lastModified\":" + file.lastModified() + "," +
+                "\"isDirectory\":" + file.isDirectory() + "," + sizeInfo +
+                "\"canRead\":" + file.canRead() + ",\"canWrite\":" + file.canWrite() + ",\"canExecute\":" + file.canExecute() + "}";
     }
 
     @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Regex\":{\"type\":\"string\"}},\"required\":[\"Folder\",\"Regex\"]}")
@@ -257,8 +260,10 @@ public class FileSystemKeywords extends AbstractKeyword {
 
         try {
             List<String> files = new ArrayList<>();
-            recursiveSearch(folder, regex).forEach(f -> { files.add(formatFileOutput(f));} );
-            output.add("Files",files.toString());
+            recursiveSearch(folder, regex).forEach(f -> {
+                files.add(formatFileOutput(f));
+            });
+            output.add("Files", files.toString());
         } catch (Exception e) {
             output.setBusinessError(
                     "Exception when zipping \"" + folderName + "\". Error message was: \"" + e.getMessage() + "\"");
@@ -273,7 +278,7 @@ public class FileSystemKeywords extends AbstractKeyword {
                 if (file.getPath().matches(regex)) {
                     result.add(file);
                 }
-                result.addAll(recursiveSearch(file,regex));
+                result.addAll(recursiveSearch(file, regex));
             }
         }
         return result;
@@ -392,8 +397,9 @@ public class FileSystemKeywords extends AbstractKeyword {
             output.setBusinessError("File \"" + fileName + "\" is not writable.");
             return;
         }
+        Pattern pattern;
         try {
-            Pattern.compile(regex);
+            pattern = Pattern.compile(regex);
         } catch (Exception e) {
             output.setBusinessError("Regex \"" + regex + "\" is invalid. Error is \"" + e.getMessage() + "\"");
             return;
@@ -401,19 +407,25 @@ public class FileSystemKeywords extends AbstractKeyword {
 
         File tmpFile = File.createTempFile(fileName, ".tmp");
 
+        int nbReplacement = 0;
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tmpFile))) {
 
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    line = line.replaceAll(regex, replacement);
-                    writer.write(line + "\n");
+                    nbReplacement += pattern.matcher(line).results().count();
+
+                    String newline = line.replaceAll(regex, replacement);
+
+                    writer.write(newline + "\n");
                 }
             } catch (Exception e) {
                 output.setBusinessError(
                         "Exception when reading file \"" + fileName + "\". Message was: \"" + e.getMessage() + "\"");
                 return;
             }
+            output.add("Count",nbReplacement);
             file.delete();
         } catch (Exception e) {
             output.setBusinessError(

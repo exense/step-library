@@ -21,6 +21,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,14 +44,28 @@ public class FileSystemKeywordsTest {
 	}
 
 	@Test
-	public void test_sed() throws Exception {
+	public void test_sed_simple() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getAbsolutePath();
 		
 		JsonObject input = Json.createObjectBuilder().add("File", path).add("Regex", "\"version\" *: *\"[^\"]*\"")
 				.add("Replacement",  "\"version\": \"test\"").build();
 
 		Output<JsonObject> output = ctx.run("Sed_file", input.toString());
-		
+		Assert.assertEquals(output.getPayload().getInt("Count"),1);
+
+		System.out.println(output.getPayload());
+	}
+
+	@Test
+	public void test_sed_complex() throws Exception {
+		String path = new File(getClass().getClassLoader().getResource("package_complex.json").getFile()).getAbsolutePath();
+
+		JsonObject input = Json.createObjectBuilder().add("File", path).add("Regex", "\"version\" *: *\"[^\"]*\"")
+				.add("Replacement",  "\"version\": \"test\"").build();
+
+		Output<JsonObject> output = ctx.run("Sed_file", input.toString());
+		Assert.assertEquals(output.getPayload().getInt("Count"),3);
+
 		System.out.println(output.getPayload());
 	}
 
@@ -69,11 +84,6 @@ public class FileSystemKeywordsTest {
 	public void test_find() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
 
-/*
-		JsonObject input = Json.createObjectBuilder()
-				.add("Folder", "C:\\tmp\\")
-				.add("Regex",".*\\\\conf\\\\.*\\.json").build();
-*/
 		JsonObject input = Json.createObjectBuilder()
 				.add("Folder", path)
 				.add("Regex",".*\\.json").build();
