@@ -218,7 +218,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"Description\":{\"type\":\"string\"},"
             + "\"CustomParameters\":{\"type\":\"string\"},"
             + "\"Timeout\":{\"type\":\"string\"},"
-            + "\"Async\":{\"type\":\"boolean\"}"
+            + "\"Async\":{\"type\":\"boolean\"},"
+            + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""})
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
@@ -229,6 +230,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String repoParametersJson = getMandatoryInputString("RepositoryParameters");
         String description = getMandatoryInputString("Description");
         String customParametersJson = getMandatoryInputString("CustomParameters");
+        String userId = input.getString("UserId","");
 
         Boolean async = input.getBoolean("Async",false);
 
@@ -237,8 +239,11 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         ExecutionParameters executionParams = new ExecutionParameters();
 
         executionParams.setMode(ExecutionMode.RUN);
-        executionParams.setUserID((String) getSession().get("User"));
-
+        if (userId.isEmpty()) {
+            executionParams.setUserID((String) getSession().get("User"));
+        } else {
+            executionParams.setUserID(userId);
+        }
         RepositoryObjectReference repoObject = new RepositoryObjectReference();
 
         executionParams.setDescription(description);
