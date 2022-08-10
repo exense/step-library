@@ -217,7 +217,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"RepositoryParameters\":{\"type\":\"string\"},"
             + "\"Description\":{\"type\":\"string\"},"
             + "\"CustomParameters\":{\"type\":\"string\"},"
-            + "\"Timeout\":{\"type\":\"string\"}"
+            + "\"Timeout\":{\"type\":\"string\"},"
             + "\"Async\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""})
