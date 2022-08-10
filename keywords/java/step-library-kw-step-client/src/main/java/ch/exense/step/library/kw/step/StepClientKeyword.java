@@ -218,6 +218,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"Description\":{\"type\":\"string\"},"
             + "\"CustomParameters\":{\"type\":\"string\"},"
             + "\"Timeout\":{\"type\":\"string\"}"
+            + "\"Async\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""})
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
@@ -228,6 +229,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String repoParametersJson = getMandatoryInputString("RepositoryParameters");
         String description = getMandatoryInputString("Description");
         String customParametersJson = getMandatoryInputString("CustomParameters");
+
+        Boolean async = input.getBoolean("Async",false);
 
         long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
 
@@ -258,19 +261,22 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
         output.add("Id", executionID);
 
-        Execution exec;
-        try {
-            exec = client.getExecutionManager().waitForTermination(executionID, timeout);
-        } catch (TimeoutException e) {
-            output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
-            return;
-        }
+        if (!async) {
 
-        if (exec.getImportResult().isSuccessful()) {
-            output.add("Result", exec.getResult().toString());
-        } else {
-            output.add("Result", "IMPORT_ERROR");
-            output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
+            Execution exec;
+            try {
+                exec = client.getExecutionManager().waitForTermination(executionID, timeout);
+            } catch (TimeoutException e) {
+                output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
+                return;
+            }
+
+            if (exec.getImportResult().isSuccessful()) {
+                output.add("Result", exec.getResult().toString());
+            } else {
+                output.add("Result", "IMPORT_ERROR");
+                output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
+            }
         }
     }
 
