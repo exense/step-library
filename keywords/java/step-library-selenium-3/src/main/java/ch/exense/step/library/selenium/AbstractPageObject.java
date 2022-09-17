@@ -252,12 +252,12 @@ public class AbstractPageObject {
      * Method to wait for the AJAX and JavaScript calls to be completed
      *
      * @param timeout the maximal amount of time to wait for the calls to be completed
-     * @see JSWaiter#waitAllRequest()
+     * @see JSWaiter#waitAllRequest(long)
      */
     public void safeWaitDocumentReadyState(long timeout) {
         safeWait(() -> {
-            jsWaiter.waitAllRequest();
-            return ((JavascriptExecutor) driver).executeScript("return document.readyState").toString().equals("complete");
+            jsWaiter.waitAllRequest(timeout);
+            return true;
         }, timeout);
     }
 
@@ -278,6 +278,7 @@ public class AbstractPageObject {
      * @see Poller#retryIfFails(Supplier, long)
      */
     public void safeClick(By by, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         Poller.retryIfFails(() -> {
             WebElement element = driver.findElement(by);
             element.click();
@@ -317,6 +318,7 @@ public class AbstractPageObject {
      * @see Poller#retryIfFails(Supplier, long)
      */
     public void safeHover(By by, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         Actions actions = new Actions(driver);
         Poller.retryIfFails(() -> {
             WebElement element = driver.findElement(by);
@@ -392,6 +394,7 @@ public class AbstractPageObject {
      * @see AbstractPageObject#safeWait(Supplier, long)
      */
     public void safeDoubleClick(By by, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         safeWait(() -> {
             WebElement element = driver.findElement(by);
             Actions actions = new Actions(driver);
@@ -420,6 +423,7 @@ public class AbstractPageObject {
      * @see AbstractPageObject#safeWait(Supplier, long)
      */
     public void safeSendKeys(By by, String keys, Supplier<Boolean> condition, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         safeWait(() -> {
             WebElement element = driver.findElement(by);
             element.clear();
@@ -440,6 +444,7 @@ public class AbstractPageObject {
     }
 
     public void safeSendKeys(By by, Keys keys, Supplier<Boolean> condition, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         safeWait(() -> {
             WebElement element = driver.findElement(by);
             element.clear();

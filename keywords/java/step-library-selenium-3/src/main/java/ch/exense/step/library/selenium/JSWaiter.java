@@ -49,13 +49,12 @@ public class JSWaiter {
 	}
 
 
-	public void waitAllRequest() {
-		Poller.retryWhileFalse(this::waitUntilJSReady, 10);
-		waitUntilJSReady();
+	public void waitAllRequest(long timeout) {
+		Poller.retryWhileFalse(this::waitUntilJSReady, timeout);
 		ajaxComplete();
-		Poller.retryWhileFalse(this::waitUntilJQueryReady, 10);
+		Poller.retryWhileFalse(this::waitUntilJQueryReady, timeout);
 		//waitUntilAngularReady(); // THROW JQLITE ERROR
-		Poller.retryWhileFalse(this::waitUntilAngular5Ready, 10);
+		Poller.retryWhileFalse(this::waitUntilAngular5Ready, timeout);
 	}
 	
 	/**
