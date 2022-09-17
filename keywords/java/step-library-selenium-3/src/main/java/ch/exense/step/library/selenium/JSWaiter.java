@@ -50,11 +50,12 @@ public class JSWaiter {
 
 
 	public void waitAllRequest() {
+		Poller.retryWhileFalse(this::waitUntilJSReady, 10);
 		waitUntilJSReady();
 		ajaxComplete();
-		waitUntilJQueryReady();
+		Poller.retryWhileFalse(this::waitUntilJQueryReady, 10);
 		//waitUntilAngularReady(); // THROW JQLITE ERROR
-		waitUntilAngular5Ready();
+		Poller.retryWhileFalse(this::waitUntilAngular5Ready, 10);
 	}
 	
 	/**
@@ -130,7 +131,8 @@ public class JSWaiter {
 		} catch (WebDriverException e) {
 			return true;
 		}
-		return(boolean) jsExec.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1");
+		return(boolean) jsExec.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1")
+				|| (boolean) jsExec.executeScript("return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === 0");
 	}
 	
 	/**
