@@ -190,6 +190,7 @@ public class AbstractPageObject {
      * @see Poller#retryIfFails(Supplier, long)
      */
     public WebElement findBy(By by, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         return Poller.retryIfFails(() -> driver.findElement(by), timeout);
     }
 
@@ -201,6 +202,7 @@ public class AbstractPageObject {
      * @see #findBy(By, long)
      */
     public WebElement findBy(By by) {
+        safeWaitDocumentReadyState();
         return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> driver.findElement(by), 0));
     }
 
@@ -214,6 +216,7 @@ public class AbstractPageObject {
      * @see Poller#retryIfFails(Supplier, long)
      */
     public List<WebElement> findAllBy(By by, long timeout) {
+        safeWaitDocumentReadyState(timeout);
         return Poller.retryIfFails(() -> driver.findElements(by), timeout);
     }
 
@@ -225,6 +228,7 @@ public class AbstractPageObject {
      * @see #findAllBy(By, long)
      */
     public List<WebElement> findAllBy(By by) {
+        safeWaitDocumentReadyState();
         return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> driver.findElements(by), 0));
     }
 
