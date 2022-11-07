@@ -45,7 +45,7 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
 
     final String chromeDriverProperty = "webdriver.chrome.driver";
 
-    final List<String> defaultOptions = Arrays.asList("disable-infobars","ignore-certificate-errors", "no-zygote", "disable-extensions");
+    final List<String> defaultOptions = Arrays.asList("disable-infobars","ignore-certificate-errors", "disable-extensions");
     final List<String> headlessOptions = Arrays.asList("headless", "disable-gpu", "disable-software-rasterizer", "no-sandbox");
 
     /**
