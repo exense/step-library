@@ -25,8 +25,11 @@ import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.io.File;
 
 public class StepKeywordsTest {
+
+	private static String DEFAULT_INSTANCE = "https://stepee-nhy.exense.ch/";
 
 	private ExecutionContext ctx;
 	private Output<JsonObject> output;
@@ -42,16 +45,34 @@ public class StepKeywordsTest {
 		ctx.close();
 	}
 
-	//@Test
-	public void test1() throws Exception {
+	@Test
+	public void test_listTenant() throws Exception {
 		input = Json.createObjectBuilder().add("User", "admin")
 			.add("Password", "init")
-			.add("Url", "http://localhost:8080/").build();
+			.add("Url",DEFAULT_INSTANCE).build();
 		output = ctx.run("InitStepClient", input.toString());
 		assert output.getError() == null;
 
 		output = ctx.run("ListTenants");
 		System.out.println(output.getPayload());
 		assert output.getError() == null;
+	}
+
+	@Test
+	public void test_upload() throws Exception {
+
+		input = Json.createObjectBuilder().add("User", "admin")
+				.add("Password", "init")
+				.add("Url", DEFAULT_INSTANCE).build();
+
+		output = ctx.run("InitStepClient",input);
+
+		String file = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
+
+		JsonObject input = Json.createObjectBuilder().add("File", file).build();
+
+		output = ctx.run("UploadResource", input.toString());
+
+		System.out.println(output.getPayload());
 	}
 }

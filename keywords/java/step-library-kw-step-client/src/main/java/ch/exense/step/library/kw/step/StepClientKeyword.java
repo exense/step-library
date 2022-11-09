@@ -19,6 +19,7 @@ import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.ws.rs.client.Invocation;
 import step.client.AbstractRemoteClient;
 import step.client.ControllerClientException;
 import step.client.StepClient;
@@ -27,12 +28,12 @@ import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
 import step.core.repositories.RepositoryObjectReference;
-import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
-import step.resources.ResourceRevisionContent;
+import step.resources.Resource;
+import step.resources.ResourceManager;
+import step.resources.SimilarResourceExistingException;
 
-import javax.ws.rs.client.Invocation;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,6 +147,40 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         } catch (Exception e) {
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
             throw new BusinessException("Exception when trying to list the tenants");
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{"
+            + "\"File\":{\"type\":\"string\"},"
+            + "\"Type\":{\"type\":\"string\"}"
+            + "},\"required\":[\"File\"]}",
+            properties = {""})
+    public void UploadResource() throws BusinessException {
+
+        StepClient client = getClient();
+
+        String fileName = input.getString("File");
+        String type = input.getString("Type", ResourceManager.RESOURCE_TYPE_TEMP);
+        File file = new File(fileName);
+
+        if (!file.exists()) {
+            output.setBusinessError("\"" + fileName + "\" does not exist.");
+            return;
+        }
+        if (!file.isFile()) {
+            output.setBusinessError("\"" + fileName + "\" is not a file.");
+            return;
+        }
+
+        try (FileInputStream stream = new FileInputStream(file)) {
+            Resource resource = client.getResourceManager().createResource(type, stream, file.getName(), false, null);
+            output.add("ResourceId",resource.getId().toString());
+        } catch (IOException e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("IOException when trying to upload the file '" + fileName + "'");
+        } catch (SimilarResourceExistingException e) {
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            throw new BusinessException("SimilarResourceExistingException when trying to upload the file '" + fileName + "'");
         }
     }
 
