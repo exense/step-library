@@ -23,10 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
-import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
-import javax.json.Json;
 import javax.json.JsonObject;
+import javax.json.Json;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,8 @@ import static org.junit.Assert.*;
 
 public class SeleniumLibTest {
 	private static final String TEST_FOLDER = "src\\test\\resources\\";
-	private ExecutionContext ctx;
+
+	private KeywordRunner.ExecutionContext ctx;
 	private Output<JsonObject> output;
 	private String inputs;
 

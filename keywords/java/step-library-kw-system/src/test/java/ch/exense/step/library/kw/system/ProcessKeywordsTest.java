@@ -45,7 +45,8 @@ public class ProcessKeywordsTest {
 	public void test1() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "java -version").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
-		Assert.assertTrue(output.getPayload().getString("stderr").startsWith("java version"));
+		Assert.assertTrue(output.getPayload().getString("stderr").startsWith("java version") ||
+				output.getPayload().getString("stderr").startsWith("openjdk "));
 	}
 	
 	@Test
@@ -77,7 +78,8 @@ public class ProcessKeywordsTest {
 				.build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 
-		Assert.assertEquals("j", output.getPayload().getString("stderr"));
+		Assert.assertTrue(output.getPayload().getString("stderr").equals("j") ||
+				output.getPayload().getString("stderr").equals("o"));
 		Assert.assertEquals("stderr.log", output.getAttachments().get(0).getName());
 	}
 
@@ -87,7 +89,9 @@ public class ProcessKeywordsTest {
 				.add("Max_Output_Attachment_Size", "1").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 
-		Assert.assertEquals("j", output.getPayload().getString("stderr"));
-		Assert.assertEquals("ag==", output.getAttachments().get(0).getHexContent());
+		Assert.assertTrue(output.getPayload().getString("stderr").equals("j") ||
+				output.getPayload().getString("stderr").equals("o"));
+		Assert.assertTrue(output.getAttachments().get(0).getHexContent().equals("ag") ||
+				output.getAttachments().get(0).getHexContent().equals("bw=="));
 	}
 }
