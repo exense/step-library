@@ -91,7 +91,7 @@ public class ProcessKeywordsTest {
 
 		Assert.assertTrue(output.getPayload().getString("stderr").equals("j") ||
 				output.getPayload().getString("stderr").equals("o"));
-		Assert.assertTrue(output.getAttachments().get(0).getHexContent().equals("ag") ||
+		Assert.assertTrue(output.getAttachments().get(0).getHexContent().equals("ag==") ||
 				output.getAttachments().get(0).getHexContent().equals("bw=="));
 	}
 }
