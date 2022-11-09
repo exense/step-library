@@ -53,7 +53,7 @@ public class JSWaiter {
 		Poller.retryWhileFalse(this::waitUntilJSReady, timeout);
 		ajaxComplete();
 		Poller.retryWhileFalse(this::waitUntilJQueryReady, timeout);
-		//waitUntilAngularReady(); // THROW JQLITE ERROR
+		Poller.retryWhileFalse(this::waitUntilAngularJSReady, timeout);
 		Poller.retryWhileFalse(this::waitUntilAngular5Ready, timeout);
 	}
 	
@@ -97,26 +97,27 @@ public class JSWaiter {
 	}
 
 	/**
-	 * Method waiting for Angular (version under 5) activity to end, only if enabled
+	 * Method waiting for AngularJS activity to end, only if enabled
 	 */
-	public void waitUntilAngularReady() {
+	public boolean waitUntilAngularJSReady() {
 		try {
 			Boolean angularUnDefined = (Boolean) jsExec.executeScript("return window.angular === undefined");
-			if (!angularUnDefined) {
-				Boolean angularInjectorUnDefined = (Boolean) jsExec.executeScript("return angular.element(document).injector() === undefined");
-				if (!angularInjectorUnDefined) {
-					poll(20);
-					String angularReadyScript = "return angular.element(document).injector().get('$http').pendingRequests.length === 0";
-					angularLoads(angularReadyScript);
-					final String javaScriptToLoadAngular =
-			                "var injector = window.angular.element('body').injector();" + 
-			                "var $http = injector.get('$http');" + 
-			                "return ($http.pendingRequests.length === 0)";
-					angularLoads(javaScriptToLoadAngular);
-					poll(20);
-				}
-			}
+			if(angularUnDefined) return true;
+
+			Boolean angularInjectorUnDefined = (Boolean) jsExec.executeScript("return window.angular.element(document).injector() === undefined");
+			if(angularInjectorUnDefined) return true;
+
+			String angularReadyScript = "return window.angular.element(document).injector().get('$http').pendingRequests.length === 0";
+			return Boolean.parseBoolean(jsExec.executeScript(angularReadyScript).toString());
+			/*angularLoads(angularReadyScript);
+			final String javaScriptToLoadAngular =
+					"var injector = window.angular.element('body').injector();" +
+					"var $http = injector.get('$http');" +
+					"return ($http.pendingRequests.length === 0)";
+			angularLoads(javaScriptToLoadAngular);
+			poll(20);*/
 		} catch (WebDriverException ignored) {
+			return true;
 		}
 	}
 	
@@ -137,7 +138,7 @@ public class JSWaiter {
 	/**
 	 * Helper method waiting for Angular activity to end
 	 * @deprecated
-	 * @see #waitUntilAngularReady()
+	 * @see #waitUntilAngularJSReady()
 	 */
 	@Deprecated
 	private void waitForAngular() {
