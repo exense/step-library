@@ -16,6 +16,7 @@
 package ch.exense.step.examples.http;
 
 import org.apache.http.Header;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -27,11 +28,15 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.*;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +79,9 @@ public class HttpClient {
 	 * @param basicAuthPort
 	 * @param basicAuthUser
 	 * @param basicAuthPassword
+	 * @param proxyHost
+	 * @param proxyPort
+	 * @param noProxy
 	 * @throws KeyStoreException
 	 * @throws NoSuchAlgorithmException
 	 * @throws CertificateException
@@ -82,7 +90,7 @@ public class HttpClient {
 	 * @throws KeyManagementException
 	 */
 	public HttpClient(int timeoutInMs, String jksPath, String password, String targetIP, String hostWithCustomDns, String basicAuthHostScheme,
-			String basicAuthHost, int basicAuthPort, String basicAuthUser, String basicAuthPassword)
+			String basicAuthHost, int basicAuthPort, String basicAuthUser, String basicAuthPassword, String proxyHost, Integer proxyPort, String noProxy)
 			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException,
 			UnrecoverableKeyException, KeyManagementException {
 		
@@ -116,7 +124,7 @@ public class HttpClient {
 			HttpHost targetHost = new HttpHost(basicAuthHost, basicAuthPort, basicAuthHostScheme);
 			authCache.put(targetHost, new BasicScheme());
 			context.setCredentialsProvider(provider);
-		//else if basic authentication set it as defeult in the client
+		//else if basic authentication set it as default in the client
 		} else if (provider != null) {
 			httpClientBuilder.setDefaultCredentialsProvider(provider);
 		}
@@ -125,6 +133,26 @@ public class HttpClient {
 				  .setConnectTimeout(timeoutInMs)
 				  .setConnectionRequestTimeout(timeoutInMs)
 				  .setSocketTimeout(timeoutInMs).build();
+
+		if(proxyHost != null && proxyPort != null) {
+			HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+			HttpRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy) {
+				@Override
+				public HttpRoute determineRoute(HttpHost host, org.apache.http.HttpRequest request, HttpContext context) throws HttpException {
+					if(noProxy != null && !noProxy.isEmpty()) {
+						List<String> noProxyHosts = Arrays.asList(noProxy.split(","));
+						String hostname = host.getHostName();
+						if(noProxyHosts.contains(hostname)) {
+							// Return direct route
+							return new HttpRoute(host);
+						}
+					}
+					return super.determineRoute(host, request, context);
+				}
+			};
+			httpClientBuilder.setRoutePlanner(routePlanner);
+		}
+
 		
 		//Build the client
 		this.client = httpClientBuilder.setDefaultRequestConfig(requestConfig).build();

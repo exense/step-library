@@ -50,15 +50,19 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	 * step Keyword to init an Apache HTTP client the client will be placed in the
 	 * current step session
 	 *
-	 * Keyword inputs BasicAuthUser: set basic authenticate user name (require
-	 * password) BasicAuthPassword: set basic authentication password BasicAuthHost:
-	 * enable preemptive authentication (require the 5 bascic_auth fields)
-	 * BasicAuthHostScheme: target host scheme (i.e. https) BasicAuthPort: target
-	 * host port number KeyStorePath (optional) KeyStorePassword (mandatory is
-	 * keyStorePath is provided) CustomDnsResolverTargetIP: enable a custom DNS
-	 * resolver, requires hostWithCustomDns CustomDnsResolverHostWithCustomDns:
-	 * requests to this host will be resolved to the "targetIP"
-	 *
+	 * Keyword inputs:
+	 * BasicAuthUser: set basic authenticate user name (require password)
+	 * BasicAuthPassword: set basic authentication password
+	 * BasicAuthHost: enable preemptive authentication (require the 5 basic_auth fields)
+	 * BasicAuthHostScheme: target host scheme (i.e. https)
+	 * BasicAuthPort: target host port number
+	 * KeyStorePath (optional)
+	 * KeyStorePassword (mandatory if KeyStorePath is provided)
+	 * CustomDnsResolverTargetIP: enable a custom DNS resolver, requires "CustomDnsResolverHostWithCustomDns"
+	 * CustomDnsResolverHostWithCustomDns: requests to this host will be resolved to the "CustomDnsResolverTargetIP"
+	 * ProxyHost (optional)
+	 * ProxyPort (mandatory if ProxyHost is provided)
+	 * NoProxy: comma separated list of host(s) to not use the Proxy for (does not support wildcard)
 	 * @throws IOException
 	 * @throws CertificateException
 	 * @throws NoSuchAlgorithmException
@@ -77,7 +81,10 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"KeyStorePassword\":{\"type\":\"string\"},"
 			+ "\"TimeoutInMs\":{\"type\":\"string\"},"
 			+ "\"CustomDnsResolverTargetIP\":{\"type\":\"string\"},"
-			+ "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"}"
+			+ "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"},"
+			+ "\"ProxyHost\":{\"type\":\"string\"},"
+			+ "\"ProxyPort\":{\"type\":\"integer\"},"
+			+ "\"NoProxy\":{\"type\":\"string\"}"
 			+ "},\"required\":[]}", properties = { "" })
 	public void InitHttpClient() throws UnrecoverableKeyException, KeyManagementException, KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException {
@@ -91,6 +98,19 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		String keyStorePassword = null;
 		String customDnsResolverTargetIP = null;
 		String customDnsResolverHostWithCustomDns = null;
+		String proxyHost = null;
+		Integer proxyPort = null;
+		String noProxy = null;
+
+		if(input.containsKey("ProxyHost")) {
+			if(!input.containsKey("ProxyPort")) {
+				throw new BusinessException("ProxyHost provided without ProxyPort");
+			} else {
+				proxyHost = input.getString("ProxyHost");
+				proxyPort = input.getInt("ProxyPort");
+				noProxy = input.getString("NoProxy", "");
+			}
+		}
 
 		if (input.containsKey("KeyStorePath")) {
 			if (!input.containsKey("KeyStorePassword")) {
@@ -130,7 +150,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		int timeoutInMs = Integer.parseInt(input.getString("TimeoutInMs", "60000"));
 		httpClient = new HttpClient(timeoutInMs, keyStorePath, keyStorePassword, customDnsResolverTargetIP,
 				customDnsResolverHostWithCustomDns, basicAuthHostScheme, basicAuthHost, basicAuthPort, basicAuthUser,
-				basicAuthPassword);
+				basicAuthPassword, proxyHost, proxyPort, noProxy);
 
 		getSession().put(HTTP_CLIENT, httpClient);
 	}
@@ -340,9 +360,11 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		GetCookies();
 	}
 
+	@Deprecated
 	@Keyword
 	public void EnableProxy() {
-		String nonProxyHosts = input.getString("nonProxyHosts");
+		throw new BusinessException("This Keyword has been deprecated. Use the InitHttpClient one together with the ProxyHost and ProxyPort input parameters instead");
+		/*String nonProxyHosts = input.getString("nonProxyHosts");
 		String proxyHost = input.getString("proxyHost");
 		String proxyPort = input.getString("proxyPort");
 		System.setProperty("http.proxyHost", proxyHost);
@@ -351,11 +373,14 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		System.setProperty("https.proxyHost", proxyHost);
 		System.setProperty("https.proxyPort", proxyPort);
 		System.setProperty("https.nonProxyHosts", nonProxyHosts);
-		System.setProperty("java.net.preferIPv4Stack", "true");
+		System.setProperty("java.net.preferIPv4Stack", "true");*/
 	}
 
+	@Deprecated
 	@Keyword
 	public void DisableProxy() {
+		throw new BusinessException("This Keyword has been deprecated");
+		/*
 		System.setProperty("http.proxyHost", "");
 		System.setProperty("http.proxyPort", "");
 		System.setProperty("http.nonProxyHosts", "");
@@ -363,10 +388,15 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		System.setProperty("https.proxyPort", "");
 		System.setProperty("https.nonProxyHosts", "");
 		System.setProperty("java.net.preferIPv4Stack", "false");
+		*/
+
 	}
 
+	@Deprecated
 	@Keyword
 	public void ShowProxySettings() {
+		throw new BusinessException("This Keyword has been deprecated");
+		/*
 		output.add("http.proxyHost", Optional.ofNullable(System.getProperty("http.proxyHost")).orElse(""));
 		output.add("http.proxyPort", Optional.ofNullable(System.getProperty("http.proxyPort")).orElse(""));
 		output.add("http.nonProxyHosts", Optional.ofNullable(System.getProperty("http.nonProxyHosts")).orElse(""));
@@ -374,6 +404,6 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		output.add("https.proxyPort", Optional.ofNullable(System.getProperty("https.proxyPort")).orElse(""));
 		output.add("https.nonProxyHosts", Optional.ofNullable(System.getProperty("https.nonProxyHosts")).orElse(""));
 		output.add("java.net.preferIPv4Stack", Optional.ofNullable(System.getProperty("java.net.preferIPv4Stack")).orElse(""));
-
+		*/
 	}
 }
