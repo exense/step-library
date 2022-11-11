@@ -191,7 +191,7 @@ public class AbstractPageObject {
      */
     public WebElement findBy(By by, long timeout) {
         safeWaitDocumentReadyState(timeout);
-        return Poller.retryIfFails(() -> driver.findElement(by), timeout);
+        return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> driver.findElement(by), timeout));
     }
 
     /**
@@ -202,8 +202,7 @@ public class AbstractPageObject {
      * @see #findBy(By, long)
      */
     public WebElement findBy(By by) {
-        safeWaitDocumentReadyState();
-        return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> driver.findElement(by), 0));
+        return findBy(by, getDefaultTimeout());
     }
 
     /**
@@ -217,7 +216,7 @@ public class AbstractPageObject {
      */
     public List<WebElement> findAllBy(By by, long timeout) {
         safeWaitDocumentReadyState(timeout);
-        return Poller.retryIfFails(() -> driver.findElements(by), timeout);
+        return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> driver.findElements(by), timeout));
     }
 
     /**
@@ -228,8 +227,7 @@ public class AbstractPageObject {
      * @see #findAllBy(By, long)
      */
     public List<WebElement> findAllBy(By by) {
-        safeWaitDocumentReadyState();
-        return doWithoutImplicitWait(() -> Poller.retryIfFails(() -> driver.findElements(by), 0));
+        return findAllBy(by, getDefaultTimeout());
     }
 
     /**
@@ -283,12 +281,11 @@ public class AbstractPageObject {
      */
     public void safeClick(By by, long timeout) {
         safeWaitDocumentReadyState(timeout);
-        Poller.retryIfFails(() -> {
-            WebElement element = driver.findElement(by);
+        doWithoutImplicitWait(() -> Poller.retryIfFails(() -> {
+            WebElement element = this.driver.findElement(by);
             element.click();
-            customWait();
             return true;
-        }, timeout);
+        }, timeout));
     }
 
     /**
