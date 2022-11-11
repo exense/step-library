@@ -364,46 +364,17 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	@Keyword
 	public void EnableProxy() {
 		throw new BusinessException("This Keyword has been deprecated. Use the InitHttpClient one together with the ProxyHost and ProxyPort input parameters instead");
-		/*String nonProxyHosts = input.getString("nonProxyHosts");
-		String proxyHost = input.getString("proxyHost");
-		String proxyPort = input.getString("proxyPort");
-		System.setProperty("http.proxyHost", proxyHost);
-		System.setProperty("http.proxyPort", proxyPort);
-		System.setProperty("http.nonProxyHosts", nonProxyHosts);
-		System.setProperty("https.proxyHost", proxyHost);
-		System.setProperty("https.proxyPort", proxyPort);
-		System.setProperty("https.nonProxyHosts", nonProxyHosts);
-		System.setProperty("java.net.preferIPv4Stack", "true");*/
 	}
 
 	@Deprecated
 	@Keyword
 	public void DisableProxy() {
 		throw new BusinessException("This Keyword has been deprecated");
-		/*
-		System.setProperty("http.proxyHost", "");
-		System.setProperty("http.proxyPort", "");
-		System.setProperty("http.nonProxyHosts", "");
-		System.setProperty("https.proxyHost", "");
-		System.setProperty("https.proxyPort", "");
-		System.setProperty("https.nonProxyHosts", "");
-		System.setProperty("java.net.preferIPv4Stack", "false");
-		*/
-
 	}
 
 	@Deprecated
 	@Keyword
 	public void ShowProxySettings() {
 		throw new BusinessException("This Keyword has been deprecated");
-		/*
-		output.add("http.proxyHost", Optional.ofNullable(System.getProperty("http.proxyHost")).orElse(""));
-		output.add("http.proxyPort", Optional.ofNullable(System.getProperty("http.proxyPort")).orElse(""));
-		output.add("http.nonProxyHosts", Optional.ofNullable(System.getProperty("http.nonProxyHosts")).orElse(""));
-		output.add("https.proxyHost", Optional.ofNullable(System.getProperty("https.proxyHost")).orElse(""));
-		output.add("https.proxyPort", Optional.ofNullable(System.getProperty("https.proxyPort")).orElse(""));
-		output.add("https.nonProxyHosts", Optional.ofNullable(System.getProperty("https.nonProxyHosts")).orElse(""));
-		output.add("java.net.preferIPv4Stack", Optional.ofNullable(System.getProperty("java.net.preferIPv4Stack")).orElse(""));
-		*/
 	}
 }
