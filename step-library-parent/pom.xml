@@ -70,6 +70,7 @@
         <module>../keywords/java/step-library-kw-selenium</module>
         <module>../keywords/java/step-library-kw-excel</module>
         <module>../keywords/java/step-library-kw-network</module>
+        <module>../keywords/java/step-library-kw-db</module>
     </modules>
 
     <dependencies>
