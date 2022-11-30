@@ -19,7 +19,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -232,10 +232,22 @@ public class FileSystemKeywords extends AbstractKeyword {
                 "\"canRead\":" + file.canRead() + ",\"canWrite\":" + file.canWrite() + ",\"canExecute\":" + file.canExecute() + "}";
     }
 
-    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Regex\":{\"type\":\"string\"}},\"required\":[\"Folder\",\"Regex\"]}")
+    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}," +
+            "\"Regex\":{\"type\":\"string\"}," +
+            "\"AddDirectories\":{\"type\":\"boolean\"}," +
+            "\"AddFiles\":{\"type\":\"boolean\"}" +
+            "},\"required\":[\"Folder\",\"Regex\"]}")
     public void Find_file() {
         String folderName = input.getString("Folder");
         String regex = input.getString("Regex");
+
+        boolean addDirectories = input.getBoolean("AddDirectories",true);
+        boolean addFiles = input.getBoolean("AddFiles",true);
+
+        if (!addDirectories && !addFiles) {
+            output.setBusinessError("At least one of the inputs 'AddDirectory' or 'AddFile' should be true or unset");
+            return;
+        }
 
         File folder = new File(folderName);
 
@@ -260,7 +272,7 @@ public class FileSystemKeywords extends AbstractKeyword {
 
         try {
             List<String> files = new ArrayList<>();
-            recursiveSearch(folder, regex).forEach(f -> {
+            recursiveSearch(folder, regex,addDirectories,addFiles).forEach(f -> {
                 files.add(formatFileOutput(f));
             });
             output.add("Files", files.toString());
@@ -270,15 +282,20 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    private List<File> recursiveSearch(File folder, String regex) {
+    private List<File> recursiveSearch(File folder, String regex, boolean addDirectories, boolean addFiles) {
         List<File> result = new ArrayList<>();
         File[] files = folder.listFiles();
+
         if (files != null) {
             for (File file : files) {
                 if (file.getPath().matches(regex)) {
-                    result.add(file);
+                    if (file.isDirectory() && addDirectories) {
+                        result.add(file);
+                    } else if (file.isFile() && addFiles) {
+                        result.add(file);
+                    }
                 }
-                result.addAll(recursiveSearch(file, regex));
+                result.addAll(recursiveSearch(file, regex, addDirectories, addFiles));
             }
         }
         return result;
