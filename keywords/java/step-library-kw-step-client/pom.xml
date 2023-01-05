@@ -20,7 +20,8 @@
 		<dependency>
 			<groupId>ch.exense.step-enterprise</groupId>
 			<artifactId>step-client</artifactId>
-			<version>${step.version}</version>
+			<!-- <version>${step.version}</version> -->
+			<version>2023.1.5-63b6ee9dfd5f6139bc6d9828</version>
 			<exclusions>
 				<!-- avoid importing the Echo keyword -->
 				<exclusion>
