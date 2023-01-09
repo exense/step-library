@@ -50,8 +50,8 @@
     </repositories>
 
     <properties>
-        <step-api.version>1.1.9</step-api.version>
-        <step.version>3.20.1</step.version>
+        <step-api.version>2023.1.9-63bbdb5cfd5f6139bc973284</step-api.version>
+        <step.version>2023.1.9-63bbdd1cfd5f6139bc97c8ce</step.version>
         <exense-commons.version>2.0.0</exense-commons.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
