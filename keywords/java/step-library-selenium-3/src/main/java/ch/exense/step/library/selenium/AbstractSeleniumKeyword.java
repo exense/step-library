@@ -27,6 +27,7 @@ import org.openqa.selenium.logging.LogEntry;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -135,6 +136,31 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			//attachLogs();
 		}
 		return super.onError(e);
+	}
+
+	/**
+	 * <p>Hook method that attach a screenshot before the keyword execution, if the debug mode is activated</p>
+	 * @param keyword the keyword method that was called
+	 */
+	@Override
+	public void beforeKeyword(Method keyword) {
+		if (isDriverCreated() && isDebug()) {
+			attachScreenshot("before_"+keyword.getName()+".jpeg");
+		}
+		super.beforeKeyword(keyword);
+	}
+
+
+	/**
+	 * <p>Hook method that attach a screenshot after the keyword execution, if the debug mode is activated</p>
+	 * @param keyword the keyword method that was called
+	 */
+	@Override
+	public void afterKeyword(Method keyword) {
+		if (isDriverCreated() && isDebug()) {
+			attachScreenshot("after_"+keyword.getName()+".jpeg");
+		}
+		super.afterKeyword(keyword);
 	}
 
 	/**
