@@ -38,7 +38,8 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
      */
     @Keyword(schema = "{ \"properties\": { "
             + "\"Headless\": {  \"type\": \"boolean\"}"
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description="This open the chrome browser")
     public void Open_Chrome() {
         openChrome();
     }
