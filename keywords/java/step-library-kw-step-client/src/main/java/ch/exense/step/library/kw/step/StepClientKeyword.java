@@ -256,7 +256,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"Async\":{\"type\":\"boolean\"},"
             + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
-            properties = {""})
+            properties = {""},
+            timeout = 1800000)
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
 
         StepClient client = getClient();

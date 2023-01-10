@@ -29,7 +29,8 @@ public class JavaProcessKeywords extends ProcessKeywords {
 			+ VM_ARGS + "\":{\"type\":\"string\"},\"" + CLASS_PATH + "\":{\"type\":\"string\"}," + "\"" + JAVA_EXE
 			+ "\":{\"type\":\"string\"},\"" + TIMEOUT_MS + "\":{\"type\":\"string\"}," + "\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\"" + MAX_OUTPUT_PAYLOAD_SIZE
-			+ "\":{\"type\":\"string\"}}," + "\"required\":[\"" + MAIN_CLASS_OR_JAR + "\"]}")
+			+ "\":{\"type\":\"string\"}}," + "\"required\":[\"" + MAIN_CLASS_OR_JAR + "\"]}",
+			timeout = 1800000)
 	public void executeJavaProcess() throws Exception {
 		readInputs();
 		String command = buildCommandLine();
