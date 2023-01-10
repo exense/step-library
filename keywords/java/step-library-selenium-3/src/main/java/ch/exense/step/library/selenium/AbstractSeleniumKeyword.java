@@ -132,7 +132,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	@Override
 	public boolean onError(Exception e) {
 		if (isDriverCreated()) {
-			attachScreenshot("screenshot_error.jpeg");
+			attachScreenshot("screenshot.error.jpeg");
 			//attachLogs();
 		}
 		return super.onError(e);
@@ -145,7 +145,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	@Override
 	public void beforeKeyword(Method keyword) {
 		if (isDriverCreated() && isDebug()) {
-			attachScreenshot("screenshot_before_"+keyword.getName()+".jpeg");
+			attachScreenshot("screenshot.before_"+keyword.getName()+".jpeg");
 		}
 		super.beforeKeyword(keyword);
 	}
@@ -158,7 +158,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	@Override
 	public void afterKeyword(Method keyword) {
 		if (isDriverCreated() && isDebug()) {
-			attachScreenshot("screenshot_after_"+keyword.getName()+".jpeg");
+			attachScreenshot("screenshot.after_"+keyword.getName()+".jpeg");
 		}
 		super.afterKeyword(keyword);
 	}
