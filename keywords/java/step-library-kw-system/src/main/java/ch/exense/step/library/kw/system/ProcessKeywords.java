@@ -36,7 +36,8 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			timeout = 1800000)
 	public void executeSystemCommand() throws Exception {
 		readInputs();
 		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
@@ -46,7 +47,8 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			timeout = 1800000)
 	public void executeBashCommand() throws Exception {
 		readInputs();
 		
@@ -62,7 +64,8 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			timeout = 1800000)
 	public void executeCmdCommand() throws Exception {
 		readInputs();
 		
