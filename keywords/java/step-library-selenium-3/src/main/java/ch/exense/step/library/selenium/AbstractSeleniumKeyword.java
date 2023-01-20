@@ -26,6 +26,7 @@ import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
+import step.handlers.javahandler.Keyword;
 
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
@@ -140,27 +141,29 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 
 	/**
 	 * <p>Hook method that attach a screenshot before the keyword execution, if the debug mode is activated</p>
-	 * @param keyword the keyword method that was called
+	 * @param keywordName the keyword method that was called
+	 * @param annotation the annotation of this keyword
 	 */
 	@Override
-	public void beforeKeyword(Method keyword) {
+	public void beforeKeyword(String keywordName, Keyword annotation) {
 		if (isDriverCreated() && isDebug()) {
-			attachScreenshot("screenshot_before_"+keyword.getName()+".jpeg");
+			attachScreenshot("screenshot_before_"+keywordName+".jpeg");
 		}
-		super.beforeKeyword(keyword);
+		super.beforeKeyword(keywordName,annotation);
 	}
 
 
 	/**
 	 * <p>Hook method that attach a screenshot after the keyword execution, if the debug mode is activated</p>
-	 * @param keyword the keyword method that was called
+	 * @param keywordName the keyword method that was called
+	 * @param annotation the annotation of this keyword
 	 */
 	@Override
-	public void afterKeyword(Method keyword) {
+	public void afterKeyword(String keywordName, Keyword annotation) {
 		if (isDriverCreated() && isDebug()) {
-			attachScreenshot("screenshot_after_"+keyword.getName()+".jpeg");
+			attachScreenshot("screenshot_after_"+keywordName+".jpeg");
 		}
-		super.afterKeyword(keyword);
+		super.afterKeyword(keywordName,annotation);
 	}
 
 	/**
