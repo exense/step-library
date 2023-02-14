@@ -123,7 +123,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			page.safeWait(() -> page.findBy(element).isDisplayed(), timeout);
 		}
 	}
-	
+
 	/**
 	 * <p>Hook method that can be used to manage Keyword unhandled exception</p>
 	 * @param e the Exception thrown by the Keyword
@@ -133,25 +133,11 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	@Override
 	public boolean onError(Exception e) {
 		if (isDriverCreated()) {
-			attachScreenshot("screenshot_error.jpeg");
-			//attachLogs();
+			attachScreenshot();
+			attachLogs();
 		}
 		return super.onError(e);
 	}
-
-	/**
-	 * <p>Hook method that attach a screenshot before the keyword execution, if the debug mode is activated</p>
-	 * @param keywordName the keyword method that was called
-	 * @param annotation the annotation of this keyword
-	 */
-	@Override
-	public void beforeKeyword(String keywordName, Keyword annotation) {
-		if (isDriverCreated() && isDebug()) {
-			attachScreenshot("screenshot_before_"+keywordName+".jpeg");
-		}
-		super.beforeKeyword(keywordName,annotation);
-	}
-
 
 	/**
 	 * <p>Hook method that attach a screenshot after the keyword execution, if the debug mode is activated</p>
@@ -161,10 +147,11 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	@Override
 	public void afterKeyword(String keywordName, Keyword annotation) {
 		if (isDriverCreated() && isDebug()) {
-			attachScreenshot("screenshot_after_"+keywordName+".jpeg");
+			attachScreenshot();
 		}
-		super.afterKeyword(keywordName,annotation);
+		super.beforeKeyword(keywordName,annotation);
 	}
+
 
 	/**
 	 * <p>Helper method used to attach the WebDriver and Selenium logs when an error occurs</p>
@@ -175,7 +162,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			for (String type: logTypes) {
 				LogEntries entries = getDriver().manage().logs().get(type);
 				StringBuilder logs = new StringBuilder();
-	
+
 				for (LogEntry entry: entries.getAll()) {
 					logs.append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(entry.getTimestamp()))).
 							append(";").append(entry.getLevel()).append(";").append(entry.getMessage()).append("\n");
@@ -205,6 +192,20 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			output.addAttachment(attachment);
 		} catch (Exception ex) {
 			output.appendError("Unable to generate screenshot");
+		}
+	}
+
+	protected void closeDriver() {
+		WebDriver driver = getDriver();
+		startTransaction();
+		driver.quit();
+		Boolean debug = Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
+		if (debug) {
+			properties.put("debug_selenium", "false");
+		}
+		stopTransaction();
+		if (debug) {
+			properties.put("debug_selenium", "true");
 		}
 	}
 	

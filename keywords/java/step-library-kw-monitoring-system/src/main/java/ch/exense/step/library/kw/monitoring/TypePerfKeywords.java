@@ -33,8 +33,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import ch.exense.step.library.commons.AbstractProcessKeyword;
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
+@Attribute(key = "category",value = "Monitoring")
 public class TypePerfKeywords extends AbstractProcessKeyword {
 	protected List<Metric> metrics;
 	protected ScriptEngine engine;

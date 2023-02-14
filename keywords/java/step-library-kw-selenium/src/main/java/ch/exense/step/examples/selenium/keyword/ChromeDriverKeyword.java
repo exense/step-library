@@ -19,6 +19,9 @@ import ch.exense.step.library.selenium.AbstractChromeDriverKeyword;
 import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
+/**
+ * Class containing selenium keywords to open a Chrome browser
+ */
 @Attribute(key = "category",value = "Selenium")
 public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
 
@@ -39,8 +42,8 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
     @Keyword(schema = "{ \"properties\": { "
             + "\"Headless\": {  \"type\": \"boolean\"}"
             + "}, \"required\" : []}", properties = { "" },
-            description="This open the chrome browser")
-    public void Open_Chrome() {
+            description="Keyword used to create a simple selenium chrome driver.")
+    public void Open_Chrome() throws Exception {
         openChrome();
     }
 
@@ -87,18 +90,9 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
             + "\"Implicitly_Wait\": {  \"type\": \"integer\"},"
             + "\"PageLoad_Timeout\": {  \"type\": \"integer\"},"
             + "\"Maximize\": {  \"type\": \"boolean\"}"
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description="Keyword used to create a chrome driver with multiple options.")
     public void Open_Chrome_Advanced() {
         openChrome();
-    }
-
-    /**
-     * <p>Keyword used to explicitly close the current windows. The driver and browser automatically close when the step session ends.</p>
-     */
-    @Keyword (schema = "{ \"properties\": { "
-            + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
-    public void Close_Driver() {
-        closeDriver();
     }
 }

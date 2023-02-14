@@ -24,12 +24,12 @@ import step.handlers.javahandler.Keyword;
 public class EdgeDriverKeyword extends AbstractEdgeDriverKeyword {
 
     /**
-     * <p>Keyword used to create a selenium chrome driver and start a corresponding chrome instance.
+     * <p>Keyword used to create a selenium edge driver and start a corresponding chrome instance.
      * The driver is stored in the current STEP session and is automatically closed once the session ends.</p>
      *
      * Required properties:
      * <ul>
-     * 	<li>chromedriver: path to the chrome driver (usually set in the agent properties)</li>
+     * 	<li>Edge_Driver: path to the edge driver (usually set in the agent properties)</li>
      * </ul>
      *
      * Inputs (default values):
@@ -39,7 +39,8 @@ public class EdgeDriverKeyword extends AbstractEdgeDriverKeyword {
      */
     @Keyword(schema = "{ \"properties\": { "
             + "\"Headless\": {  \"type\": \"boolean\"}"
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description="Keyword used to create a simple edge driver.")
     public void Open_Edge() {
         openEdge();
     }
@@ -78,18 +79,9 @@ public class EdgeDriverKeyword extends AbstractEdgeDriverKeyword {
             + "\"Implicitly_Wait\": {  \"type\": \"integer\"},"
             + "\"PageLoad_Timeout\": {  \"type\": \"integer\"},"
             + "\"Maximize\": {  \"type\": \"boolean\"}"
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description="Keyword used to create a edge driver with multiple options.")
     public void Open_Edge_Advanced() {
         openEdge();
-    }
-
-    /**
-     * <p>Keyword used to explicitly close the current windows. The driver and browser automatically close when the step session ends.</p>
-     */
-    @Keyword (schema = "{ \"properties\": { "
-            + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
-    public void Close_Driver() {
-        closeDriver();
     }
 }

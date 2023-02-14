@@ -24,6 +24,7 @@ import step.client.AbstractRemoteClient;
 import step.client.ControllerClientException;
 import step.client.StepClient;
 import step.controller.multitenancy.Tenant;
+import step.core.accessors.Attribute;
 import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+@Attribute(key = "category",value = "Step Client")
 public class StepClientKeyword extends AbstractEnhancedKeyword {
 
     private static final String DEFAULT_USER = "admin";
@@ -52,7 +54,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"Password\":{\"type\":\"string\"},"
             + "\"Url\":{\"type\":\"string\"}"
             + "},\"required\":[\"Url\"]}",
-            properties = {""})
+            properties = {""},
+            description="Keyword used to initialize a step client and place it in session.")
     public void InitStepClient() throws BusinessException {
 
         String url = getMandatoryInputString("Url");
@@ -79,7 +82,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"ProjectId\":{\"type\":\"string\"}"
             + "}, \"oneOf\": [{\"required\":[\"TenantName\"]},"
             + "{\"required\":[\"ProjectId\"]}]}",
-            properties = {""})
+            properties = {""},
+            description="Keyword used to select another tenant/project.")
     public void SelectTenant() throws BusinessException {
 
         StepClient client = getClient();
@@ -121,7 +125,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     }
 
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
-            properties = {""})
+            properties = {""},
+            description="Keyword used to list the existing tenants/projects.")
     public void ListTenants() throws BusinessException {
 
         StepClient client = getClient();
@@ -154,7 +159,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"File\":{\"type\":\"string\"},"
             + "\"Type\":{\"type\":\"string\"}"
             + "},\"required\":[\"File\"]}",
-            properties = {""})
+            properties = {""},
+            description="Keyword used to upload a file as a resource.")
     public void UploadResource() throws BusinessException {
 
         StepClient client = getClient();
@@ -189,7 +195,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"Destination\":{\"type\":\"string\"},"
             + "\"DeleteAfter\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"ResourceID\",\"Destination\"]}",
-            properties = {""})
+            properties = {""},
+            description="Keyword used to download a resource into a file.")
     public void DownloadResource() throws BusinessException {
 
         StepClient client = getClient();
@@ -257,7 +264,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""},
-            timeout = 1800000)
+            timeout = 1800000,
+            description="Keyword used to execute a plan given a repository.")
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
 
         StepClient client = getClient();
