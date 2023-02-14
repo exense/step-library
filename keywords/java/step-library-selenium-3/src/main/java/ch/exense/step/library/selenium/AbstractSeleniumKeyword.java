@@ -221,8 +221,12 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	 * <p>Helper method to get a WebDriver instance from a STEP session</p>
 	 * @return the WebDriver instance from the STEP session
 	 */
-	protected WebDriver getDriver() {	
-		return session.get(DriverWrapper.class).getDriver();
+	protected WebDriver getDriver() {
+		WebDriver result = session.get(DriverWrapper.class).getDriver();
+		if (result==null) {
+			throw new BusinessException("The driver was not created. Please call on of the 'Open_Chrome' or 'Open_Edge' keywords to create a session");
+		}
+		return result;
 	}
 	
 	/**
