@@ -213,7 +213,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	 * <p>Helper method to check if a WebDriver has been created and put to a STEP session</p>
 	 * @return true if the WebDriver instance is created, otherwise false
 	 */
-	private boolean isDriverCreated() {
+	protected boolean isDriverCreated() {
 		return (session.get(DriverWrapper.class) != null);
 	}
 	
@@ -227,6 +227,10 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			throw new BusinessException("The driver was not created. Please call on of the 'Open_Chrome' or 'Open_Edge' keywords to create a session");
 		}
 		return result;
+	}
+
+	protected void removeDriver() {
+		session.put((DriverWrapper) null);
 	}
 	
 	/**

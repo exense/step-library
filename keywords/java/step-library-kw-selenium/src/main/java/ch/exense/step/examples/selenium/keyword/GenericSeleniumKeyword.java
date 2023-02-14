@@ -68,9 +68,10 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" },
-			description = "KKeyword used to explicitly close the current driver.")
+			description = "Keyword used to explicitly close the current driver.")
 	public void Close_Driver() {
 		closeDriver();
+		removeDriver();
 	}
 
 	/**
