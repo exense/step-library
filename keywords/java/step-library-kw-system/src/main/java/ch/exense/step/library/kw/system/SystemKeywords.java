@@ -16,6 +16,7 @@
 package ch.exense.step.library.kw.system;
 
 import org.apache.commons.io.FileUtils;
+import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
@@ -28,12 +29,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
+@Attribute(key = "category",value = "Operating system")
 public class SystemKeywords extends AbstractKeyword {
 
 	private static final String DEFAULT_FORMAT = "jpg";
 	private static final String DEFAULT_FILENAME = "screenshot.jpg";
 
-	@Keyword
+	@Keyword(description="Keyword used to take a screenshot of the screen.")
 	public void TakeScreenshot() throws AWTException, IOException {
 		Robot robot = new Robot();
 
@@ -48,7 +50,8 @@ public class SystemKeywords extends AbstractKeyword {
 		output.addAttachment(attachment);
 	}
 
-	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}",
+			description="Keyword used to add a file as an attachment.")
     public void AttachFileToLog() {
 		String zipName = input.getString("File");
 

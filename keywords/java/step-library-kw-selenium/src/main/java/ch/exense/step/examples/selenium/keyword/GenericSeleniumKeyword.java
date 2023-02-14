@@ -51,7 +51,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
 			+ "\"Url\": {\"type\": \"string\"}"
-			+ "}, \"required\" : [\"Url\"]}", properties = { "" })
+			+ "}, \"required\" : [\"Url\"]}", properties = { "" },
+			description = "Keyword used to navigate to a page.")
 	public void Navigate_To()  {
 		String url = input.getString("Url");
 		WebDriver driver = getDriver();
@@ -62,12 +63,25 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
+	 * <p>Keyword used to explicitly close the current driver. The driver and browser automatically close when the step session ends.</p>
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to explicitly close the current driver.")
+	public void Close_Driver() {
+		closeDriver();
+		removeDriver();
+	}
+
+	/**
 	 * <p>Keyword used to explicitly close the current window.
 	 * The driver and browser automatically close when the step session ends.</p>
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to explicitly close the current window.")
 	public void Close_Window() {
 		WebDriver driver = getDriver();
 		startTransaction();
@@ -82,12 +96,16 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 		}
 	}
 
+	/**
+	 * <p>Keyword used to send key press.</p>
+	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_INPUTS + ","
 			+ "\"Keys\": {\"type\": \"string\"}"  + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : [\"Keys\"]}", properties = { "" })
+			+ "}, \"required\" : [\"Keys\"]}", properties = { "" },
+			description = "Keyword used to send key press.")
 	public void Send_Keys() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -118,7 +136,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"AsJavascript\": {\"type\": \"boolean\"}"  + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to click on the element located by the locator given as input.")
 	public void Click() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -152,7 +171,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"AsJavascript\": {\"type\": \"boolean\"}"  + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to double-click on the element located by the locator given as input.")
 	public void Double_Click() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -191,7 +211,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to hover on the element located by the locator given as input.")
 	public void Hover() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -214,7 +235,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_WAIT_FOR_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : [\"Javascript_To_Execute\"]}", properties = { "" })
+			+ "}, \"required\" : [\"Javascript_To_Execute\"]}", properties = { "" },
+			description = "Keyword used to execute a piece of javascript code.")
 	public void Execute_Javascript() {
 		AbstractPageObject page = getPageObject();
 		String javascriptToExecute = input.getString("Javascript_To_Execute");
@@ -247,7 +269,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to wait until an element is displayed on the page.")
 	public void Is_Displayed() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -289,7 +312,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to get text from an element.")
 	public void Get_Text() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -311,7 +335,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
-	 * <p>Generic keyword used to enter iframe selected by xpath.</p>
+	 * <p>Generic keyword used to enter iframe.</p>
 	 * Inputs (default values):
 	 * <ul>
 	 * <li>Xpath(): the path to the element to wait for
@@ -323,7 +347,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to enter an iframe.")
 	public void Enter_Iframe() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -351,7 +376,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	 */
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to exit an iframe.")
 	public void Exit_Iframe() {
 		AbstractPageObject page = getPageObject();
 
@@ -385,7 +411,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ "\"Index\": {\"type\": \"integer\"},"
 			+ "\"Value\": {\"type\": \"string\"},"
 			+ "\"Text\": {\"type\": \"string\"}"
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to select options from combo boxes.")
 	public void Select_Option() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();
@@ -420,7 +447,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
 			+ "\"Handle\": {\"type\": \"string\"}"
-			+ "}, \"required\" : [\"Handle\"]}", properties = { "" })
+			+ "}, \"required\" : [\"Handle\"]}", properties = { "" },
+			description = "Keyword used to change the selected window.")
 	public void Select_Window() {
 		AbstractPageObject page = getPageObject();
 		String handle = input.getString("Handle","");
@@ -436,7 +464,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to the list of windows handles.")
 	public void Get_Window_Handles() {
 		AbstractPageObject page = getPageObject();
 
@@ -466,7 +495,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
 			+ "\"ScrollTop\": {\"type\": \"string\"}"
-			+ "}, \"required\" : [\"Xpath\"]}", properties = { "" })
+			+ "}, \"required\" : [\"Xpath\"]}", properties = { "" },
+			description = "Keyword used to scroll to the top position of an element.")
 	public void Set_ScrollTop() {
 		By element = getElementFromInput();
 		AbstractPageObject page = getPageObject();
@@ -485,7 +515,8 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
 			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" })
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to expand a shadow path.")
 	public void Expand_Shadow_Path() {
 		AbstractPageObject page = getPageObject();
 		long timeout = getTimeoutFromInput();

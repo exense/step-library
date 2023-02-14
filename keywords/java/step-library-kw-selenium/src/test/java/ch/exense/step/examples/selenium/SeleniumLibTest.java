@@ -403,5 +403,4 @@ public class SeleniumLibTest {
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
 	}
-
 }

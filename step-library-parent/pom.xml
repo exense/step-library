@@ -50,9 +50,9 @@
     </repositories>
 
     <properties>
-        <step-api.version>1.1.9</step-api.version>
-        <step.version>3.20.1</step.version>
-        <exense-commons.version>2.0.0</exense-commons.version>
+        <step-api.version>1.1.10</step-api.version>
+        <step.version>3.21.0</step.version>
+        <exense-commons.version>2.0.3</exense-commons.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -74,7 +74,11 @@
     </modules>
 
     <dependencies>
-
+        <dependency>
+            <groupId>ch.exense.step</groupId>
+            <artifactId>step-core-model</artifactId>
+            <version>${step.version}</version>
+        </dependency>
         <dependency>
             <groupId>ch.exense.step</groupId>
             <artifactId>step-api-keyword</artifactId>

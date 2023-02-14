@@ -30,6 +30,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import step.grid.io.AttachmentHelper;
+import step.handlers.javahandler.Keyword;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,20 +169,6 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
         
         setDriver(driver);
         //stopTransaction(transactionName);
-    }
-
-    protected void closeDriver() {
-        WebDriver driver = getDriver();
-        startTransaction();
-        driver.quit();
-        Boolean debug = Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
-        if (debug) {
-            properties.put("debug_selenium", "false");
-        }
-        stopTransaction();
-        if (debug) {
-            properties.put("debug_selenium", "true");
-        }
     }
 
     /**

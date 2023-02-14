@@ -23,6 +23,7 @@ import ch.exense.step.library.commons.BusinessException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.message.BasicNameValuePair;
+import step.core.accessors.Attribute;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
@@ -36,6 +37,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Attribute(key = "category",value = "HTTP")
 public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
 	private static final String HTTP_CLIENT = "httpClient";
@@ -85,7 +87,8 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"ProxyHost\":{\"type\":\"string\"},"
 			+ "\"ProxyPort\":{\"type\":\"integer\"},"
 			+ "\"NoProxy\":{\"type\":\"string\"}"
-			+ "},\"required\":[]}", properties = { "" })
+			+ "},\"required\":[]}", properties = { "" },
+			description = "Keyword used to init an Apache HTTP client.")
 	public void InitHttpClient() throws UnrecoverableKeyException, KeyManagementException, KeyStoreException,
 			NoSuchAlgorithmException, CertificateException, IOException {
 		HttpClient httpClient = null;
@@ -156,15 +159,6 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	}
 
 	/**
-	 * step Keyword to close the Apache HTTP clients stored in the step session
-	 */
-	@Keyword
-	public void CloseHttpClient() {
-		HttpClient httpClient = getHttpClientFromSession();
-		httpClient.close();
-	}
-
-	/**
 	 * step Keyword to execute one HTTP request
 	 *
 	 * Keyword inputs: Name (optional): name of the request used for RTM
@@ -179,7 +173,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	 * Extract_*: naming convention to pass content check strings, ex: key:
 	 * extract_myId, value: regexp as string with one group Check_* (optional):
 	 * naming convention to pass content check strings, ex: key: check_pageTitle,
-	 * value: 'my web site title' ReturnResponse: default true
+	 * value: 'my website title' ReturnResponse: default true
 	 *
 	 *
 	 * Keyword output StatusCode: Request status code Headers: headers Cookies:
@@ -202,7 +196,8 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"ReturnResponse\":{\"type\":\"boolean\"},"
 			+ "\"SaveResponseAsAttachment\":{\"type\":\"boolean\"},"
 			+ "\"Name\":{\"type\":\"string\"}"
-			+ "}, \"required\":[\"URL\"]}", properties = {})
+			+ "}, \"required\":[\"URL\"]}", properties = {},
+			description = "Keyword used to execute an HTTP request")
 	public void HttpRequest() throws Exception {
 		String url = input.getString("URL");
 		String method = input.getString("Method", "GET");
@@ -334,11 +329,20 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		}
 	}
 
+	/**
+	 * step Keyword to close the Apache HTTP clients stored in the step session
+	 */
+	@Keyword(description = "Keyword used to close the HTTP client currently in session.")
+	public void CloseHttpClient() {
+		HttpClient httpClient = getHttpClientFromSession();
+		httpClient.close();
+	}
+
 	protected HttpClient getHttpClientFromSession() {
 		return (HttpClient) getSession().get(HTTP_CLIENT);
 	}
 
-	@Keyword
+	@Keyword(description = "Keyword used to read the existing cookies")
 	public void GetCookies() {
 		HttpClient httpClient = getHttpClientFromSession();
 		output.add("Cookies", httpClient.getCookiesFromStore().toString());
@@ -349,7 +353,8 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 			+ "\"Value\":{\"type\":\"string\"},"
 			+ "\"Domain\":{\"type\":\"string\"},"
 			+ "\"Path\":{\"type\":\"string\"}"
-			+ "}, \"required\":[\"cookies\",\"value\",\"domain\",\"path\"]}", properties = {})
+			+ "}, \"required\":[\"cookies\",\"value\",\"domain\",\"path\"]}", properties = {},
+			description = "Keyword used to add a cookie to the current http client")
 	public void AddCookie() {
 		HttpClient httpClient = getHttpClientFromSession();
 		String name = input.getString("Name");
@@ -361,19 +366,19 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 	}
 
 	@Deprecated
-	@Keyword
+	@Keyword(description = "Deprecated, use the InitHttpClient keyword")
 	public void EnableProxy() {
 		throw new BusinessException("This Keyword has been deprecated. Use the InitHttpClient one together with the ProxyHost and ProxyPort input parameters instead");
 	}
 
 	@Deprecated
-	@Keyword
+	@Keyword(description = "Deprecated, use the InitHttpClient keyword")
 	public void DisableProxy() {
 		throw new BusinessException("This Keyword has been deprecated");
 	}
 
 	@Deprecated
-	@Keyword
+	@Keyword(description = "Deprecated, use the InitHttpClient keyword")
 	public void ShowProxySettings() {
 		throw new BusinessException("This Keyword has been deprecated");
 	}

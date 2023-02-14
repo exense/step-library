@@ -17,6 +17,7 @@ package ch.exense.step.library.kw.ssl;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
+import step.core.accessors.Attribute;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
@@ -26,6 +27,7 @@ import java.security.cert.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+@Attribute(key = "category",value = "Network")
 public class SSLKeywords extends AbstractEnhancedKeyword {
 
     /**
@@ -37,7 +39,8 @@ public class SSLKeywords extends AbstractEnhancedKeyword {
             + "\"Url\":{\"type\":\"string\"},"
             + "\"Port\":{\"type\":\"integer\"},"
             + "\"ExtractAll\":{\"type\":\"boolean\"}"
-            + "},\"required\":[\"Url\"]}", properties = {""})
+            + "},\"required\":[\"Url\"]}", properties = {""},
+            description = "Keyword to extract basic information about an ssl certificate.")
     public void Extract_SSL_Info() throws Exception {
 
         String url = input.getString("Url");

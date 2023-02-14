@@ -32,12 +32,15 @@ import org.apache.poi.ss.util.CellReference;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
+@Attribute(key = "category",value = "Excel")
 public class ExcelKeywords extends AbstractEnhancedKeyword {
 
 	@Keyword(schema = "{\"properties\":{" + "\"File\":{\"type\":\"string\"}," + "\"Sheet\":{\"type\":\"string\"},"
-			+ "\"Cell\":{\"type\":\"string\"}" + "},\"required\":[\"File\", \"Cell\"]}", properties = { "" })
+			+ "\"Cell\":{\"type\":\"string\"}" + "},\"required\":[\"File\", \"Cell\"]}", properties = { "" },
+			description = "Keyword used for reading the content of a cell.")
 	public void Read_Excel_Cell() throws FileNotFoundException, IOException {
 		String fileName = input.getString("File");
 		String sheetName = input.getString("Sheet", null);
@@ -56,7 +59,8 @@ public class ExcelKeywords extends AbstractEnhancedKeyword {
 	}
 
 	@Keyword(schema = "{\"properties\":{" + "\"File\":{\"type\":\"string\"}," + "\"Sheet\":{\"type\":\"string\"}"
-			 + "},\"required\":[\"File\"]}", properties = { "" })
+			 + "},\"required\":[\"File\"]}", properties = { "" },
+			description = "Keyword used for reading the content of a sheet.")
 	public void Read_Excel_Sheet() throws FileNotFoundException, IOException {
 		String fileName = input.getString("File");
 		String sheetName = input.getString("Sheet", null);
