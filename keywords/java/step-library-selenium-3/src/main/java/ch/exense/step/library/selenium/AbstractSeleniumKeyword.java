@@ -230,7 +230,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	}
 
 	protected void removeDriver() {
-		session.put((DriverWrapper) null);
+		session.put(DriverWrapper.class.getName(),null);
 	}
 	
 	/**
