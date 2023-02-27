@@ -212,7 +212,7 @@ public class XmlKeywords extends AbstractKeyword {
         Transformer xform = TransformerFactory.newInstance().newTransformer();
         xform.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         xform.transform(new DOMSource(node), new StreamResult(buf));
-        return(buf.toString());
+        return(buf.toString().replaceAll("[\n\r]", ""));
     }
 
     @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +

@@ -110,7 +110,7 @@ public class XmlKeywordsTest {
         output = ctx.run("Extract_XML", input.toString());
         System.out.println(output.getPayload());
         assert output.getError() == null;
-        assert output.getPayload().getString("value1").equals("<root>\r\n    <testEmpty1/>\r\n    <testEmpty2/>\r\n    <testEmpty3 empty=\"\">value</testEmpty3>\r\n    <otherTest id=\"myId\">otherTestValue</otherTest>\r\n    <testMultiple>test1</testMultiple>\r\n    <testMultiple>test2</testMultiple>\r\n    <testEmbeddedMultiple>\r\n        <testMultiple>test3</testMultiple>\r\n        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n    </testEmbeddedMultiple>\r\n    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>\r\n</root>");
+        assert output.getPayload().getString("value1").equals("<root>    <testEmpty1/>    <testEmpty2/>    <testEmpty3 empty=\"\">value</testEmpty3>    <otherTest id=\"myId\">otherTestValue</otherTest>    <testMultiple>test1</testMultiple>    <testMultiple>test2</testMultiple>    <testEmbeddedMultiple>        <testMultiple>test3</testMultiple>        <testMultipleDuplicate>testSameValue</testMultipleDuplicate>    </testEmbeddedMultiple>    <testMultipleDuplicate>testSameValue</testMultipleDuplicate>    <testMultipleDuplicate>testSameValue</testMultipleDuplicate></root>");
         assert output.getPayload().getString("value2").equals("<otherTest id=\"myId\">otherTestValue</otherTest>");
         assert output.getPayload().getString("value3").equals("[<testMultiple>test1</testMultiple>, <testMultiple>test2</testMultiple>, <testMultiple>test3</testMultiple>]");
     }
