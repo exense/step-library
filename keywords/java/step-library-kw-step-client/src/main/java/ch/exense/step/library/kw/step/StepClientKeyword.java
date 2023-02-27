@@ -52,6 +52,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     @Keyword(schema = "{\"properties\":{"
             + "\"User\":{\"type\":\"string\"},"
             + "\"Password\":{\"type\":\"string\"},"
+            + "\"Token\":{\"type\":\"string\"},"
             + "\"Url\":{\"type\":\"string\"}"
             + "},\"required\":[\"Url\"]}",
             properties = {""},
@@ -59,10 +60,17 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     public void InitStepClient() throws BusinessException {
 
         String url = getMandatoryInputString("Url");
-        String user = input.getString("User", DEFAULT_USER);
-        String password = input.getString("Password", DEFAULT_PASSWORD);
 
-        StepClient client = new StepClient(url, user, password);
+        StepClient client;
+
+        if (input.containsKey("Token")) {
+            client = new StepClient(url, input.getString("Token"));
+        } else  {
+            String user =  input.getString("User", DEFAULT_USER);
+            getSession().put("User", user);
+            client = new StepClient(url,user,
+                    input.getString("Password", DEFAULT_PASSWORD));
+        }
 
         // check if correctly logged in: get the current tenant:
         try {
@@ -74,7 +82,6 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         }
 
         getSession().put(client);
-        getSession().put("User", user);
     }
 
     @Keyword(schema = "{\"properties\":{"
