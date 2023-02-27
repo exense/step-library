@@ -44,8 +44,12 @@ public class SystemMonitoringKeywordsTest {
 
 	@Test
 	public void testPowershellServiceStatusKeyword() throws Exception {
-		JsonObject input = Json.createObjectBuilder().add("Service_Display_Name", "DHCP Client").build();
-		Output<JsonObject> output = ctx.run("Windows_Service_Status", input.toString());
-		assertTrue(output.getPayload().getString("Status").contains("running"));
+		if (System.getProperty("os.name", "generic").toLowerCase().contains("win")) {
+			JsonObject input = Json.createObjectBuilder().add("Service_Display_Name", "DHCP Client").build();
+			Output<JsonObject> output = ctx.run("Windows_Service_Status", input.toString());
+			assertTrue(output.getPayload().getString("Status").contains("running"));
+		} else {
+			System.out.println("Cannot run windows keywords on "+System.getProperty("os.name", "generic").toLowerCase());
+		}
 	}
 }
