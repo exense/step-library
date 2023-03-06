@@ -29,6 +29,7 @@ import step.core.accessors.Attribute;
 import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
+import step.core.plans.Plan;
 import step.core.repositories.RepositoryObjectReference;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
@@ -38,6 +39,7 @@ import step.resources.SimilarResourceExistingException;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -310,7 +312,16 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     protected String findPlanId(String planName) {
         StepClient client = getClient();
 
-        return client.getRemoteAccessors().getPlanAccessor().get(planName).getId().toString();
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put(AbstractOrganizableObject.NAME,planName);
+
+        Plan plan = client.getRemoteAccessors().getAbstractAccessor("plans", Plan.class).findByAttributes(attributes);
+
+        if (plan==null) {
+            throw new BusinessException("Could not find plan named '"+planName+"'");
+        }
+
+        return plan.getId().toString();
     }
 
     protected void runExecution(String repoId, String repoParametersJson, String description, String customParametersJson,
