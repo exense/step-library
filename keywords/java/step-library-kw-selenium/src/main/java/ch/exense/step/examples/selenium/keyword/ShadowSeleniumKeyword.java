@@ -46,7 +46,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + "\"Keys\": {\"type\": \"string\"}"  + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : [\"Keys\"]}", properties = { "" })
+            + "}, \"required\" : [\"Keys\"]}", properties = { "" },
+            description = "Keyword used to send keys to an input element embedded into Shadow DOM element(s).")
     public void Shadow_Send_Keys() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -86,7 +87,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + "\"Index\": {\"type\": \"integer\"},"
             + "\"Value\": {\"type\": \"string\"},"
             + "\"Text\": {\"type\": \"string\"}"
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to select options from combo boxes embedded into Shadow DOM element(s).")
     public void Shadow_Select_Option() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -134,7 +136,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + "\"AsJavascript\": {\"type\": \"boolean\"}"  + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to click on an element embedded into Shadow DOM element(s).")
     public void Shadow_Click() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -174,7 +177,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + "\"AsJavascript\": {\"type\": \"boolean\"}"  + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to double-click on an element embedded into Shadow DOM element(s).")
     public void Shadow_Double_Click() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -210,7 +214,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to get the text of an element embedded into Shadow DOM element(s).")
     public void Shadow_Get_Text() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -246,7 +251,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to wait until an element embedded into Shadow DOM element(s) is displayed on the page.")
     public void Shadow_Is_Displayed() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -285,7 +291,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + SELENIUM_DEFAULT_INPUTS + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to hover on an element embedded into Shadow DOM element(s).")
     public void Shadow_Hover() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();
@@ -316,7 +323,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT + ","
             + "\"ScrollTop\": {\"type\": \"string\"}"
-            + "}, \"required\" : [\"Shadow_Selectors\"]}", properties = { "" })
+            + "}, \"required\" : [\"Shadow_Selectors\"]}", properties = { "" },
+            description = "Keyword used to scroll to an element embedded into Shadow DOM element(s).")
     public void Shadow_Set_ScrollIntoView() {
         String selectors = getSelectorsFromInput();
         AbstractPageObject page = getPageObject();
@@ -342,7 +350,8 @@ public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
             + SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
             + SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
             + SELENIUM_DEFAULT_ACTION_NAME_INPUT
-            + "}, \"required\" : []}", properties = { "" })
+            + "}, \"required\" : []}", properties = { "" },
+            description = "Keyword used to enter an iframe into Shadow DOM element(s).")
     public void Shadow_Enter_Iframe() {
         AbstractPageObject page = getPageObject();
         long timeout = getTimeoutFromInput();

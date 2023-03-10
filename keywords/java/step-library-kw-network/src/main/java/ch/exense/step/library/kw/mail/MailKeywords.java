@@ -16,6 +16,7 @@
 package ch.exense.step.library.kw.mail;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
 import javax.mail.*;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
+@Attribute(key = "category",value = "Network")
 public class MailKeywords extends AbstractEnhancedKeyword {
 
     private class MailWrapper implements Closeable {
@@ -47,7 +49,7 @@ public class MailKeywords extends AbstractEnhancedKeyword {
     }
 
     /**
-     * step Keyword to init an Mail client to be placed in the
+     * step Keyword to init a Mail client to be placed in the
      * current step session
      *
      * Keyword inputs BasicAuthUser:
@@ -61,7 +63,8 @@ public class MailKeywords extends AbstractEnhancedKeyword {
             + "\"StoreProtocol\":{\"type\":\"string\"},"
             + "\"StorePort\":{\"type\":\"integer\"},"
             + "\"StoreUser\":{\"type\":\"String\"}"
-            + "},\"required\":[\"SmtpHost\",\"Username\",\"Password\"]}", properties = { "" })
+            + "},\"required\":[\"SmtpHost\",\"Username\",\"Password\"]}", properties = { "" },
+            description = "Keyword to init a Mail client to be placed in the current session.")
     public void Init_Mail_Client() throws MessagingException {
 
         String host = input.getString("SmtpHost");
@@ -124,7 +127,8 @@ public class MailKeywords extends AbstractEnhancedKeyword {
             + "\"EmailTo\":{\"type\":\"string\"},"
             + "\"Subject\":{\"type\":\"string\"},"
             + "\"Text\":{\"type\":\"string\"}"
-            + "},\"required\":[\"EmailFrom\",\"EmailTo\",\"Subject\",\"Text\"]}", properties = { "" })
+            + "},\"required\":[\"EmailFrom\",\"EmailTo\",\"Subject\",\"Text\"]}", properties = { "" },
+            description = "Keyword to send an Email.")
     public void Mail_Send() throws MessagingException {
         MailWrapper wrapper = getSession().get(MailWrapper.class);
 
@@ -146,7 +150,8 @@ public class MailKeywords extends AbstractEnhancedKeyword {
     /**
      *
      */
-    @Keyword(schema = "{\"properties\":{},\"required\":[]}", properties = { "" })
+    @Keyword(schema = "{\"properties\":{},\"required\":[]}", properties = { "" },
+            description = "Keyword to list the folder of a Mailbox.")
     public void Mail_List_Folders() throws MessagingException, IOException {
         MailWrapper wrapper = getSession().get(MailWrapper.class);
 
@@ -160,7 +165,8 @@ public class MailKeywords extends AbstractEnhancedKeyword {
      */
     @Keyword(schema = "{\"properties\":{"
             + "\"Folder\":{\"type\":\"string\"}"
-            + "},\"required\":[]}", properties = { "" })
+            + "},\"required\":[]}", properties = { "" },
+            description = "Keyword to read the content of a given folder.")
     public void Mail_Read_Folder() throws MessagingException, IOException {
         MailWrapper wrapper = getSession().get(MailWrapper.class);
 

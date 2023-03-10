@@ -18,8 +18,10 @@ package ch.exense.step.library.kw.system;
 import java.util.ArrayList;
 
 import ch.exense.step.library.commons.AbstractProcessKeyword;
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
+@Attribute(key = "category",value = "Operating system")
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";
@@ -36,7 +38,9 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			timeout = 1800000,
+			description="Keyword used to start a generic process.")
 	public void executeSystemCommand() throws Exception {
 		readInputs();
 		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
@@ -46,7 +50,9 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			timeout = 1800000,
+			description="Keyword used to run a bash command.")
 	public void executeBashCommand() throws Exception {
 		readInputs();
 		
@@ -62,7 +68,9 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}")
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			timeout = 1800000,
+			description="Keyword used to run a windows cmd command.")
 	public void executeCmdCommand() throws Exception {
 		readInputs();
 		

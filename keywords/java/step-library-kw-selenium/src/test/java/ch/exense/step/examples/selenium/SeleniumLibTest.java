@@ -18,9 +18,11 @@ package ch.exense.step.examples.selenium;
 import ch.exense.step.examples.selenium.keyword.ChromeDriverKeyword;
 import ch.exense.step.examples.selenium.keyword.GenericSeleniumKeyword;
 import ch.exense.step.examples.selenium.keyword.ShadowSeleniumKeyword;
+import ch.exense.step.library.tests.LocalOnly;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
 
@@ -32,6 +34,7 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+@Category(LocalOnly.class)
 public class SeleniumLibTest {
 	private static final String TEST_FOLDER = "src\\test\\resources\\";
 
@@ -403,5 +406,4 @@ public class SeleniumLibTest {
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
 	}
-
 }

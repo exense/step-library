@@ -25,12 +25,16 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 
 import ch.exense.commons.io.FileHelper;
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
+@Attribute(key = "category",value = "Operating system")
 public class FileSystemKeywords extends AbstractKeyword {
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}}," +
+            "\"required\":[\"File\"]}",
+            description="Keyword used to test if a file exist.")
     public void Exist() {
         String zipName = input.getString("File");
 
@@ -51,8 +55,12 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"},\"ToFile\":{\"type\":\"string\"},\"Move\":{\"type\":\"boolean\"}},"
-            + "\"required\":[\"Source\",\"Destination\"]}")
+    @Keyword(schema = "{\"properties\":{\"Source\":{\"type\":\"string\"}," +
+            "\"Destination\":{\"type\":\"string\"}," +
+            "\"ToFile\":{\"type\":\"string\"}," +
+            "\"Move\":{\"type\":\"boolean\"}},"
+            + "\"required\":[\"Source\",\"Destination\"]}",
+            description="Keyword used to copy a file or directory.")
     public void Copy() throws Exception {
         String source = input.getString("Source");
         String destination = input.getString("Destination");
@@ -97,7 +105,10 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    @Keyword(schema = "{\"properties\":{" +
+            "\"File\":{\"type\":\"string\"}," +
+            "\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"File\"]}",
+            description="Keyword used to delete a file.")
     public void Rmfile() {
         String fileName = input.getString("File");
         boolean failIfDontExist = Boolean.parseBoolean(input.getString("Fail_if_dont_exist", "false"));
@@ -124,7 +135,11 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_dont_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+    @Keyword(schema = "{\"properties\":" +
+            "{\"Folder\":{\"type\":\"string\"}," +
+            "\"Fail_if_dont_exist\":{\"type\":\"string\"}}," +
+            "\"required\":[\"Folder\"]}",
+            description="Keyword used to delete a directory.")
     public void Rmdir() {
         String folderName = input.getString("Folder");
         boolean failIfDontExist = Boolean.parseBoolean(input.getString("Fail_if_dont_exist", "false"));
@@ -163,7 +178,11 @@ public class FileSystemKeywords extends AbstractKeyword {
         return folder.delete();
     }
 
-    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Fail_if_exist\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+    @Keyword(schema = "{\"properties\":" +
+            "{\"Folder\":{\"type\":\"string\"}," +
+            "\"Fail_if_exist\":{\"type\":\"string\"}}," +
+            "\"required\":[\"Folder\"]}",
+            description="Keyword used to create a new directory.")
     public void Mkdir() {
         String folderName = input.getString("Folder");
         boolean failIfExist = Boolean.getBoolean(input.getString("Fail_if_exist", "false"));
@@ -187,7 +206,9 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+    @Keyword(schema = "{\"properties\":" +
+            "{\"Folder\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}",
+            description="Keyword used to list the content of a directory.")
     public void Ls() {
         String folderName = input.getString("Folder");
 
@@ -232,11 +253,31 @@ public class FileSystemKeywords extends AbstractKeyword {
                 "\"canRead\":" + file.canRead() + ",\"canWrite\":" + file.canWrite() + ",\"canExecute\":" + file.canExecute() + "}";
     }
 
+    private List<File> recursiveSearch(File folder, String regex, boolean addDirectories, boolean addFiles) {
+        List<File> result = new ArrayList<>();
+        File[] files = folder.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.getPath().matches(regex)) {
+                    if (file.isDirectory() && addDirectories) {
+                        result.add(file);
+                    } else if (file.isFile() && addFiles) {
+                        result.add(file);
+                    }
+                }
+                result.addAll(recursiveSearch(file, regex, addDirectories, addFiles));
+            }
+        }
+        return result;
+    }
+
     @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"}," +
             "\"Regex\":{\"type\":\"string\"}," +
             "\"AddDirectories\":{\"type\":\"boolean\"}," +
             "\"AddFiles\":{\"type\":\"boolean\"}" +
-            "},\"required\":[\"Folder\",\"Regex\"]}")
+            "},\"required\":[\"Folder\",\"Regex\"]}",
+            description="Keyword used to find files by their name.")
     public void Find_file() {
         String folderName = input.getString("Folder");
         String regex = input.getString("Regex");
@@ -282,26 +323,10 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    private List<File> recursiveSearch(File folder, String regex, boolean addDirectories, boolean addFiles) {
-        List<File> result = new ArrayList<>();
-        File[] files = folder.listFiles();
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.getPath().matches(regex)) {
-                    if (file.isDirectory() && addDirectories) {
-                        result.add(file);
-                    } else if (file.isFile() && addFiles) {
-                        result.add(file);
-                    }
-                }
-                result.addAll(recursiveSearch(file, regex, addDirectories, addFiles));
-            }
-        }
-        return result;
-    }
-
-    @Keyword(schema = "{\"properties\":{\"Folder\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}")
+    @Keyword(schema = "{\"properties\":" +
+            "{\"Folder\":{\"type\":\"string\"}," +
+            "\"Destination\":{\"type\":\"string\"}},\"required\":[\"Folder\"]}",
+            description="Keyword used to zip a folder.")
     public void Zip_file() {
         String folderName = input.getString("Folder");
         String zip = input.getString("Destination", folderName + ".zip");
@@ -330,7 +355,10 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Destination\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    @Keyword(schema = "{\"properties\":" +
+            "{\"File\":{\"type\":\"string\"}," +
+            "\"Destination\":{\"type\":\"string\"}},\"required\":[\"File\"]}",
+            description="Keyword used to unzip an archive.")
     public void Unzip_file() {
         String zipName = input.getString("File");
         String dest = input.getString("Destination", ".");
@@ -363,7 +391,8 @@ public class FileSystemKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}")
+    @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}",
+            description="Keyword used to read the content of a file")
     public void Read_file() {
         String fileName = input.getString("File");
 
@@ -393,7 +422,8 @@ public class FileSystemKeywords extends AbstractKeyword {
     }
 
     @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"},\"Regex\":{\"type\":\"string\"}," +
-            "\"Replacement\":{\"type\":\"string\"}},\"required\":[\"File\",\"Regex\",\"Replacement\"]}")
+            "\"Replacement\":{\"type\":\"string\"}},\"required\":[\"File\",\"Regex\",\"Replacement\"]}",
+            description="Keyword used to replace the content of a file based on a regular expression.")
     public void Sed_file() throws Exception {
         String fileName = input.getString("File");
 

@@ -26,7 +26,9 @@ import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LogEntry;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
+import step.handlers.javahandler.Keyword;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -121,7 +123,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			page.safeWait(() -> page.findBy(element).isDisplayed(), timeout);
 		}
 	}
-	
+
 	/**
 	 * <p>Hook method that can be used to manage Keyword unhandled exception</p>
 	 * @param e the Exception thrown by the Keyword
@@ -132,10 +134,24 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	public boolean onError(Exception e) {
 		if (isDriverCreated()) {
 			attachScreenshot();
-			//attachLogs();
+			attachLogs();
 		}
 		return super.onError(e);
 	}
+
+	/**
+	 * <p>Hook method that attach a screenshot after the keyword execution, if the debug mode is activated</p>
+	 * @param keywordName the keyword method that was called
+	 * @param annotation the annotation of this keyword
+	 */
+	@Override
+	public void afterKeyword(String keywordName, Keyword annotation) {
+		if (isDriverCreated() && isDebug()) {
+			attachScreenshot();
+		}
+		super.beforeKeyword(keywordName,annotation);
+	}
+
 
 	/**
 	 * <p>Helper method used to attach the WebDriver and Selenium logs when an error occurs</p>
@@ -146,7 +162,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			for (String type: logTypes) {
 				LogEntries entries = getDriver().manage().logs().get(type);
 				StringBuilder logs = new StringBuilder();
-	
+
 				for (LogEntry entry: entries.getAll()) {
 					logs.append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(entry.getTimestamp()))).
 							append(";").append(entry.getLevel()).append(";").append(entry.getMessage()).append("\n");
@@ -178,12 +194,26 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			output.appendError("Unable to generate screenshot");
 		}
 	}
+
+	protected void closeDriver() {
+		WebDriver driver = getDriver();
+		startTransaction();
+		driver.quit();
+		Boolean debug = Boolean.parseBoolean(properties.getOrDefault("debug_selenium", "false"));
+		if (debug) {
+			properties.put("debug_selenium", "false");
+		}
+		stopTransaction();
+		if (debug) {
+			properties.put("debug_selenium", "true");
+		}
+	}
 	
 	/**
 	 * <p>Helper method to check if a WebDriver has been created and put to a STEP session</p>
 	 * @return true if the WebDriver instance is created, otherwise false
 	 */
-	private boolean isDriverCreated() {
+	protected boolean isDriverCreated() {
 		return (session.get(DriverWrapper.class) != null);
 	}
 	
@@ -191,8 +221,16 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	 * <p>Helper method to get a WebDriver instance from a STEP session</p>
 	 * @return the WebDriver instance from the STEP session
 	 */
-	protected WebDriver getDriver() {	
-		return session.get(DriverWrapper.class).getDriver();
+	protected WebDriver getDriver() {
+		WebDriver result = session.get(DriverWrapper.class).getDriver();
+		if (result==null) {
+			throw new BusinessException("The driver was not created. Please call on of the 'Open_Chrome' or 'Open_Edge' keywords to create a session");
+		}
+		return result;
+	}
+
+	protected void removeDriver() {
+		session.put(DriverWrapper.class.getName(),null);
 	}
 	
 	/**

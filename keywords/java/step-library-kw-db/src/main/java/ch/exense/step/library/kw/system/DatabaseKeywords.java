@@ -1,5 +1,6 @@
 package ch.exense.step.library.kw.system;
 
+import step.core.accessors.Attribute;
 import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Attribute(key = "category",value = "Database")
 public class DatabaseKeywords extends AbstractKeyword {
 
     private Connection getConnection() throws SQLException {
@@ -45,7 +47,8 @@ public class DatabaseKeywords extends AbstractKeyword {
             + "\"Password\":{\"type\":\"string\"},"
             + "\"Query\":{\"type\":\"string\"},"
             + "\"ResultLimit\":{\"type\":\"string\"}"
-            + "},\"required\":[\"ConnectionString\",\"Query\"]}", properties = {""})
+            + "},\"required\":[\"ConnectionString\",\"Query\"]}", properties = {""},
+            description = "Keyword used for executing a db query.")
     public void ExecuteQuery() throws SQLException {
         int resultLimit = Integer.decode(input.getString("ResultLimit", "10"));
 
