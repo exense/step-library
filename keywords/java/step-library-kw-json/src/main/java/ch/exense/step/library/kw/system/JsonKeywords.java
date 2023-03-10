@@ -82,8 +82,10 @@ public class JsonKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"" + FILE_OPT + "\":{\"type\":\"string\"},\"" + JSON_OPT + "\":{\"type\":\"string\"}," +
-            "\"oneOf\": [{\"required\":[\"" + FILE_OPT + "\"]}," +
+    @Keyword(schema = "{\"properties\":{\"" +
+            FILE_OPT + "\":{\"type\":\"string\"},\"" +
+            JSON_OPT + "\":{\"type\":\"string\"}," +
+            "},\"oneOf\": [{\"required\":[\"" + FILE_OPT + "\"]}," +
             "            {\"required\":[\"" + JSON_OPT + "\"]}]" +
             "}",
         description = "Extract the value given a list of jsonPath. See https://github.com/json-path/JsonPath")
