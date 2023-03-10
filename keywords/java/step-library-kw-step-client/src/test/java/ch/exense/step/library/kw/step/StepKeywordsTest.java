@@ -29,7 +29,7 @@ import java.io.File;
 
 public class StepKeywordsTest {
 
-	private static String DEFAULT_INSTANCE = "https://stepee-nhy.exense.ch/";
+	private static String DEFAULT_INSTANCE = "https://stepee-nhy.stepcloud-test.ch/";
 
 	private ExecutionContext ctx;
 	private Output<JsonObject> output;
