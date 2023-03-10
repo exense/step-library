@@ -96,7 +96,8 @@ public class XmlKeywords extends AbstractKeyword {
     @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +
             "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
             "            {\"required\":[\""+XML_OPT+"\"]}]" +
-            "}")
+            "}",
+            description = "Replace the value of xml nodes given a list of xpaths.")
     /**
      * Replace the value of xml nodes given a list of xpaths.
      *
@@ -112,8 +113,9 @@ public class XmlKeywords extends AbstractKeyword {
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xPath = xpathFactory.newXPath();
 
-        for (Object xpathObj : input.keySet().stream().filter(key -> !listOptionsExtract.contains(key)).toArray()) {
-            String xpathString = (String) xpathObj;
+        for (String xpathString : input.keySet().stream().
+                filter(key -> !listOptionsExtract.contains(key)).
+                toArray(String[]::new)) {
             String value = input.getString(xpathString);
 
             NodeList nodeList;
@@ -149,7 +151,8 @@ public class XmlKeywords extends AbstractKeyword {
             "\"ExtractXml\":{\"type\":\"boolean\"}},\n" +
             "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
             "            {\"required\":[\""+XML_OPT+"\"]}]" +
-            "}")
+            "}",
+            description = "Extract the value given a list of xpaths.")
     /**
      * Extract the value given a list of xpaths.
      *
@@ -168,11 +171,12 @@ public class XmlKeywords extends AbstractKeyword {
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xPath = xpathFactory.newXPath();
 
-        for (Object xpathObj : input.keySet().stream().filter(key -> !listOptionsExtract.contains(key))
-                .filter(key -> !"ExtractXml".equals(key)).toArray()) {
-            String name = (String) xpathObj;
+        for (String xpathKey : input.keySet().stream()
+                .filter(key -> !listOptionsExtract.contains(key))
+                .filter(key -> !"ExtractXml".equals(key))
+                .toArray(String[]::new)) {
 
-            String xpathString = input.getString(name);
+            String xpathString = input.getString(xpathKey);
 
             NodeList nodeList;
             try {
@@ -187,9 +191,9 @@ public class XmlKeywords extends AbstractKeyword {
                 return;
             } else if (nodeList.getLength() == 1) {
                 if (extractXML) {
-                    output.add(name, nodeToString(nodeList.item(0)));
+                    output.add(xpathKey, nodeToString(nodeList.item(0)));
                 } else {
-                    output.add(name, nodeList.item(0).getTextContent());
+                    output.add(xpathKey, nodeList.item(0).getTextContent());
                 }
             } else {
                 List<String> actualValues = new LinkedList<>();
@@ -200,7 +204,7 @@ public class XmlKeywords extends AbstractKeyword {
                         actualValues.add(nodeList.item(i).getTextContent());
                     }
                 }
-                output.add(name, actualValues.toString());
+                output.add(xpathKey, actualValues.toString());
             }
         }
     }
@@ -218,7 +222,8 @@ public class XmlKeywords extends AbstractKeyword {
     @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +
             "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
             "            {\"required\":[\""+XML_OPT+"\"]}]" +
-            "}")
+            "}",
+            description = "Validate the content of an XML file.")
     /**
      * Validate the content of an XML file.
      *
@@ -242,8 +247,9 @@ public class XmlKeywords extends AbstractKeyword {
         XPathFactory xpathFactory = XPathFactory.newInstance();
         XPath xPath = xpathFactory.newXPath();
 
-        for (Object xpathObj : input.keySet().stream().filter(key -> !listOptionsExtract.contains(key)).toArray()) {
-            String xpathString = (String) xpathObj;
+        for (String xpathString : input.keySet().stream()
+                .filter(key -> !listOptionsExtract.contains(key))
+                .toArray(String[]::new)) {
             String expected = input.getString(xpathString);
 
             NodeList nodeList;
