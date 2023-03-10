@@ -82,9 +82,9 @@ public class JsonKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\"" +
-            FILE_OPT + "\":{\"type\":\"string\"},\"" +
-            JSON_OPT + "\":{\"type\":\"string\"}," +
+    @Keyword(schema = "{\"properties\":{" +
+            "\""+FILE_OPT + "\":{\"type\":\"string\"}," +
+            "\""+JSON_OPT + "\":{\"type\":\"string\"}" +
             "},\"oneOf\": [{\"required\":[\"" + FILE_OPT + "\"]}," +
             "            {\"required\":[\"" + JSON_OPT + "\"]}]" +
             "}",
@@ -94,7 +94,7 @@ public class JsonKeywords extends AbstractKeyword {
      *
      * This keyword can read json from a file (using the "File" input) or directly from the "Json" input.
      * It will then evaluate any other input parameters as a set of output name and JsonPath to extract the text content.
-     * If the JsonPath leads to multiple values, they are returned in a json object "[{value1},{value2}]"
+     * If the JsonPath leads to multiple values, they are returned in a json object "[{"a":1},{"a":5}]"
      *
      * @See <a href="https://github.com/json-path/JsonPath"/>
      */
