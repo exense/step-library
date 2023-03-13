@@ -66,7 +66,7 @@ public class XmlKeywords extends AbstractKeyword {
         } else {
             xmlContent = input.getString(XML_OPT, "");
             if (xmlContent.isEmpty()) {
-                throw new BusinessException("The input parameter '"+FILE_OPT+"' of '"+XML_OPT+"' should exist");
+                throw new BusinessException("One of the input parameter '"+FILE_OPT+"' or '"+XML_OPT+"' should exist");
             }
         }
 
