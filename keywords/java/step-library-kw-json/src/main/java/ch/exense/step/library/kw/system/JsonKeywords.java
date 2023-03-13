@@ -59,7 +59,7 @@ public class JsonKeywords extends AbstractKeyword {
         } else {
             jsonContent = input.getString(JSON_OPT, "");
             if (jsonContent.isEmpty()) {
-                throw new BusinessException("The input parameter '" + FILE_OPT + "' of '" + JSON_OPT + "' should exist");
+                throw new BusinessException("One of the input parameter '" + FILE_OPT + "' or '" + JSON_OPT + "' should exist");
             }
         }
 
@@ -104,7 +104,7 @@ public class JsonKeywords extends AbstractKeyword {
 
         for (String jsonPathKey : input.keySet().stream()
                 .filter(key -> !listOptionsExtract.contains(key))
-                .filter(key -> !"ExtractJson".equals(key)).toArray(String[]::new)) {
+                .toArray(String[]::new)) {
 
             List<Object> list;
             String path = input.getString(jsonPathKey);
@@ -129,7 +129,55 @@ public class JsonKeywords extends AbstractKeyword {
         }
     }
 
-    private String formatHashMap(HashMap map) throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(map);
+
+    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+JSON_OPT+"\":{\"type\":\"string\"}},\n" +
+            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
+            "            {\"required\":[\""+JSON_OPT+"\"]}]" +
+            "}",
+            description = "\"Replace the value of xml nodes given a list of jsonPath. See https://github.com/json-path/JsonPath")
+    /**
+     * Replace the value of json given a list of jsonPaths.
+     *
+     * This keyword can read json from a file (using the "File" input) or directly from the "Json" input.
+     * It will then evaluate any other input parameters as a set of jsonPath and value to be replaced.
+     * Note that the jsonPath should return only one node
+     *
+     * @See <a href="https://github.com/json-path/JsonPath"/>
+     */
+    public void Replace_Json() throws Exception {
+        Object json = getJson(true);
+        if (json == null) return;
+
+        DocumentContext context = JsonPath.using(conf).parse(json);
+
+        for (String jsonPath : input.keySet().stream()
+                .filter(key -> !listOptionsExtract.contains(key))
+                .toArray(String[]::new)) {
+
+            Object value;
+            try {
+                value = input.getString(jsonPath);
+            } catch (ClassCastException e) {
+                try {
+                    value = input.getInt(jsonPath);
+                } catch (ClassCastException e2) {
+                    value = input.getBoolean(jsonPath);
+                }
+            }
+            try {
+                context = context.set(jsonPath,value);
+            } catch (InvalidPathException e) {
+                output.setError("Invalid jsonPath '" + jsonPath + "': " + e.getMessage(), e);
+                return;
+            }
+        }
+        String fileName=input.getString("File","");
+        if (fileName.isEmpty()) {
+            output.add("Transformed",context.jsonString());
+        } else {
+            try (BufferedWriter br = new BufferedWriter(new FileWriter(fileName))) {
+                br.write(context.jsonString());
+            }
+        }
     }
 }

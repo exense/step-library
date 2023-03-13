@@ -41,8 +41,9 @@ public class JsonKeywordsTest {
     }
 
     @Test
-    public void test_extract_value() throws Exception {
-        String path = new File(getClass().getClassLoader().getResource("test.json").getFile()).getAbsolutePath();
+    public void test_extract_values() throws Exception {
+        String path = new File(getClass().getClassLoader()
+                .getResource("test.json").getFile()).getAbsolutePath();
         Output<JsonObject> output;
         JsonObject input;
 
@@ -63,4 +64,28 @@ public class JsonKeywordsTest {
                 .equals("[\"Nigel Rees\"]");
     }
 
+    @Test
+    public void test_replace_values() throws Exception {
+
+        Output<JsonObject> output;
+        JsonObject input;
+
+        String json = "{\"bicycle\": {" +
+                "    \"color\": \"red\"," +
+                "    \"price\": 19.95," +
+                "    \"stolen\": true" +
+                "}}";
+
+        input = Json.createObjectBuilder().add("Json", json)
+                .add("$['bicycle']['color']","blue")
+                .add("$['bicycle']['price']",20.01)
+                .add("$['bicycle']['stolen']",false)
+                .build();
+
+        output = ctx.run("Replace_Json", input.toString());
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+        assert output.getPayload().getString("Transformed")
+                .equals("{\"bicycle\":{\"color\":\"blue\",\"price\":20,\"stolen\":false}}");
+    }
 }
