@@ -265,6 +265,13 @@ public class HttpClient {
 		cookieStore.addCookie(cookie);
 	}
 
+	public void clearCookies() {
+		CookieStore cookieStore = context.getCookieStore();
+		if (cookieStore != null) {
+			cookieStore.clear();
+		}
+	}
+
 	public String getTargetIP() {
 		return this.targetIP;
 	}													

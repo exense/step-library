@@ -348,6 +348,12 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 		output.add("Cookies", httpClient.getCookiesFromStore().toString());
 	}
 
+	@Keyword(description = "Keyword used to clear the existing cookies")
+	public void ClearCookies() {
+		HttpClient httpClient = getHttpClientFromSession();
+		httpClient.clearCookies();
+	}
+
 	@Keyword(schema = "{\"properties\":{"
 			+ "\"Name\":{\"type\":\"string\"},"
 			+ "\"Value\":{\"type\":\"string\"},"
