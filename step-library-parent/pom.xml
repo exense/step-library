@@ -61,6 +61,7 @@
 
     <modules>
         <module>../keywords/java/step-library-commons</module>
+        <module>../keywords/java/step-library-kw-base</module>
         <module>../keywords/java/step-library-kw-http</module>
         <module>../keywords/java/step-library-kw-xml</module>
         <module>../keywords/java/step-library-kw-json</module>
