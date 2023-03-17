@@ -114,18 +114,14 @@ public class JsonKeywords extends AbstractKeyword {
                 output.setError("Invalid jsonPath '" + path + "': " + e.getMessage(), e);
                 return;
             }
-            if (list.size() == 0) {
-                output.setBusinessError("jsonPath '" + path + "' not found!");
-                return;
-            } else {
-                output.add(jsonPathKey, "["+list.stream().map(obj -> {
-                    try {
-                        return new ObjectMapper().writeValueAsString(obj);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-                }).collect(Collectors.joining(","))+"]");
+
+            output.add(jsonPathKey, "["+list.stream().map(obj -> {
+            try {
+                return new ObjectMapper().writeValueAsString(obj);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
             }
+            }).collect(Collectors.joining(","))+"]");
         }
     }
 
