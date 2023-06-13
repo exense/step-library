@@ -39,8 +39,10 @@ public class MBeanKeywords extends AbstractKeyword {
 	protected static final String TOTAL_PHYSICAL_MEMORY_SIZE = "TotalPhysicalMemorySize";
 	protected static final String FREE_PHYSICAL_MEMORY_SIZE = "FreePhysicalMemorySize";
 	protected static final String SYSTEM_CPU_LOAD = "SystemCpuLoad";
+	protected static final String SYSTEM_FILESYSTEM_NAME = "FilesystemName";
 	protected static final String SYSTEM_FILESYSTEM_FREE = "FilesystemFreeSpace";
-	protected static final String SYSTEM_FILESYSTEM_TOTAL = "FilesystemFreeSpace";
+	protected static final String SYSTEM_FILESYSTEM_USABLE = "FilesystemUsableSpace";
+	protected static final String SYSTEM_FILESYSTEM_TOTAL = "FilesystemTotalSpace";
 
 	@Keyword(name = "HealthStats", schema = "{\"properties\":{}}")
 	public void getHealthStats() throws Exception {
@@ -69,9 +71,13 @@ public class MBeanKeywords extends AbstractKeyword {
 		addMeasureAndOutput(HEAP_MEMORY_USAGE_MAX, fromBytesToMegaBytes(heapMemoryUsage.getMax()));
 
 		FileSystemView fsv = FileSystemView.getFileSystemView();
+		int i=0;
 		for (File root : fsv.getRoots()) {
-			addMeasureAndOutput(SYSTEM_FILESYSTEM_TOTAL+"_"+fsv.getSystemDisplayName(root),root.getTotalSpace());
-			addMeasureAndOutput(SYSTEM_FILESYSTEM_FREE+"_"+fsv.getSystemDisplayName(root),root.getFreeSpace());
+			output.add(SYSTEM_FILESYSTEM_NAME+"_"+i,fsv.getSystemDisplayName(root));
+			addMeasureAndOutput(SYSTEM_FILESYSTEM_TOTAL+"_"+i,root.getTotalSpace());
+			addMeasureAndOutput(SYSTEM_FILESYSTEM_FREE+"_"+i,root.getFreeSpace());
+			addMeasureAndOutput(SYSTEM_FILESYSTEM_USABLE+"_"+i,root.getUsableSpace());
+			i++;
 		}
 	}
 	

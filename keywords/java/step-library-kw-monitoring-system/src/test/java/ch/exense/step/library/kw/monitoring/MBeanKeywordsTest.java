@@ -47,7 +47,7 @@ public class MBeanKeywordsTest {
 	public void testHealthStats() throws Exception {
 		JsonObject input = Json.createObjectBuilder().build();
 		Output<JsonObject> output = ctx.run("HealthStats", input.toString());
-		assertEquals(7, output.getMeasures().size());
+		assertEquals(10, output.getMeasures().size());
 		assertTrue(output.getPayload().containsKey(MBeanKeywords.FREE_PHYSICAL_MEMORY_SIZE));
 		assertTrue(output.getPayload().containsKey(MBeanKeywords.FREE_SWAP_MEMORY_SIZE));
 		assertTrue(output.getPayload().containsKey(MBeanKeywords.HEAP_MEMORY_USAGE_MAX));
@@ -55,5 +55,8 @@ public class MBeanKeywordsTest {
 		assertTrue(output.getPayload().containsKey(MBeanKeywords.SYSTEM_CPU_LOAD));
 		assertTrue(output.getPayload().containsKey(MBeanKeywords.TOTAL_PHYSICAL_MEMORY_SIZE));
 		assertTrue(output.getPayload().containsKey(MBeanKeywords.TOTAL_SWAP_SPACE_SIZE));
+		assertTrue(output.getPayload().containsKey(MBeanKeywords.SYSTEM_FILESYSTEM_TOTAL+"_0"));
+		assertTrue(output.getPayload().containsKey(MBeanKeywords.SYSTEM_FILESYSTEM_FREE+"_0"));
+		assertTrue(output.getPayload().containsKey(MBeanKeywords.SYSTEM_FILESYSTEM_USABLE+"_0"));
 	}
 }
