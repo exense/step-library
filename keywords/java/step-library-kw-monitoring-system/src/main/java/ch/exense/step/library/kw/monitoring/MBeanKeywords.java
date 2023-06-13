@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.monitoring;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
@@ -24,6 +25,8 @@ import com.sun.management.OperatingSystemMXBean;
 import step.core.accessors.Attribute;
 import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
+
+import javax.swing.filechooser.FileSystemView;
 
 @SuppressWarnings("restriction")
 @Attribute(key="project", value="@system")
@@ -36,6 +39,8 @@ public class MBeanKeywords extends AbstractKeyword {
 	protected static final String TOTAL_PHYSICAL_MEMORY_SIZE = "TotalPhysicalMemorySize";
 	protected static final String FREE_PHYSICAL_MEMORY_SIZE = "FreePhysicalMemorySize";
 	protected static final String SYSTEM_CPU_LOAD = "SystemCpuLoad";
+	protected static final String SYSTEM_FILESYSTEM_FREE = "FilesystemFreeSpace";
+	protected static final String SYSTEM_FILESYSTEM_TOTAL = "FilesystemFreeSpace";
 
 	@Keyword(name = "HealthStats", schema = "{\"properties\":{}}")
 	public void getHealthStats() throws Exception {
@@ -62,6 +67,12 @@ public class MBeanKeywords extends AbstractKeyword {
 		MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
 		addMeasureAndOutput(HEAP_MEMORY_USAGE_USED, fromBytesToMegaBytes(heapMemoryUsage.getUsed()));
 		addMeasureAndOutput(HEAP_MEMORY_USAGE_MAX, fromBytesToMegaBytes(heapMemoryUsage.getMax()));
+
+		FileSystemView fsv = FileSystemView.getFileSystemView();
+		for (File root : fsv.getRoots()) {
+			addMeasureAndOutput(SYSTEM_FILESYSTEM_TOTAL+"_"+fsv.getSystemDisplayName(root),root.getTotalSpace());
+			addMeasureAndOutput(SYSTEM_FILESYSTEM_FREE+"_"+fsv.getSystemDisplayName(root),root.getFreeSpace());
+		}
 	}
 	
 	protected Long fromBytesToMegaBytes(long bytesValue) {
