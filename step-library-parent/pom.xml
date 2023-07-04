@@ -50,12 +50,12 @@
     </repositories>
 
     <properties>
-        <step-api.version>1.1.10</step-api.version>
-        <step.version>3.21.0</step.version>
-        <exense-commons.version>2.0.3</exense-commons.version>
+        <step-api.version>1.2.0</step-api.version>
+        <step.version>3.22.0</step.version>
+        <exense-commons.version>2.0.5</exense-commons.version>
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -143,10 +143,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
