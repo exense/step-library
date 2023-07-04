@@ -18,7 +18,7 @@ package ch.exense.step.library.commons;
 import step.handlers.javahandler.AbstractKeyword;
 
 /**
- * A Enhanced Abstract keyword using the onError function for
+ * An Enhanced Abstract keyword using the onError function for
  * managing business errors via exceptions
  */
 public class AbstractEnhancedKeyword extends AbstractKeyword {
