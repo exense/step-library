@@ -69,6 +69,12 @@ public class MBeanKeywords extends AbstractKeyword {
 			output.addMeasure(measureName, measureValue);
 			output.add(measureName, Long.toString(measureValue));
 		});
+
+		FileSystemView fsv = FileSystemView.getFileSystemView();
+		int i = 0;
+		for (File root : fsv.getRoots()) {
+			output.add(SYSTEM_FILESYSTEM_NAME + "_" + i, fsv.getSystemDisplayName(root));
+		}
 	}
 
 	private Map<String,Long> getMetrics() {
@@ -77,6 +83,7 @@ public class MBeanKeywords extends AbstractKeyword {
 
 		OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory
 				.getOperatingSystemMXBean();
+
 		double systemCpuLoad = operatingSystemMXBean.getSystemCpuLoad();
 		long systemCpuLoadPercentage = (long) (systemCpuLoad * 100L);
 
@@ -102,7 +109,6 @@ public class MBeanKeywords extends AbstractKeyword {
 		FileSystemView fsv = FileSystemView.getFileSystemView();
 		int i=0;
 		for (File root : fsv.getRoots()) {
-			output.add(SYSTEM_FILESYSTEM_NAME+"_"+i,fsv.getSystemDisplayName(root));
 			metrics.put(SYSTEM_FILESYSTEM_TOTAL+"_"+i,root.getTotalSpace());
 			metrics.put(SYSTEM_FILESYSTEM_FREE+"_"+i,root.getFreeSpace());
 			metrics.put(SYSTEM_FILESYSTEM_USABLE+"_"+i,root.getUsableSpace());
