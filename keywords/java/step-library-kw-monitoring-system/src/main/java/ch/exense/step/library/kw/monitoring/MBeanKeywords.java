@@ -19,7 +19,10 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.util.HashMap;
+import java.util.Map;
 
+import ch.exense.step.library.commons.BusinessException;
 import com.sun.management.OperatingSystemMXBean;
 
 import step.core.accessors.Attribute;
@@ -44,49 +47,72 @@ public class MBeanKeywords extends AbstractKeyword {
 	protected static final String SYSTEM_FILESYSTEM_USABLE = "FilesystemUsableSpace";
 	protected static final String SYSTEM_FILESYSTEM_TOTAL = "FilesystemTotalSpace";
 
+	@Keyword(name = "HealthAlerting", schema = "{\"properties\":{}}")
+	public void checksHealthStats() throws Exception {
+		Map<String, Long> metrics = getMetrics();
+
+		input.forEach((inputName, inputValueString) -> {
+			long inputValue = Long.getLong(String.valueOf(inputValueString));
+			long metricValue = metrics.get(inputName);
+
+			if (metrics.containsKey(inputName)) {
+				if (metricValue > inputValue) {
+					throw new BusinessException(String.format("Metric '{0}' was '{1}', greater than '{2}'",inputName,metricValue,inputValue));
+				}
+			}
+		});
+	}
+
 	@Keyword(name = "HealthStats", schema = "{\"properties\":{}}")
 	public void getHealthStats() throws Exception {
+		getMetrics().forEach((measureName, measureValue) -> {
+			output.addMeasure(measureName, measureValue);
+			output.add(measureName, Long.toString(measureValue));
+		});
+	}
+
+	private Map<String,Long> getMetrics() {
+
+		Map<String,Long> metrics = new HashMap<>();
+
 		OperatingSystemMXBean operatingSystemMXBean = (OperatingSystemMXBean) ManagementFactory
 				.getOperatingSystemMXBean();
 		double systemCpuLoad = operatingSystemMXBean.getSystemCpuLoad();
-		long systemCpuLoadPercentage = (long) (systemCpuLoad * 100l);
-		System.out.println(systemCpuLoadPercentage);
-		addMeasureAndOutput(SYSTEM_CPU_LOAD, systemCpuLoadPercentage);
+		long systemCpuLoadPercentage = (long) (systemCpuLoad * 100L);
+
+		metrics.put(SYSTEM_CPU_LOAD, systemCpuLoadPercentage);
 
 		long freePhysicalMemorySize = fromBytesToMegaBytes(operatingSystemMXBean.getFreePhysicalMemorySize());
-		addMeasureAndOutput(FREE_PHYSICAL_MEMORY_SIZE, freePhysicalMemorySize);
+		metrics.put(FREE_PHYSICAL_MEMORY_SIZE, freePhysicalMemorySize);
 		
 		long totalPhysicalMemorySize = fromBytesToMegaBytes(operatingSystemMXBean.getTotalPhysicalMemorySize());
-		addMeasureAndOutput(TOTAL_PHYSICAL_MEMORY_SIZE, totalPhysicalMemorySize);
+		metrics.put(TOTAL_PHYSICAL_MEMORY_SIZE, totalPhysicalMemorySize);
 
 		long freeSwapMemorySize = fromBytesToMegaBytes(operatingSystemMXBean.getFreeSwapSpaceSize());
-		addMeasureAndOutput(FREE_SWAP_MEMORY_SIZE, freeSwapMemorySize);
+		metrics.put(FREE_SWAP_MEMORY_SIZE, freeSwapMemorySize);
 
 		long totalSwapSpaceSize = fromBytesToMegaBytes(operatingSystemMXBean.getTotalSwapSpaceSize());
-		addMeasureAndOutput(TOTAL_SWAP_SPACE_SIZE, totalSwapSpaceSize);
+		metrics.put(TOTAL_SWAP_SPACE_SIZE, totalSwapSpaceSize);
 		
 		MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 		MemoryUsage heapMemoryUsage = memoryMXBean.getHeapMemoryUsage();
-		addMeasureAndOutput(HEAP_MEMORY_USAGE_USED, fromBytesToMegaBytes(heapMemoryUsage.getUsed()));
-		addMeasureAndOutput(HEAP_MEMORY_USAGE_MAX, fromBytesToMegaBytes(heapMemoryUsage.getMax()));
+		metrics.put(HEAP_MEMORY_USAGE_USED, fromBytesToMegaBytes(heapMemoryUsage.getUsed()));
+		metrics.put(HEAP_MEMORY_USAGE_MAX, fromBytesToMegaBytes(heapMemoryUsage.getMax()));
 
 		FileSystemView fsv = FileSystemView.getFileSystemView();
 		int i=0;
 		for (File root : fsv.getRoots()) {
 			output.add(SYSTEM_FILESYSTEM_NAME+"_"+i,fsv.getSystemDisplayName(root));
-			addMeasureAndOutput(SYSTEM_FILESYSTEM_TOTAL+"_"+i,root.getTotalSpace());
-			addMeasureAndOutput(SYSTEM_FILESYSTEM_FREE+"_"+i,root.getFreeSpace());
-			addMeasureAndOutput(SYSTEM_FILESYSTEM_USABLE+"_"+i,root.getUsableSpace());
+			metrics.put(SYSTEM_FILESYSTEM_TOTAL+"_"+i,root.getTotalSpace());
+			metrics.put(SYSTEM_FILESYSTEM_FREE+"_"+i,root.getFreeSpace());
+			metrics.put(SYSTEM_FILESYSTEM_USABLE+"_"+i,root.getUsableSpace());
 			i++;
 		}
+
+		return metrics;
 	}
 	
 	protected Long fromBytesToMegaBytes(long bytesValue) {
 		return bytesValue / 1048576;
-	}
-
-	protected void addMeasureAndOutput(String measureName, long systemCpuLoadPercentage) {
-		output.addMeasure(measureName, systemCpuLoadPercentage);
-		output.add(measureName, Long.toString(systemCpuLoadPercentage));
 	}
 }
