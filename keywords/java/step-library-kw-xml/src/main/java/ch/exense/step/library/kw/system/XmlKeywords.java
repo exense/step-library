@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -37,11 +38,11 @@ import javax.xml.xpath.*;
 import java.io.*;
 import java.util.*;
 
-public class XmlKeywords extends AbstractKeyword {
+public class XmlKeywords extends AbstractEnhancedKeyword {
 
     private static final String FILE_OPT = "File";
     private static final String XML_OPT = "Xml";
-    private List<String> listOptionsExtract = Arrays.asList(new String[]{FILE_OPT, XML_OPT});
+    private final List<String> listOptionsExtract = Arrays.asList(FILE_OPT, XML_OPT);
 
     private Document getDocument(boolean writable) {
         String fileName = input.getString(FILE_OPT, "");
@@ -76,14 +77,10 @@ public class XmlKeywords extends AbstractKeyword {
             if (file!=null) {
                 doc = builder.parse(file);
             } else {
-                assert xmlContent!=null;
                 doc = builder.parse( new InputSource(new StringReader(xmlContent)));
             }
-        } catch (IOException io) {
+        } catch (IOException | SAXException io) {
             output.setError("IOException when trying to parse the XML: " + io.getMessage(), io);
-            return null;
-        } catch (SAXException sax) {
-            output.setError("IOException when trying to parse the XML: " + sax.getMessage(), sax);
             return null;
         } catch (ParserConfigurationException parse) {
             output.setError("ParserConfigurationException when trying to parse the XML: " + parse.getMessage(), parse);
@@ -93,11 +90,6 @@ public class XmlKeywords extends AbstractKeyword {
         return doc;
     }
 
-    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +
-            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
-            "            {\"required\":[\""+XML_OPT+"\"]}]" +
-            "}",
-            description = "Replace the value of xml nodes given a list of xpaths.")
     /**
      * Replace the value of xml nodes given a list of xpaths.
      *
@@ -105,6 +97,11 @@ public class XmlKeywords extends AbstractKeyword {
      * It will then evaluate any other input parameters as a set of xpath and value to be replaced.
      * Note that the xpaths should return only one node
      */
+    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +
+            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
+            "            {\"required\":[\""+XML_OPT+"\"]}]" +
+            "}",
+            description = "Replace the value of xml nodes given a list of xpaths.")
     public void Replace_XML() throws Exception {
 
         Document doc = getDocument(true);
@@ -147,12 +144,6 @@ public class XmlKeywords extends AbstractKeyword {
         }
     }
 
-    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}," +
-            "\"ExtractXml\":{\"type\":\"boolean\"}},\n" +
-            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
-            "            {\"required\":[\""+XML_OPT+"\"]}]" +
-            "}",
-            description = "Extract the value given a list of xpaths.")
     /**
      * Extract the value given a list of xpaths.
      *
@@ -161,6 +152,12 @@ public class XmlKeywords extends AbstractKeyword {
      * If the input ExtractXml is set to true (false by default), the exact sub-xml will be extracted
      * If the xpath leads to multiple values, they are returned in a list "[value1,value2]"
      */
+    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}," +
+            "\"ExtractXml\":{\"type\":\"boolean\"}},\n" +
+            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
+            "            {\"required\":[\""+XML_OPT+"\"]}]" +
+            "}",
+            description = "Extract the value given a list of xpaths.")
     public void Extract_XML() throws Exception {
 
         boolean extractXML = input.getBoolean("ExtractXml",false);
@@ -219,11 +216,6 @@ public class XmlKeywords extends AbstractKeyword {
         return(buf.toString().replaceAll("[\n\r]", ""));
     }
 
-    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +
-            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
-            "            {\"required\":[\""+XML_OPT+"\"]}]" +
-            "}",
-            description = "Validate the content of an XML file.")
     /**
      * Validate the content of an XML file.
      *
@@ -239,6 +231,11 @@ public class XmlKeywords extends AbstractKeyword {
      * - If the value is formatted as a list "[value1,value2,...]", the xpath should be found at least X times
      * and contains at least once the given values
      */
+    @Keyword(schema = "{\"properties\":{\""+FILE_OPT+"\":{\"type\":\"string\"},\""+XML_OPT+"\":{\"type\":\"string\"}},\n" +
+            "\"oneOf\": [{\"required\":[\""+FILE_OPT+"\"]}," +
+            "            {\"required\":[\""+XML_OPT+"\"]}]" +
+            "}",
+            description = "Validate the content of an XML file.")
     public void Validate_XML() throws Exception {
 
         Document doc = getDocument(false);

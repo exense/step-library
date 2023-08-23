@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-public abstract class AbstractProcessKeyword extends AbstractKeyword {
+public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
 
     protected static final int PROCESS_TIMEOUT = 60000;
 

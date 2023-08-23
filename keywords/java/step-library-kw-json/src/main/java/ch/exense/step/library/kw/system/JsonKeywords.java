@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +28,7 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JsonKeywords extends AbstractKeyword {
+public class JsonKeywords extends AbstractEnhancedKeyword {
 
     private static final String FILE_OPT = "File";
     private static final String JSON_OPT = "Json";

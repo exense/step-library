@@ -22,6 +22,7 @@ import java.lang.management.MemoryUsage;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import com.sun.management.OperatingSystemMXBean;
 
@@ -33,7 +34,7 @@ import javax.swing.filechooser.FileSystemView;
 
 @SuppressWarnings("restriction")
 @Attribute(key="project", value="@system")
-public class MBeanKeywords extends AbstractKeyword {
+public class MBeanKeywords extends AbstractEnhancedKeyword {
 
 	protected static final String HEAP_MEMORY_USAGE_MAX = "HeapMemoryUsageMax";
 	protected static final String HEAP_MEMORY_USAGE_USED = "HeapMemoryUsageUsed";
@@ -57,7 +58,7 @@ public class MBeanKeywords extends AbstractKeyword {
 
 			if (metrics.containsKey(inputName)) {
 				if (metricValue < inputValue) {
-					throw new BusinessException(String.format("Metric '{0}' was '{1}', lower than '{2}'",inputName,metricValue,inputValue));
+					throw new BusinessException("Metric '"+inputName+"' was '"+metricValue+"', lower than '"+inputValue+"'");
 				}
 			}
 		});

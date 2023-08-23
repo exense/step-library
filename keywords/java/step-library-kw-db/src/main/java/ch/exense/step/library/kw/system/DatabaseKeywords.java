@@ -1,5 +1,6 @@
 package ch.exense.step.library.kw.system;
 
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Attribute(key = "category",value = "Database")
-public class DatabaseKeywords extends AbstractKeyword {
+public class DatabaseKeywords extends AbstractEnhancedKeyword {
 
     private Connection getConnection() throws SQLException {
         DBConnectionWrapper dbConnectionWrapper = session.get(DBConnectionWrapper.class);

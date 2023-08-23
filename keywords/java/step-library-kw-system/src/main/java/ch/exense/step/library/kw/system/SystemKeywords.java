@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
+import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import org.apache.commons.io.FileUtils;
 import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
@@ -30,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 @Attribute(key = "category",value = "Operating system")
-public class SystemKeywords extends AbstractKeyword {
+public class SystemKeywords extends AbstractEnhancedKeyword {
 
 	private static final String DEFAULT_FORMAT = "jpg";
 	private static final String DEFAULT_FILENAME = "screenshot.jpg";
