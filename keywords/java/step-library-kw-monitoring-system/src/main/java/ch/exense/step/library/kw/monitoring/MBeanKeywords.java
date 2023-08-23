@@ -52,7 +52,7 @@ public class MBeanKeywords extends AbstractKeyword {
 		Map<String, Long> metrics = getMetrics();
 
 		input.forEach((inputName, inputValueString) -> {
-			long inputValue = Long.getLong(String.valueOf(inputValueString));
+			long inputValue = Long.parseLong(inputValueString.toString());
 			long metricValue = metrics.get(inputName);
 
 			if (metrics.containsKey(inputName)) {
