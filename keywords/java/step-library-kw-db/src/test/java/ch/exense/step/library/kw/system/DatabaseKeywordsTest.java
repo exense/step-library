@@ -29,6 +29,6 @@ public class DatabaseKeywordsTest {
         Output<JsonObject> output = ctx.run("ExecuteQuery", "{\"ConnectionString\":\"jdbc:mysql://mysql-qa1.exense.ch/TEST\", " +
                 "\"Query\":\"SELECT * from mysqldataset\", " +
                 "\"Username\":\"root\", \"Password\":\"init\", \"ResultLimit\":\"1\"}");
-        Assert.assertEquals("{\"ColumnCount\":2,\"ResultAsJson\":\"[{\\\"ID\\\":\\\"1\\\",\\\"VALUE\\\":\\\"10005\\\"}]\"}", output.getPayload().toString());
+        Assert.assertEquals("{\"ColumnCount\":2,\"ResultAsJson\":\"[{\\\"ID\\\":\\\"1\\\",\\\"VALUE\\\":\\\"value1\\\"}]\"}", output.getPayload().toString());
     }
 }
