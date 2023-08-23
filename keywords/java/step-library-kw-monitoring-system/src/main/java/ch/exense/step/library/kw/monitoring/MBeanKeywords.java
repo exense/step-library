@@ -56,8 +56,8 @@ public class MBeanKeywords extends AbstractKeyword {
 			long metricValue = metrics.get(inputName);
 
 			if (metrics.containsKey(inputName)) {
-				if (metricValue > inputValue) {
-					throw new BusinessException(String.format("Metric '{0}' was '{1}', greater than '{2}'",inputName,metricValue,inputValue));
+				if (metricValue < inputValue) {
+					throw new BusinessException(String.format("Metric '{0}' was '{1}', lower than '{2}'",inputName,metricValue,inputValue));
 				}
 			}
 		});
