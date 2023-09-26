@@ -17,9 +17,13 @@ package ch.exense.step.library.commons;
 
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
+import step.core.execution.ExecutionContext;
+import step.core.execution.model.ExecutionStatus;
+import step.functions.handler.AbstractFunctionHandler;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
+import step.handlers.javahandler.KeywordRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,31 +101,45 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     protected void executeManagedCommand(int timeoutMs, OutputConfiguration outputConfiguration,
                                          Consumer<ManagedProcess> postProcess, ManagedProcess process)
             throws ManagedProcessException, InterruptedException, IOException {
-        try {
+        try (process) {
             boolean hasError = false;
             process.start();
             try {
+                ExecutionContext context = (ExecutionContext) getSession().get(AbstractFunctionHandler.EXECUTION_CONTEXT_KEY);
+                if (context!=null) {
+                    output.add("Context","true");
+                    int time = 0;
+                    while (time<timeoutMs) {
+                        if (context.getStatus() == ExecutionStatus.ABORTING) {
+                            process.close();
+                        } else if (context.getStatus() == ExecutionStatus.ENDED) {
+                            break;
+                        }
+                        Thread.sleep(1000);
+                        time += 1000;
+                    }
+                }
+                output.add("Context",context==null);
+
                 int exitCode = process.waitFor(timeoutMs);
                 if (outputConfiguration.isCheckExitCode() && exitCode != 0) {
                     output.setBusinessError("Process exited with code " + exitCode);
                     hasError = true;
                 }
-                if(outputConfiguration.printExitCode) {
+                if (outputConfiguration.printExitCode) {
                     output.add("Exit_code", Integer.toString(exitCode));
                 }
-                if(postProcess != null) {
+                if (postProcess != null) {
                     postProcess.accept(process);
                 }
             } catch (TimeoutException e) {
-                output.setBusinessError("Process didn't exit within the defined timeout of "+timeoutMs+"ms");
+                output.setBusinessError("Process didn't exit within the defined timeout of " + timeoutMs + "ms");
                 hasError = true;
             }
 
-            if(hasError || outputConfiguration.isAlwaysAttachOutput()) {
+            if (hasError || outputConfiguration.isAlwaysAttachOutput()) {
                 attachOutputs(process, outputConfiguration);
             }
-        } finally {
-            process.close();
         }
     }
 
