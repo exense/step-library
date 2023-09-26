@@ -81,16 +81,16 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs) throws Exception {
-        executeManagedCommand(cmd, timeoutMs, new OutputConfiguration(), null, null);
+        executeManagedCommand(cmd, timeoutMs, new OutputConfiguration(), null);
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration) throws Exception {
-        executeManagedCommand(cmd, timeoutMs, outputConfiguration, null, null);
+        executeManagedCommand(cmd, timeoutMs, outputConfiguration, null);
     }
 
     protected void executeManagedCommand(List<String> cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
         ManagedProcess process = new ManagedProcess(cmd);
-        executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process);
+        executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process, null);
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
