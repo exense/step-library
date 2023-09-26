@@ -17,6 +17,7 @@ package ch.exense.step.library.commons;
 
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
+import step.client.StepClient;
 import step.core.execution.ExecutionContext;
 import step.core.execution.model.ExecutionStatus;
 import step.functions.handler.AbstractFunctionHandler;
@@ -105,8 +106,13 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
         try {
             boolean hasError = false;
             process.start();
+
+            properties.forEach( (k,v) -> System.out.println(k+":"+v));
+
             try {
                 ExecutionContext context = (ExecutionContext) getSession().get(AbstractFunctionHandler.EXECUTION_CONTEXT_KEY);
+                output.add("Context",context!=null);
+
                 if (context!=null) {
                     int time = 0;
                     while (time<timeoutMs) {
@@ -122,7 +128,6 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
                         time += 1000;
                     }
                 }
-                output.add("Context",context==null);
 
                 int exitCode = process.waitFor(timeoutMs);
                 if (outputConfiguration.isCheckExitCode() && exitCode != 0) {
