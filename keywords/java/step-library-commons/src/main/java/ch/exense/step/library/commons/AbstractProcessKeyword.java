@@ -110,6 +110,7 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
                 if (context!=null) {
                     int time = 0;
                     while (time<timeoutMs) {
+                        logger.info("Status is: "+context.getStatus());
                         if (context.getStatus() == ExecutionStatus.ABORTING) {
                             output.add("Aborting","true");
                             process.close();
