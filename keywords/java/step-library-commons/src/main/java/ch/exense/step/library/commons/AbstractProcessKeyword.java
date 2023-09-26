@@ -17,6 +17,8 @@ package ch.exense.step.library.commons;
 
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
+import step.client.StepClient;
+import step.core.artefacts.reports.ReportNode;
 import step.core.execution.ExecutionContext;
 import step.core.execution.model.ExecutionStatus;
 import step.functions.handler.AbstractFunctionHandler;
@@ -79,11 +81,11 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs) throws Exception {
-        executeManagedCommand(cmd, timeoutMs, new OutputConfiguration(), null);
+        executeManagedCommand(cmd, timeoutMs, new OutputConfiguration(), null, null);
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration) throws Exception {
-        executeManagedCommand(cmd, timeoutMs, outputConfiguration, null);
+        executeManagedCommand(cmd, timeoutMs, outputConfiguration, null, null);
     }
 
     protected void executeManagedCommand(List<String> cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
@@ -93,23 +95,28 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
 
     protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
         ManagedProcess process = new ManagedProcess(cmd);
-        executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process);
+        executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process,null);
     }
 
     protected void executeManagedCommand(int timeoutMs, OutputConfiguration outputConfiguration,
-                                         Consumer<ManagedProcess> postProcess, ManagedProcess process)
+                                         Consumer<ManagedProcess> postProcess, ManagedProcess process, String apiToken)
             throws ManagedProcessException, InterruptedException, IOException {
 
         try {
             boolean hasError = false;
             process.start();
 
+            System.out.println("properties:");
             properties.forEach( (k,v) -> System.out.println(k+":"+v));
+            System.out.println("******************************");
+            System.out.println("inputs:");
+            input.forEach( (k,v) -> System.out.println(k+":"+v));
+            System.out.println("******************************");
 
             try {
                 ExecutionContext context = (ExecutionContext) getSession().get(AbstractFunctionHandler.EXECUTION_CONTEXT_KEY);
-                output.add("Context",context!=null);
 
+                // Try to kill the process when the execution is cancelled
                 if (context!=null) {
                     int time = 0;
                     while (time<timeoutMs) {
@@ -124,7 +131,11 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
                         Thread.sleep(1000);
                         time += 1000;
                     }
-                }
+                } /*else if (apiToken!=null) {
+                    ReportNode report = properties.get("report");
+                    StepClient client = new StepClient(apiToken);
+
+                }*/
 
                 int exitCode = process.waitFor(timeoutMs);
                 if (outputConfiguration.isCheckExitCode() && exitCode != 0) {
