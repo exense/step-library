@@ -346,7 +346,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
         List<String> executions = new ArrayList<>();
         client.getRemoteAccessors().getAbstractAccessor("executions", Execution.class)
-                .findManyByCriteria(searchParam)
+                .findManyByCriteria(searchParam).limit(100)
                 .forEach(e -> {
                     executions.add(String.format("{\"id\":\"%s\",\"status\":\"%s\"}", e.getId(), e.getStatus()));
                 });
