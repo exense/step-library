@@ -17,14 +17,11 @@ package ch.exense.step.library.commons;
 
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
-import step.client.StepClient;
 import step.core.execution.ExecutionContext;
 import step.core.execution.model.ExecutionStatus;
 import step.functions.handler.AbstractFunctionHandler;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
-import step.handlers.javahandler.AbstractKeyword;
-import step.handlers.javahandler.KeywordRunner;
 
 import java.io.File;
 import java.io.IOException;
