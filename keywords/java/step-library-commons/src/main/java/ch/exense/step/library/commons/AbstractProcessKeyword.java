@@ -101,7 +101,8 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     protected void executeManagedCommand(int timeoutMs, OutputConfiguration outputConfiguration,
                                          Consumer<ManagedProcess> postProcess, ManagedProcess process)
             throws ManagedProcessException, InterruptedException, IOException {
-        try (process) {
+
+        try {
             boolean hasError = false;
             process.start();
             try {
@@ -140,6 +141,8 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
             if (hasError || outputConfiguration.isAlwaysAttachOutput()) {
                 attachOutputs(process, outputConfiguration);
             }
+        } finally {
+            process.close();
         }
     }
 
