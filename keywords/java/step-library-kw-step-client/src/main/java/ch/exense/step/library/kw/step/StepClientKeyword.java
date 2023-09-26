@@ -344,13 +344,12 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                 (k, v) -> searchParam.put(k, String.valueOf(v))
         );
 
-        StringBuilder executions = new StringBuilder("[");
+        List<String> executions = new ArrayList<>();
         client.getRemoteAccessors().getAbstractAccessor("executions", Execution.class)
                 .findManyByCriteria(searchParam)
                 .forEach(e -> {
-                    executions.append(String.format("{'id':'%s','status':'%s'}", e.getId(), e.getStatus()));
+                    executions.add(String.format("{'id':'%s','status':'%s'}", e.getId(), e.getStatus()));
                 });
-        executions.append("]");
         output.add("Executions", executions.toString());
     }
 

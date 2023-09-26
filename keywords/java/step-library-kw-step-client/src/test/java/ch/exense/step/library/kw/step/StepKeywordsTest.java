@@ -70,8 +70,8 @@ public class StepKeywordsTest {
 		assert output.getError() == null;
 
 		input = Json.createObjectBuilder()
-				.add("executionParameters.customParameters.env","PROD")
-				.add("status","RUNNING")
+				.add("executionParameters.customParameters.env","TEST")
+				.add("status","ENDED")
 				.build();
 		output = ctx.run("FindExecution", input.toString());
 		System.out.println(output.getPayload());
