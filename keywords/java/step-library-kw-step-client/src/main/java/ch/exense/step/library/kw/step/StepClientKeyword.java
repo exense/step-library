@@ -309,7 +309,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
         String execId = getMandatoryInputString("Id");
         boolean wait = input.getBoolean("Wait", false);
-        long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
+        long timeout = Long.parseLong(input.getString("WaitTimeout", DEFAULT_TIMEOUT));
 
         StepClient client = getClient();
 
