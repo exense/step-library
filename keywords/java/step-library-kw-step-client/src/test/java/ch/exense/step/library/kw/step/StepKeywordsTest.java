@@ -17,6 +17,7 @@ package ch.exense.step.library.kw.step;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import step.functions.io.Output;
@@ -54,6 +55,43 @@ public class StepKeywordsTest {
 		assert output.getError() == null;
 
 		output = ctx.run("ListTenants");
+		System.out.println(output.getPayload());
+		assert output.getError() == null;
+	}
+
+	@Test
+	@Ignore
+	public void test_findExecutions() throws Exception {
+		input = Json.createObjectBuilder()
+				.add("User", "admin")
+				.add("Password", "init")
+				.add("Url",DEFAULT_INSTANCE).build();
+		output = ctx.run("InitStepClient", input.toString());
+		assert output.getError() == null;
+
+		input = Json.createObjectBuilder()
+				.add("executionParameters.customParameters.env","PROD")
+				.add("status","RUNNING")
+				.build();
+		output = ctx.run("FindExecution", input.toString());
+		System.out.println(output.getPayload());
+		assert output.getError() == null;
+	}
+
+	@Test
+	@Ignore
+	public void test_stopExecution() throws Exception {
+		input = Json.createObjectBuilder()
+				.add("User", "admin")
+				.add("Password", "init")
+				.add("Url",DEFAULT_INSTANCE).build();
+		output = ctx.run("InitStepClient", input.toString());
+		assert output.getError() == null;
+
+		input = Json.createObjectBuilder()
+				.add("Id","6512315c8f4a8548ec7a399f")
+				.build();
+		output = ctx.run("StopExecution", input.toString());
 		System.out.println(output.getPayload());
 		assert output.getError() == null;
 	}
