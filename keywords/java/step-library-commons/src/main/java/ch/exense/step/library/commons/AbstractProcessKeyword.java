@@ -108,11 +108,12 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
             try {
                 ExecutionContext context = (ExecutionContext) getSession().get(AbstractFunctionHandler.EXECUTION_CONTEXT_KEY);
                 if (context!=null) {
-                    output.add("Context","true");
                     int time = 0;
                     while (time<timeoutMs) {
                         if (context.getStatus() == ExecutionStatus.ABORTING) {
+                            output.add("Aborting","true");
                             process.close();
+                            break;
                         } else if (context.getStatus() == ExecutionStatus.ENDED) {
                             break;
                         }
