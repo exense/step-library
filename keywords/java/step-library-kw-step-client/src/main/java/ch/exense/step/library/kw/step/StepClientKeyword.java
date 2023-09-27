@@ -333,6 +333,35 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         }
     }
 
+    @Keyword(schema = "{\"properties\":{"
+            + "\"Id\":{\"type\":\"string\"},"
+            + "\"WaitTimeout\":{\"type\":\"string\"}"
+            + "},\"required\":[\"Id\"]}",
+            properties = {""},
+            description = "Keyword used to stop an execution.")
+    public void WaitExecution() throws BusinessException {
+
+        String execId = getMandatoryInputString("Id");
+        long timeout = Long.parseLong(input.getString("WaitTimeout", DEFAULT_TIMEOUT));
+
+        StepClient client = getClient();
+
+        Execution exec;
+        try {
+            exec = client.getExecutionManager().waitForTermination(execId, timeout);
+
+            if (exec.getImportResult().isSuccessful()) {
+                output.add("Result", exec.getResult().toString());
+            } else {
+                output.add("Result", "IMPORT_ERROR");
+                output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
+            }
+        } catch (TimeoutException e) {
+            output.setBusinessError("Execution '" + execId + "' did not terminate before the timeout of " + timeout + "ms");
+            return;
+        } catch (InterruptedException e) {}
+    }
+
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
             properties = {""},
             description = "Keyword used to search for an execution. Any input will be interpreted as a criteria to search")
