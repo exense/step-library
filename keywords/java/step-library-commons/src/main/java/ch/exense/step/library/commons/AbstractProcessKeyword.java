@@ -105,38 +105,7 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
         try {
             boolean hasError = false;
             process.start();
-
-            System.out.println("properties:");
-            properties.forEach( (k,v) -> System.out.println(k+":"+v));
-            System.out.println("******************************");
-            System.out.println("inputs:");
-            input.forEach( (k,v) -> System.out.println(k+":"+v));
-            System.out.println("******************************");
-
             try {
-                ExecutionContext context = (ExecutionContext) getSession().get(AbstractFunctionHandler.EXECUTION_CONTEXT_KEY);
-
-                // Try to kill the process when the execution is cancelled
-                if (context!=null) {
-                    int time = 0;
-                    while (time<timeoutMs) {
-                        logger.info("Status is: "+context.getStatus());
-                        if (context.getStatus() == ExecutionStatus.ABORTING) {
-                            output.add("Aborting","true");
-                            process.close();
-                            break;
-                        } else if (context.getStatus() == ExecutionStatus.ENDED) {
-                            break;
-                        }
-                        Thread.sleep(1000);
-                        time += 1000;
-                    }
-                } /*else if (apiToken!=null) {
-                    ReportNode report = properties.get("report");
-                    StepClient client = new StepClient(apiToken);
-
-                }*/
-
                 int exitCode = process.waitFor(timeoutMs);
                 if (outputConfiguration.isCheckExitCode() && exitCode != 0) {
                     output.setBusinessError("Process exited with code " + exitCode);
