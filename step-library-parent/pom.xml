@@ -52,7 +52,7 @@
     <properties>
         <step-api.version>1.2.1</step-api.version>
         <step.version>3.22.3</step.version>
-        <exense-commons.version>2.0.6</exense-commons.version>
+        <exense-commons.version>2023.9.28-65156893c04f74576243e227</exense-commons.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
