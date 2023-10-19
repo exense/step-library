@@ -48,15 +48,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     private static final String DEFAULT_USER = "admin";
     private static final String DEFAULT_PASSWORD = "init";
 
-    private static final String DEFAULT_TIMEOUT = Integer.toString(60 * 1000);
-
     @Keyword(schema = "{\"properties\":{"
             + "\"User\":{\"type\":\"string\"},"
             + "\"Url\":{\"type\":\"string\"}"
             + "},\"required\":[\"Url\"]}",
             properties = {""},
-
-            description = "Keyword used to initialize a step client and place it in session. The password or token is passed as a protected parameter named ${user}_Token or ${user}_Password")
+            description = "Keyword used to initialize a step client and place it in session. " +
+                    "The password or token is passed as a protected parameter named ${user}_Token or ${user}_Password")
     public void InitStepClient() throws BusinessException {
 
         String url = getMandatoryInputString("Url");
@@ -66,15 +64,33 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         if (input.containsKey("Token") || input.containsKey("Password")) {
             throw new BusinessException("Passing the Token or Password as input is deprecated. Use a protected parameter instead");
         } else {
-            String user = input.getString("User", DEFAULT_USER);
+            String user;
+            String password = null;
+            String token = null;
+            if (input.containsKey("User")) {
+
+                user = input.getString("User");
+
+                if (properties.containsKey(user + "_Token")) {
+                    token = input.getString(user + "_Token");
+                } else {
+                    if (!properties.containsKey(user + "_Password")) {
+                        throw new BusinessException(String.format("No password or token found for user '%s'. " +
+                                        "Please define one of the following protected parameters: '%s_Password', '%s_Token'",
+                                user, user, user));
+                    }
+                    password = input.getString(user + "_Password");
+                }
+            } else {
+                user = DEFAULT_USER;
+                password = DEFAULT_PASSWORD;
+            }
             getSession().put("User", user);
 
-            if (properties.containsKey(user+"_Token")) {
-                client = new StepClient(url, user,
-                        input.getString(user+"_Token"));
+            if (password == null) {
+                client = new StepClient(url, user, token);
             } else {
-                client = new StepClient(url, user,
-                        input.getString(user+"_Password"));
+                client = new StepClient(url, user, password);
             }
         }
 
@@ -83,7 +99,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             Tenant tenant = client.getCurrentTenant();
             output.add("Tenant", tenant.getName());
         } catch (ControllerClientException e) {
-            throw new BusinessException("Could not log into the step controller", e);
+            throw new BusinessException("Could not log into the step controller. Did you pass ", e);
         }
 
         getSession().put(client);
@@ -336,7 +352,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                     }
                 }
             } else {
-                throw new BusinessException("Execution Id '" + execId + "' is not running. Status is '"+exec.getStatus()+"'");
+                throw new BusinessException("Execution Id '" + execId + "' is not running. Status is '" + exec.getStatus() + "'");
             }
         }
     }
@@ -353,7 +369,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String executionID = getMandatoryInputString("Id");
         long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
-        waitExecution(getClient(),executionID,timeout);
+        waitExecution(getClient(), executionID, timeout);
     }
 
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
@@ -426,7 +442,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         output.add("Id", executionID);
 
         if (!async) {
-            waitExecution(client,executionID,timeout);
+            waitExecution(client, executionID, timeout);
         }
     }
 
@@ -438,7 +454,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
             if (exec.getImportResult().isSuccessful()) {
                 output.add("Result", exec.getResult().toString());
-                if (exec.getResult()!= ReportNodeStatus.PASSED) {
+                if (exec.getResult() != ReportNodeStatus.PASSED) {
                     output.setBusinessError("Execution failed");
                 }
             } else {
@@ -447,7 +463,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             }
         } catch (TimeoutException e) {
             output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
     }
 
     private String getMandatoryInputString(String inputName) throws BusinessException {
