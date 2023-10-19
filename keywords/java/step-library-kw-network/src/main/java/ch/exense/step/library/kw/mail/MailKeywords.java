@@ -29,7 +29,7 @@ import java.util.Properties;
 @Attribute(key = "category",value = "Network")
 public class MailKeywords extends AbstractEnhancedKeyword {
 
-    private class MailWrapper implements Closeable {
+    private static class MailWrapper implements Closeable {
         private final Store store;
         private final Session mailSession;
 
@@ -51,7 +51,7 @@ public class MailKeywords extends AbstractEnhancedKeyword {
     /**
      * step Keyword to init a Mail client to be placed in the
      * current step session
-     *
+     * <p>
      * Keyword inputs BasicAuthUser:
      *
      */
@@ -59,11 +59,10 @@ public class MailKeywords extends AbstractEnhancedKeyword {
             + "\"SmtpHost\":{\"type\":\"string\"},"
             + "\"SmtpPort\":{\"type\":\"integer\"},"
             + "\"Username\":{\"type\":\"string\"},"
-            + "\"Password\":{\"type\":\"string\"},"
             + "\"StoreProtocol\":{\"type\":\"string\"},"
             + "\"StorePort\":{\"type\":\"integer\"},"
             + "\"StoreUser\":{\"type\":\"String\"}"
-            + "},\"required\":[\"SmtpHost\",\"Username\",\"Password\"]}", properties = { "" },
+            + "},\"required\":[\"SmtpHost\",\"Username\"]}", properties = { "" },
             description = "Keyword to init a Mail client to be placed in the current session.")
     public void Init_Mail_Client() throws MessagingException {
 
@@ -71,7 +70,7 @@ public class MailKeywords extends AbstractEnhancedKeyword {
         int port = input.getInt("SmtpPort",587);
 
         String username = input.getString("Username");
-        String password =  input.getString("Password");
+        String password =  getPassword(username);
 
         String storeProtocol =  input.getString("StoreProtocol","pop3");
         int storePort = input.getInt("StorePort",-1);
@@ -115,7 +114,7 @@ public class MailKeywords extends AbstractEnhancedKeyword {
             store.connect(host, storePort, storeUser, password);
         }
 
-        MailWrapper wrapper = new MailWrapper(mailSession,store);
+        MailWrapper wrapper = new MailWrapper(mailSession, store);
         getSession().put(wrapper);
     }
 

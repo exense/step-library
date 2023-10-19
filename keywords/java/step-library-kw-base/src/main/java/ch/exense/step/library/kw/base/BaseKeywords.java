@@ -22,7 +22,7 @@ public class BaseKeywords extends AbstractKeyword {
 
 	@Keyword
 	public void Echo(){
-		input.entrySet().forEach(e -> output.add(e.getKey(), e.getValue() == null?"null":e.getValue().toString()));
+		input.forEach((key, value) -> output.add(key, value == null ? "null" : value.toString()));
 	}
 
 }

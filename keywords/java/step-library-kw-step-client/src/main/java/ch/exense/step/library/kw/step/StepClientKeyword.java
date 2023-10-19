@@ -78,14 +78,14 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                                         "Please define one of the following protected parameters: '%s_Password', '%s_Token'",
                                 user, user, user));
                     }
-                    password = properties.get(user + "_Token");
+                    password = properties.get(user + "_Password");
                 }
             } else {
                 user = DEFAULT_USER;
                 password = DEFAULT_PASSWORD;
             }
             getSession().put("User", user);
-
+            
             if (password == null) {
                 client = new StepClient(url, user, token);
             } else {
@@ -98,7 +98,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             Tenant tenant = client.getCurrentTenant();
             output.add("Tenant", tenant.getName());
         } catch (ControllerClientException e) {
-            throw new BusinessException("Could not log into the step controller. Did you pass ", e);
+            throw new BusinessException("Could not log into the step controller", e);
         }
 
         getSession().put(client);

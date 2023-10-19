@@ -35,5 +35,12 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
 			return super.onError(e);
 		}
 	}
-	
+
+	protected String getPassword(String username) {
+		if (!properties.containsKey(username + "_Password")) {
+			throw new BusinessException(String.format("No password found for user '%s'. " +
+							"Please define the following protected parameters: '%s_Password'",username, username));
+		}
+		return properties.get(username + "_Password");
+	}
 }
