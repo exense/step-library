@@ -27,90 +27,89 @@ import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 import javax.json.Json;
 import javax.json.JsonObject;
 import java.io.File;
+import java.util.Map;
 
 public class StepKeywordsTest {
 
-	private final static String DEFAULT_INSTANCE = "https://stepee-nhy.stepcloud-test.ch/";
+    private final static String DEFAULT_INSTANCE = "https://stepee-nhy.stepcloud-test.ch/";
 
-	private ExecutionContext ctx;
-	private Output<JsonObject> output;
-	private JsonObject input;
+    private ExecutionContext ctx;
+    private Output<JsonObject> output;
+    private JsonObject input;
 
-	@Before
-	public void setUp() {
-		ctx = KeywordRunner.getExecutionContext(StepClientKeyword.class);
-	}
+    @Before
+    public void setUp() {
+        ctx = KeywordRunner.getExecutionContext(Map.of("admin_Password", "init"), StepClientKeyword.class);
+    }
 
-	@After
-	public void tearDown() {
-		ctx.close();
-	}
+    @After
+    public void tearDown() {
+        ctx.close();
+    }
 
-	@Test
-	public void test_listTenant() throws Exception {
-		input = Json.createObjectBuilder().add("User", "admin")
-			.add("admin_Password", "init")
-			.add("Url",DEFAULT_INSTANCE).build();
-		output = ctx.run("InitStepClient", input.toString());
-		assert output.getError() == null;
+    @Test
+    public void test_listTenant() throws Exception {
+        input = Json.createObjectBuilder()
+                .add("User", "admin")
+                .add("Url", DEFAULT_INSTANCE).build();
+        output = ctx.run("InitStepClient", input.toString());
+        assert output.getError() == null;
 
-		output = ctx.run("ListTenants");
-		System.out.println(output.getPayload());
-		assert output.getError() == null;
-	}
+        output = ctx.run("ListTenants");
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+    }
 
-	@Test
-	@Ignore
-	public void test_findExecutions() throws Exception {
-		input = Json.createObjectBuilder()
-				.add("User", "admin")
-				.add("admin_Password", "init")
-				.add("Url",DEFAULT_INSTANCE).build();
-		output = ctx.run("InitStepClient", input.toString());
-		assert output.getError() == null;
+    @Test
+    @Ignore
+    public void test_findExecutions() throws Exception {
+        input = Json.createObjectBuilder()
+                .add("User", "admin")
+                .add("Url", DEFAULT_INSTANCE).build();
+        output = ctx.run("InitStepClient", input.toString());
+        assert output.getError() == null;
 
-		input = Json.createObjectBuilder()
-				.add("executionParameters.customParameters.env","TEST")
-				.add("status","ENDED")
-				.build();
-		output = ctx.run("FindExecution", input.toString());
-		System.out.println(output.getPayload());
-		assert output.getError() == null;
-	}
+        input = Json.createObjectBuilder()
+                .add("executionParameters.customParameters.env", "TEST")
+                .add("status", "ENDED")
+                .build();
+        output = ctx.run("FindExecution", input.toString());
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+    }
 
-	@Test
-	@Ignore
-	public void test_stopExecution() throws Exception {
-		input = Json.createObjectBuilder()
-				.add("User", "admin")
-				.add("admin_Password", "init")
-				.add("Url",DEFAULT_INSTANCE).build();
-		output = ctx.run("InitStepClient", input.toString());
-		assert output.getError() == null;
+    @Test
+    @Ignore
+    public void test_stopExecution() throws Exception {
+        input = Json.createObjectBuilder()
+                .add("User", "admin")
+                .add("Url", DEFAULT_INSTANCE).build();
+        output = ctx.run("InitStepClient", input.toString());
+        assert output.getError() == null;
 
-		input = Json.createObjectBuilder()
-				.add("Id","6512315c8f4a8548ec7a399f")
-				.build();
-		output = ctx.run("StopExecution", input.toString());
-		System.out.println(output.getPayload());
-		assert output.getError() == null;
-	}
+        input = Json.createObjectBuilder()
+                .add("Id", "6512315c8f4a8548ec7a399f")
+                .build();
+        output = ctx.run("StopExecution", input.toString());
+        System.out.println(output.getPayload());
+        assert output.getError() == null;
+    }
 
-	@Test
-	public void test_upload() throws Exception {
+    @Test
+    public void test_upload() throws Exception {
 
-		input = Json.createObjectBuilder().add("User", "admin")
-				.add("admin_Password", "init")
-				.add("Url", DEFAULT_INSTANCE).build();
+        input = Json.createObjectBuilder()
+                .add("User", "admin")
+                .add("Url", DEFAULT_INSTANCE).build();
 
-		output = ctx.run("InitStepClient",input);
+        output = ctx.run("InitStepClient", input);
 
-		String file = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
+        String file = new File(getClass().getClassLoader().getResource("test.zip").getFile()).getPath();
 
-		JsonObject input = Json.createObjectBuilder().add("File", file).build();
+        JsonObject input = Json.createObjectBuilder().add("File", file).build();
 
-		output = ctx.run("UploadResource", input.toString());
+        output = ctx.run("UploadResource", input.toString());
 
-		System.out.println(output.getPayload());
-	}
+        System.out.println(output.getPayload());
+    }
 }
