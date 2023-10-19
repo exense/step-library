@@ -68,18 +68,17 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             String password = null;
             String token = null;
             if (input.containsKey("User")) {
-
                 user = input.getString("User");
 
                 if (properties.containsKey(user + "_Token")) {
-                    token = input.getString(user + "_Token");
+                    token = properties.get(user + "_Token");
                 } else {
                     if (!properties.containsKey(user + "_Password")) {
                         throw new BusinessException(String.format("No password or token found for user '%s'. " +
                                         "Please define one of the following protected parameters: '%s_Password', '%s_Token'",
                                 user, user, user));
                     }
-                    password = input.getString(user + "_Password");
+                    password = properties.get(user + "_Token");
                 }
             } else {
                 user = DEFAULT_USER;
