@@ -52,25 +52,30 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
     @Keyword(schema = "{\"properties\":{"
             + "\"User\":{\"type\":\"string\"},"
-            + "\"Password\":{\"type\":\"string\"},"
-            + "\"Token\":{\"type\":\"string\"},"
             + "\"Url\":{\"type\":\"string\"}"
             + "},\"required\":[\"Url\"]}",
             properties = {""},
-            description = "Keyword used to initialize a step client and place it in session.")
+
+            description = "Keyword used to initialize a step client and place it in session. The password or token is passed as a protected parameter named ${user}_Token or ${user}_Password")
     public void InitStepClient() throws BusinessException {
 
         String url = getMandatoryInputString("Url");
 
         StepClient client;
 
-        if (input.containsKey("Token")) {
-            client = new StepClient(url, input.getString("Token"));
+        if (input.containsKey("Token") || input.containsKey("Password")) {
+            throw new BusinessException("Passing the Token or Password as input is deprecated. Use a protected parameter instead");
         } else {
             String user = input.getString("User", DEFAULT_USER);
             getSession().put("User", user);
-            client = new StepClient(url, user,
-                    input.getString("Password", DEFAULT_PASSWORD));
+
+            if (properties.containsKey(user+"_Token")) {
+                client = new StepClient(url, user,
+                        input.getString(user+"_Token"));
+            } else {
+                client = new StepClient(url, user,
+                        input.getString(user+"_Password"));
+            }
         }
 
         // check if correctly logged in: get the current tenant:
@@ -109,6 +114,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                     }
                 }
             }
+            throw new BusinessException("No tenant was found for project id '" + projectId + "'");
         } else {
             try {
                 client.selectTenant(tenantName);
@@ -117,8 +123,6 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                 throw new BusinessException("Exception when trying to select the tenant by name", e);
             }
         }
-        throw new BusinessException("No tenant was found for " +
-                (tenantName.isEmpty() ? "project id '" + projectId + "'" : "project name '" + tenantName + "'"));
     }
 
     private StepClient getClient() {

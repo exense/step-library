@@ -49,7 +49,7 @@ public class StepKeywordsTest {
 	@Test
 	public void test_listTenant() throws Exception {
 		input = Json.createObjectBuilder().add("User", "admin")
-			.add("Password", "init")
+			.add("admin_Password", "init")
 			.add("Url",DEFAULT_INSTANCE).build();
 		output = ctx.run("InitStepClient", input.toString());
 		assert output.getError() == null;
@@ -64,7 +64,7 @@ public class StepKeywordsTest {
 	public void test_findExecutions() throws Exception {
 		input = Json.createObjectBuilder()
 				.add("User", "admin")
-				.add("Password", "init")
+				.add("admin_Password", "init")
 				.add("Url",DEFAULT_INSTANCE).build();
 		output = ctx.run("InitStepClient", input.toString());
 		assert output.getError() == null;
@@ -83,7 +83,7 @@ public class StepKeywordsTest {
 	public void test_stopExecution() throws Exception {
 		input = Json.createObjectBuilder()
 				.add("User", "admin")
-				.add("Password", "init")
+				.add("admin_Password", "init")
 				.add("Url",DEFAULT_INSTANCE).build();
 		output = ctx.run("InitStepClient", input.toString());
 		assert output.getError() == null;
@@ -100,7 +100,7 @@ public class StepKeywordsTest {
 	public void test_upload() throws Exception {
 
 		input = Json.createObjectBuilder().add("User", "admin")
-				.add("Password", "init")
+				.add("admin_Password", "init")
 				.add("Url", DEFAULT_INSTANCE).build();
 
 		output = ctx.run("InitStepClient",input);
