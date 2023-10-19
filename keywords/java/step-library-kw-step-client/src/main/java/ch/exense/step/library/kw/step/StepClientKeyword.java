@@ -248,6 +248,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         }
     }
 
+    private static final int DEFAULT_EXEC_TIMEOUT = 60 * 60 * 1000;
+
     @Keyword(schema = "{\"properties\":{"
             + "\"PlanName\":{\"type\":\"string\"},"
             + "\"Description\":{\"type\":\"string\"},"
@@ -257,7 +259,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"PlanName\"]}",
             properties = {""},
-            timeout = 1800000,
+            timeout = DEFAULT_EXEC_TIMEOUT,
             description = "Keyword used to execute a plan given its name.")
     public void RunLocalExecution() throws BusinessException, IOException, InterruptedException {
         String planName = getMandatoryInputString("PlanName");
@@ -266,7 +268,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String customParametersJson = input.getString("CustomParameters", "{}");
         String userId = input.getString("UserId", "");
         boolean async = input.getBoolean("Async", false);
-        long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
+        long timeout = Long.parseLong(input.getString("Timeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
         String planId = findPlanId(planName);
 
@@ -283,7 +285,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""},
-            timeout = 1800000,
+            timeout = DEFAULT_EXEC_TIMEOUT,
             description = "Keyword used to execute a plan given a repository.")
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
         String repoId = getMandatoryInputString("RepositoryID");
@@ -293,7 +295,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String userId = input.getString("UserId", "");
         boolean async = input.getBoolean("Async", false);
 
-        long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
+        long timeout = Long.parseLong(input.getString("Timeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
         runExecution(repoId, repoParametersJson, description, customParametersJson, userId, async, timeout);
     }
@@ -304,12 +306,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"WaitTimeout\":{\"type\":\"string\"}"
             + "},\"required\":[\"Id\"]}",
             properties = {""},
+            timeout = DEFAULT_EXEC_TIMEOUT,
             description = "Keyword used to stop an execution.")
     public void StopExecution() throws BusinessException {
 
         String execId = getMandatoryInputString("Id");
         boolean wait = input.getBoolean("Wait", false);
-        long timeout = Long.parseLong(input.getString("WaitTimeout", DEFAULT_TIMEOUT));
+        long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
         StepClient client = getClient();
 
@@ -338,11 +341,12 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"WaitTimeout\":{\"type\":\"string\"}"
             + "},\"required\":[\"Id\"]}",
             properties = {""},
+            timeout = DEFAULT_EXEC_TIMEOUT,
             description = "Keyword used to stop an execution.")
     public void WaitExecution() throws BusinessException {
 
         String execId = getMandatoryInputString("Id");
-        long timeout = Long.parseLong(input.getString("WaitTimeout", DEFAULT_TIMEOUT));
+        long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
         StepClient client = getClient();
 
