@@ -13,11 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.4.7</version>
-        </dependency>
-        <dependency>
             <groupId>ch.exense.commons</groupId>
             <artifactId>exense-basic-commons</artifactId>
             <version>${exense-commons.version}</version>

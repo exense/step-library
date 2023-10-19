@@ -17,9 +17,11 @@ package ch.exense.step.library.ldap.keywords;
 
 import ch.exense.step.library.kw.ldap.LdapKeywords;
 import ch.exense.step.library.kw.ssl.SSLKeywords;
+import ch.exense.step.library.tests.LocalOnly;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
 
@@ -31,22 +33,14 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+@Category(LocalOnly.class)
 public class NetworkKeywordsTest {
 
-    private KeywordRunner.ExecutionContext ctx;
+    private KeywordRunner.ExecutionContext ctx =
+            KeywordRunner.getExecutionContext(Map.of("cn=test,ou=users,dc=exense,dc=ch_Password",
+                    "The_password_goes_here"), LdapKeywords.class, SSLKeywords.class);
     private Output<JsonObject> output;
     private String inputs;
-
-    @Before
-    public void setUp() throws Exception {
-        Map<String, String> properties = new HashMap<>();
-        ctx = KeywordRunner.getExecutionContext(properties, LdapKeywords.class, SSLKeywords.class);
-    }
-
-    @After
-    public void tearDown() {
-
-    }
 
 	@Test
 	public void simpleCertificateChecks() throws Exception {
@@ -71,8 +65,7 @@ public class NetworkKeywordsTest {
     public void simpleLdapSearch() throws Exception {
         inputs = Json.createObjectBuilder()
                 .add("LdapUrl", "ldaps://ldap.exense.ch")
-                .add("BindingUser", "cn=Test User,ou=users,dc=exense,dc=ch")
-                .add("BindingPassword", "100%Test")
+                .add("BindingUser", "cn=test,ou=users,dc=exense,dc=ch")
                 .build().toString();
         output = ctx.run("Init_Ldap_Client", inputs);
         System.out.println(output.getPayload());
