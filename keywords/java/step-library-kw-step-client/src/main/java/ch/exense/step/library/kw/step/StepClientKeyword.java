@@ -26,6 +26,7 @@ import step.client.StepClient;
 import step.controller.multitenancy.Tenant;
 import step.core.accessors.AbstractOrganizableObject;
 import step.core.accessors.Attribute;
+import step.core.artefacts.reports.ReportNodeStatus;
 import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
@@ -345,25 +346,10 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             description = "Keyword used to stop an execution.")
     public void WaitExecution() throws BusinessException {
 
-        String execId = getMandatoryInputString("Id");
+        String executionID = getMandatoryInputString("Id");
         long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
-        StepClient client = getClient();
-
-        Execution exec;
-        try {
-            exec = client.getExecutionManager().waitForTermination(execId, timeout);
-
-            if (exec.getImportResult().isSuccessful()) {
-                output.add("Result", exec.getResult().toString());
-            } else {
-                output.add("Result", "IMPORT_ERROR");
-                output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
-            }
-        } catch (TimeoutException e) {
-            output.setBusinessError("Execution '" + execId + "' did not terminate before the timeout of " + timeout + "ms");
-            return;
-        } catch (InterruptedException e) {}
+        waitExecution(getClient(),executionID,timeout);
     }
 
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
@@ -436,22 +422,28 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         output.add("Id", executionID);
 
         if (!async) {
+            waitExecution(client,executionID,timeout);
+        }
+    }
 
-            Execution exec;
-            try {
-                exec = client.getExecutionManager().waitForTermination(executionID, timeout);
-            } catch (TimeoutException e) {
-                output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
-                return;
-            }
+    private void waitExecution(StepClient client, String executionID, long timeout) {
+        Execution exec;
+
+        try {
+            exec = client.getExecutionManager().waitForTermination(executionID, timeout);
 
             if (exec.getImportResult().isSuccessful()) {
                 output.add("Result", exec.getResult().toString());
+                if (exec.getResult()!= ReportNodeStatus.PASSED) {
+                    output.setBusinessError("Execution failed");
+                }
             } else {
                 output.add("Result", "IMPORT_ERROR");
                 output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
             }
-        }
+        } catch (TimeoutException e) {
+            output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
+        } catch (InterruptedException ignored) {}
     }
 
     private String getMandatoryInputString(String inputName) throws BusinessException {
