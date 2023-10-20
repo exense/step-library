@@ -45,13 +45,12 @@ import java.util.concurrent.TimeoutException;
 @Attribute(key = "category", value = "Step Client")
 public class StepClientKeyword extends AbstractEnhancedKeyword {
 
-    private static final String DEFAULT_USER = "admin";
     private static final String DEFAULT_PASSWORD = "init";
 
     @Keyword(schema = "{\"properties\":{"
             + "\"User\":{\"type\":\"string\"},"
             + "\"Url\":{\"type\":\"string\"}"
-            + "},\"required\":[\"Url\"]}",
+            + "},\"required\":[\"Url\",\"User\"]}",
             properties = {""},
             description = "Keyword used to initialize a step client and place it in session. " +
                     "The password or token is passed as a protected parameter named ${user}_Token or ${user}_Password")
@@ -67,27 +66,22 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             String user;
             String password = null;
             String token = null;
-            if (input.containsKey("User")) {
-                user = input.getString("User");
+            user = input.getString("User");
 
-                if (properties.containsKey(user + "_Token")) {
-                    token = properties.get(user + "_Token");
-                } else {
-                    if (!properties.containsKey(user + "_Password")) {
-                        throw new BusinessException(String.format("No password or token found for user '%s'. " +
-                                        "Please define one of the following protected parameters: '%s_Password', '%s_Token'",
-                                user, user, user));
-                    }
-                    password = properties.get(user + "_Password");
-                }
+            if (properties.containsKey(user + "_Token")) {
+                token = properties.get(user + "_Token");
             } else {
-                user = DEFAULT_USER;
-                password = DEFAULT_PASSWORD;
+                if (!properties.containsKey(user + "_Password")) {
+                    throw new BusinessException(String.format("No password or token found for user '%s'. " +
+                                    "Please define one of the following protected parameters: '%s_Password', '%s_Token'",
+                            user, user, user));
+                }
+                password = properties.get(user + "_Password");
             }
             getSession().put("User", user);
-            
+
             if (password == null) {
-                client = new StepClient(url, user, token);
+                client = new StepClient(url, token);
             } else {
                 client = new StepClient(url, user, password);
             }
