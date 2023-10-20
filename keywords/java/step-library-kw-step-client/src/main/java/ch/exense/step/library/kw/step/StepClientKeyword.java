@@ -26,53 +26,65 @@ import step.client.StepClient;
 import step.controller.multitenancy.Tenant;
 import step.core.accessors.AbstractOrganizableObject;
 import step.core.accessors.Attribute;
+import step.core.artefacts.reports.ReportNodeStatus;
 import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
 import step.core.execution.model.ExecutionParameters;
+import step.core.execution.model.ExecutionStatus;
 import step.core.plans.Plan;
 import step.core.repositories.RepositoryObjectReference;
-import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 import step.resources.Resource;
 import step.resources.ResourceManager;
 import step.resources.SimilarResourceExistingException;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 @Attribute(key = "category", value = "Step Client")
 public class StepClientKeyword extends AbstractEnhancedKeyword {
 
-    private static final String DEFAULT_USER = "admin";
     private static final String DEFAULT_PASSWORD = "init";
-
-    private static final String DEFAULT_TIMEOUT = Integer.toString(60 * 1000);
 
     @Keyword(schema = "{\"properties\":{"
             + "\"User\":{\"type\":\"string\"},"
-            + "\"Password\":{\"type\":\"string\"},"
-            + "\"Token\":{\"type\":\"string\"},"
             + "\"Url\":{\"type\":\"string\"}"
-            + "},\"required\":[\"Url\"]}",
+            + "},\"required\":[\"Url\",\"User\"]}",
             properties = {""},
-            description = "Keyword used to initialize a step client and place it in session.")
+            description = "Keyword used to initialize a step client and place it in session. " +
+                    "The password or token is passed as a protected parameter named ${user}_Token or ${user}_Password")
     public void InitStepClient() throws BusinessException {
 
         String url = getMandatoryInputString("Url");
 
         StepClient client;
 
-        if (input.containsKey("Token")) {
-            client = new StepClient(url, input.getString("Token"));
+        if (input.containsKey("Token") || input.containsKey("Password")) {
+            throw new BusinessException("Passing the Token or Password as input is deprecated. Use a protected parameter instead");
         } else {
-            String user = input.getString("User", DEFAULT_USER);
+            String user;
+            String password = null;
+            String token = null;
+            user = input.getString("User");
+
+            if (properties.containsKey(user + "_Token")) {
+                token = properties.get(user + "_Token");
+            } else {
+                if (!properties.containsKey(user + "_Password")) {
+                    throw new BusinessException(String.format("No password or token found for user '%s'. " +
+                                    "Please define one of the following protected parameters: '%s_Password', '%s_Token'",
+                            user, user, user));
+                }
+                password = properties.get(user + "_Password");
+            }
             getSession().put("User", user);
-            client = new StepClient(url, user,
-                    input.getString("Password", DEFAULT_PASSWORD));
+
+            if (password == null) {
+                client = new StepClient(url, token);
+            } else {
+                client = new StepClient(url, user, password);
+            }
         }
 
         // check if correctly logged in: get the current tenant:
@@ -80,8 +92,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             Tenant tenant = client.getCurrentTenant();
             output.add("Tenant", tenant.getName());
         } catch (ControllerClientException e) {
-            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-            throw new BusinessException("Could not log into the step controller");
+            throw new BusinessException("Could not log into the step controller", e);
         }
 
         getSession().put(client);
@@ -108,22 +119,19 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                         client.selectTenant(tenant.getName());
                         return;
                     } catch (Exception e) {
-                        output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-                        throw new BusinessException("Exception when trying to select the tenant by id");
+                        throw new BusinessException("Exception when trying to select the tenant by id", e);
                     }
                 }
             }
+            throw new BusinessException("No tenant was found for project id '" + projectId + "'");
         } else {
             try {
                 client.selectTenant(tenantName);
                 return;
             } catch (Exception e) {
-                output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-                throw new BusinessException("Exception when trying to select the tenant by name");
+                throw new BusinessException("Exception when trying to select the tenant by name", e);
             }
         }
-        throw new BusinessException("No tenant was found for " +
-                (tenantName.isEmpty() ? "project id '" + projectId + "'" : "project name '" + tenantName + "'"));
     }
 
     private StepClient getClient() {
@@ -160,8 +168,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             String oldJson = "{\"name\":[\"" + "".join("\",\"", resultName) + "\"],\"id\":[\"" + "".join("\",\"", resultId) + "\"]}";
             output.add("Tenants", oldJson);
         } catch (Exception e) {
-            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-            throw new BusinessException("Exception when trying to list the tenants");
+            throw new BusinessException("Exception when trying to list the tenants", e);
         }
     }
 
@@ -192,11 +199,9 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             Resource resource = client.getResourceManager().createResource(type, stream, file.getName(), false, null);
             output.add("ResourceId", resource.getId().toString());
         } catch (IOException e) {
-            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-            throw new BusinessException("IOException when trying to upload the file '" + fileName + "'");
+            throw new BusinessException("IOException when trying to upload the file '" + fileName + "'", e);
         } catch (SimilarResourceExistingException e) {
-            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-            throw new BusinessException("SimilarResourceExistingException when trying to upload the file '" + fileName + "'");
+            throw new BusinessException("SimilarResourceExistingException when trying to upload the file '" + fileName + "'", e);
         }
     }
 
@@ -215,8 +220,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String destination = input.getString("Destination");
         boolean deleteAfter = input.getBoolean("DeleteAfter", false);
 
-        try {
-            Downloader downloader = new Downloader();
+        try (Downloader downloader = new Downloader()) {
 
             File file = new File(destination);
             File resourceFile;
@@ -243,21 +247,22 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             if (deleteAfter) {
                 try {
                     client.getResourceManager().deleteResource(resourceID);
-                } catch (ControllerClientException e) {
+                } catch (ControllerClientException ignored) {
                 }
             }
         } catch (IOException e) {
-            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-            throw new BusinessException("IOException when trying to download the resource '" + resourceID + "'");
+            throw new BusinessException("IOException when trying to download the resource '" + resourceID + "'", e);
         }
     }
 
-    class Downloader extends AbstractRemoteClient {
+    static class Downloader extends AbstractRemoteClient {
         private InputStream getResourceContent(String resourceId, String destination) throws IOException {
             final Invocation.Builder b = requestBuilder("/rest/resources/" + resourceId + "/content");
             return (InputStream) b.get().getEntity();
         }
     }
+
+    private static final int DEFAULT_EXEC_TIMEOUT = 60 * 60 * 1000;
 
     @Keyword(schema = "{\"properties\":{"
             + "\"PlanName\":{\"type\":\"string\"},"
@@ -268,19 +273,20 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"PlanName\"]}",
             properties = {""},
-            timeout = 1800000,
+            timeout = DEFAULT_EXEC_TIMEOUT,
             description = "Keyword used to execute a plan given its name.")
     public void RunLocalExecution() throws BusinessException, IOException, InterruptedException {
-        String planName = getMandatoryInputString("PlanName");;
+        String planName = getMandatoryInputString("PlanName");
+        ;
         String description = input.getString("Description", planName);
-        String customParametersJson = input.getString("CustomParameters","{}");
+        String customParametersJson = input.getString("CustomParameters", "{}");
         String userId = input.getString("UserId", "");
-        Boolean async = input.getBoolean("Async", false);
-        long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
+        boolean async = input.getBoolean("Async", false);
+        long timeout = Long.parseLong(input.getString("Timeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
         String planId = findPlanId(planName);
 
-        runExecution("local","{\"planid\":\""+planId+"\"}",description,customParametersJson,userId,async,timeout);
+        runExecution("local", "{\"planid\":\"" + planId + "\"}", description, customParametersJson, userId, async, timeout);
     }
 
     @Keyword(schema = "{\"properties\":{"
@@ -293,7 +299,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"UserId\":{\"type\":\"string\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""},
-            timeout = 1800000,
+            timeout = DEFAULT_EXEC_TIMEOUT,
             description = "Keyword used to execute a plan given a repository.")
     public void RunExecution() throws BusinessException, IOException, InterruptedException {
         String repoId = getMandatoryInputString("RepositoryID");
@@ -301,24 +307,94 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String description = getMandatoryInputString("Description");
         String customParametersJson = getMandatoryInputString("CustomParameters");
         String userId = input.getString("UserId", "");
-        Boolean async = input.getBoolean("Async", false);
+        boolean async = input.getBoolean("Async", false);
 
-        long timeout = Long.parseLong(input.getString("Timeout", DEFAULT_TIMEOUT));
+        long timeout = Long.parseLong(input.getString("Timeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
-        runExecution(repoId,repoParametersJson,description,customParametersJson,userId,async,timeout);
+        runExecution(repoId, repoParametersJson, description, customParametersJson, userId, async, timeout);
     }
 
+    @Keyword(schema = "{\"properties\":{"
+            + "\"Id\":{\"type\":\"string\"},"
+            + "\"Wait\":{\"type\":\"boolean\"},"
+            + "\"WaitTimeout\":{\"type\":\"string\"}"
+            + "},\"required\":[\"Id\"]}",
+            properties = {""},
+            timeout = DEFAULT_EXEC_TIMEOUT,
+            description = "Keyword used to stop an execution.")
+    public void StopExecution() throws BusinessException {
+
+        String execId = getMandatoryInputString("Id");
+        boolean wait = input.getBoolean("Wait", false);
+        long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
+
+        StepClient client = getClient();
+
+        Execution exec = client.getExecutionManager().get(execId);
+        if (exec == null) {
+            throw new BusinessException("No execution with Id '" + execId + "' found");
+        } else {
+            if (exec.getStatus() != ExecutionStatus.ENDED) {
+                client.getExecutionManager().stop(execId);
+                if (wait) {
+                    try {
+                        client.getExecutionManager().waitForTermination(execId, timeout);
+                    } catch (TimeoutException e) {
+                        throw new BusinessException("Timeout waiting for termination of execution Id '" + execId + "'");
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            } else {
+                throw new BusinessException("Execution Id '" + execId + "' is not running. Status is '" + exec.getStatus() + "'");
+            }
+        }
+    }
+
+    @Keyword(schema = "{\"properties\":{"
+            + "\"Id\":{\"type\":\"string\"},"
+            + "\"WaitTimeout\":{\"type\":\"string\"}"
+            + "},\"required\":[\"Id\"]}",
+            properties = {""},
+            timeout = DEFAULT_EXEC_TIMEOUT,
+            description = "Keyword used to stop an execution.")
+    public void WaitExecution() throws BusinessException {
+
+        String executionID = getMandatoryInputString("Id");
+        long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
+
+        waitExecution(getClient(), executionID, timeout);
+    }
+
+    @Keyword(schema = "{\"properties\":{},\"required\":[]}",
+            properties = {""},
+            description = "Keyword used to search for an execution. Any input will be interpreted as a criteria to search")
+    public void FindExecution() throws BusinessException {
+        StepClient client = getClient();
+
+        Map<String, String> searchParam = new HashMap<>();
+        input.forEach(
+                (k, v) -> searchParam.put(k, String.valueOf(v))
+        );
+
+        List<String> executions = new ArrayList<>();
+        client.getRemoteAccessors().getAbstractAccessor("executions", Execution.class)
+                .findManyByCriteria(searchParam).limit(100)
+                .forEach(e -> {
+                    executions.add(String.format("{\"id\":\"%s\",\"status\":\"%s\"}", e.getId(), e.getStatus()));
+                });
+        output.add("Executions", executions.toString());
+    }
 
     protected String findPlanId(String planName) {
         StepClient client = getClient();
 
         Map<String, String> attributes = new HashMap<>();
-        attributes.put(AbstractOrganizableObject.NAME,planName);
+        attributes.put(AbstractOrganizableObject.NAME, planName);
 
         Plan plan = client.getRemoteAccessors().getAbstractAccessor("plans", Plan.class).findByAttributes(attributes);
 
-        if (plan==null) {
-            throw new BusinessException("Could not find plan named '"+planName+"'");
+        if (plan == null) {
+            throw new BusinessException("Could not find plan named '" + planName + "'");
         }
 
         return plan.getId().toString();
@@ -359,21 +435,28 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         output.add("Id", executionID);
 
         if (!async) {
+            waitExecution(client, executionID, timeout);
+        }
+    }
 
-            Execution exec;
-            try {
-                exec = client.getExecutionManager().waitForTermination(executionID, timeout);
-            } catch (TimeoutException e) {
-                output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
-                return;
-            }
+    private void waitExecution(StepClient client, String executionID, long timeout) {
+        Execution exec;
+
+        try {
+            exec = client.getExecutionManager().waitForTermination(executionID, timeout);
 
             if (exec.getImportResult().isSuccessful()) {
                 output.add("Result", exec.getResult().toString());
+                if (exec.getResult() != ReportNodeStatus.PASSED) {
+                    output.setBusinessError("Execution failed");
+                }
             } else {
                 output.add("Result", "IMPORT_ERROR");
                 output.add("Import_Error", String.join(",", exec.getImportResult().getErrors()));
             }
+        } catch (TimeoutException e) {
+            output.setBusinessError("Execution '" + executionID + "' did not terminate before the timeout of " + timeout + "ms");
+        } catch (InterruptedException ignored) {
         }
     }
 

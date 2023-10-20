@@ -28,7 +28,7 @@ public class DatabaseKeywords extends AbstractEnhancedKeyword {
             }
             String connectionString = input.getString("ConnectionString");
             String username = input.getString("Username");
-            String password = input.getString("Password");
+            String password = getPassword(username);
 
             Connection connection;
             if (username != null) {
@@ -45,7 +45,6 @@ public class DatabaseKeywords extends AbstractEnhancedKeyword {
     @Keyword(schema = "{\"properties\":{"
             + "\"ConnectionString\":{\"type\":\"string\"},"
             + "\"Username\":{\"type\":\"string\"},"
-            + "\"Password\":{\"type\":\"string\"},"
             + "\"Query\":{\"type\":\"string\"},"
             + "\"ResultLimit\":{\"type\":\"string\"}"
             + "},\"required\":[\"ConnectionString\",\"Query\"]}", properties = {""},

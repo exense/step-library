@@ -25,6 +25,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +33,8 @@ import static org.junit.Assert.assertTrue;
 
 public class HttpClientKeywordTest {
 
-	private ExecutionContext ctx = KeywordRunner.getExecutionContext(HttpClientKeyword.class);
+	private final ExecutionContext ctx = KeywordRunner
+			.getExecutionContext(Map.of("postman_Password", "password"), HttpClientKeyword.class);
 	
 	@Test
 	public void simpleHttpGetRequest() throws Exception {
@@ -206,7 +208,6 @@ public class HttpClientKeywordTest {
 	public void basicAuth() throws Exception {
 		String input = Json.createObjectBuilder()
 				.add("BasicAuthUser", "postman")
-				.add("BasicAuthPassword", "password")
 				.build().toString();
 		Output<JsonObject> output = ctx.run("InitHttpClient", input);
 
@@ -223,7 +224,6 @@ public class HttpClientKeywordTest {
 		String input = Json.createObjectBuilder().add("URL", "https://postman-echo.com/basic-auth")
 			.add("Method", "GET")
 			.add("BasicAuthUser", "postman")
-			.add("BasicAuthPassword", "password")
 			.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 
@@ -237,7 +237,7 @@ public class HttpClientKeywordTest {
 				.add("CustomDnsResolverTargetIP", "0.0.0.0")
 				.add("CustomDnsResolverHostWithCustomDns", "mycustomhost.ch")
 				.build().toString();
-		ctx.run("InitHttpClient", input.toString());
+		ctx.run("InitHttpClient", input);
 
 		input = Json.createObjectBuilder().add("URL", "https://mycustomhost.ch/")
 			.add("Method", "GET").build().toString();
@@ -248,7 +248,7 @@ public class HttpClientKeywordTest {
 		} catch(Exception e) {
 			actual = e;
 		}
-		assertTrue(actual.getMessage().startsWith("Connect to mycustomhost.ch:443 [/0.0.0.0] failed: Connection refused"));
+        assert actual != null;
+        assertTrue(actual.getMessage().startsWith("Connect to mycustomhost.ch:443 [/0.0.0.0] failed: Connection refused"));
 	}
-
 }

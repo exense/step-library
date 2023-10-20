@@ -15,6 +15,7 @@
  ******************************************************************************/
 package ch.exense.step.library.commons;
 
+import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
 
 /**
@@ -22,18 +23,26 @@ import step.handlers.javahandler.AbstractKeyword;
  * managing business errors via exceptions
  */
 public class AbstractEnhancedKeyword extends AbstractKeyword {
-	
-	@Override
-	public boolean onError(Exception e) {
-		if(e instanceof BusinessException) {
-			output.setBusinessError(e.getMessage());
-			return false;
-		} else if  (e.getCause()!=null && e.getCause() instanceof BusinessException) {
-			output.setBusinessError(e.getCause().getMessage());
-			return false;
-		} else {
-			return super.onError(e);
-		}
-	}
-	
+
+    @Override
+    public boolean onError(Exception e) {
+        if (e.getCause() != null && e.getCause() instanceof BusinessException) {
+            BusinessException root = (BusinessException) e.getCause();
+            if (root.getCause() != null) {
+                output.addAttachment(AttachmentHelper.generateAttachmentForException(root.getCause()));
+            }
+            output.setBusinessError(root.getMessage());
+            return false;
+        } else {
+            return super.onError(e);
+        }
+    }
+
+    protected String getPassword(String username) {
+        if (!properties.containsKey(username + "_Password")) {
+            throw new BusinessException(String.format("No password found for user '%s'. " +
+                    "Please define the following protected parameters: '%s_Password'", username, username));
+        }
+        return properties.get(username + "_Password");
+    }
 }

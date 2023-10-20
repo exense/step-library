@@ -36,7 +36,6 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
             + "\"LdapUrl\":{\"type\":\"string\"},"
             + "\"LdapPort\":{\"type\":\"string\"},"
             + "\"BindingUser\":{\"type\":\"string\"},"
-            + "\"BindingPassword\":{\"type\":\"string\"},"
             + "\"UseTls\":{\"type\":\"boolean\"},"
             + "\"BasicAuthPort\":{\"type\":\"string\"},"
             + "\"KeyStorePath\":{\"type\":\"string\"},"
@@ -48,21 +47,17 @@ public class LdapKeywords extends AbstractEnhancedKeyword {
     public void Init_Ldap_Client() {
 
         String ldapUrl = input.getString("LdapUrl");
-        boolean useTls = input.getBoolean("BindingPassword",false);
+        boolean useTls = input.getBoolean("UseTls",false);
 
         ConnectionConfig.Builder builder = ConnectionConfig.builder()
                 .url(ldapUrl).useStartTLS(useTls);
 
         String ldapUser = input.getString("BindingUser",null);
-        String ldapPwd = input.getString("BindingPassword",null);
+        String ldapPwd = getPassword(ldapUser);
 
         if (ldapUser!=null) {
             builder = builder.connectionInitializers(new BindConnectionInitializer(ldapUser, new Credential(ldapPwd)));
         }
-
-        // Ldap certificate
-//        String pathTbJks =  input.getString("KeyStorePath");
-//        String jksPassword = input.getString("KeyStorePassword");
 
         ConnectionConfig connConfig = builder.build();
 

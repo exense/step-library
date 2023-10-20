@@ -35,7 +35,7 @@ public class JsonKeywords extends AbstractEnhancedKeyword {
 
     private static final Configuration conf = Configuration.defaultConfiguration().setOptions(Option.ALWAYS_RETURN_LIST);
 
-    private List<String> listOptionsExtract = Arrays.asList(new String[]{FILE_OPT, JSON_OPT});
+    private final List<String> listOptionsExtract = Arrays.asList(FILE_OPT, JSON_OPT);
 
     private Object getJson(boolean writable) {
         String fileName = input.getString(FILE_OPT, "");

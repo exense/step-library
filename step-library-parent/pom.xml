@@ -50,9 +50,9 @@
     </repositories>
 
     <properties>
-        <step-api.version>1.2.1</step-api.version>
-        <step.version>3.22.3</step.version>
-        <exense-commons.version>2.0.5</exense-commons.version>
+        <step-api.version>1.2.2</step-api.version>
+        <step.version>3.23.0</step.version>
+        <exense-commons.version>2.0.6</exense-commons.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -89,12 +89,12 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
-            <version>1.0</version>
+            <version>1.1.4</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
