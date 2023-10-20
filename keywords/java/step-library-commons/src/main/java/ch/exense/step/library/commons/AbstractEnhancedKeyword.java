@@ -27,7 +27,7 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
     @Override
     public boolean onError(Exception e) {
         if (e.getCause() != null && e.getCause() instanceof BusinessException) {
-            BusinessException root = (BusinessException) e;
+            BusinessException root = (BusinessException) e.getCause();
             if (root.getCause() != null) {
                 output.addAttachment(AttachmentHelper.generateAttachmentForException(root.getCause()));
             }

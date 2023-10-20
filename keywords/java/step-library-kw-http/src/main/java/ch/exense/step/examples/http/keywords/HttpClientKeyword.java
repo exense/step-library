@@ -113,6 +113,12 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
         if (input.containsKey("KeyStorePath")) {
             keyStorePath = input.getString("KeyStorePath");
+
+            if (input.containsKey("KeyStorePassword")) {
+                throw new BusinessException(String.format("Passing the keystore password as input is deprecated. " +
+                        "Create a protected parameter called '%s_Password' instead",keyStorePath));
+            }
+
             keyStorePassword = getPassword(keyStorePath);
         }
         if (input.containsKey("CustomDnsResolverTargetIP")) {
