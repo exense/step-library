@@ -47,6 +47,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
     public static final String EXTRACT_PREFIX = "Extract_";
     public static final String CHECK_PREFIX = "Check_";
     public static final String MULTIPART_PARAM_PREFIX = "MultiPartFormData_";
+    private static final Object AUTHORIZATION_HEADER = "Authorization";
 
     /**
      * step Keyword to init an Apache HTTP client the client will be placed in the
@@ -211,7 +212,16 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
                 String value = input.getString(key);
                 if (key.startsWith(HEADER_PREFIX)) {
                     String name = key.substring(HEADER_PREFIX.length());
-                    headers.put(name, value);
+                    if (name.equals(AUTHORIZATION_HEADER)) {
+                        if (!properties.containsKey(value)) {
+                            throw new BusinessException(String.format("The '%s' header need to be passed as a protected parameter. " +
+                                    "Please ensure that the parameter %s exist",AUTHORIZATION_HEADER,value));
+                        } else {
+                            headers.put(name,properties.get(value));
+                        }
+                    } else {
+                        headers.put(name, value);
+                    }
                 } else if (key.startsWith(PARAM_PREFIX)) {
                     String name = key.substring(PARAM_PREFIX.length());
                     formData.add(new BasicNameValuePair(name, value));
