@@ -270,7 +270,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"CustomParameters\":{\"type\":\"string\"},"
             + "\"Timeout\":{\"type\":\"string\"},"
             + "\"Async\":{\"type\":\"boolean\"},"
-            + "\"UserId\":{\"type\":\"string\"}"
+            + "\"UserId\":{\"type\":\"string\"},"
+            + "\"FailOnError\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"PlanName\"]}",
             properties = {""},
             timeout = DEFAULT_EXEC_TIMEOUT,
@@ -283,10 +284,11 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String userId = input.getString("UserId", "");
         boolean async = input.getBoolean("Async", false);
         long timeout = Long.parseLong(input.getString("Timeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
+        boolean failOnError = input.getBoolean("FailOnError",true);
 
         String planId = findPlanId(planName);
 
-        runExecution("local", "{\"planid\":\"" + planId + "\"}", description, customParametersJson, userId, async, timeout);
+        runExecution("local", "{\"planid\":\"" + planId + "\"}", description, customParametersJson, userId, async, timeout, failOnError);
     }
 
     @Keyword(schema = "{\"properties\":{"
@@ -296,7 +298,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             + "\"CustomParameters\":{\"type\":\"string\"},"
             + "\"Timeout\":{\"type\":\"string\"},"
             + "\"Async\":{\"type\":\"boolean\"},"
-            + "\"UserId\":{\"type\":\"string\"}"
+            + "\"UserId\":{\"type\":\"string\"},"
+            + "\"FailOnError\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"RepositoryID\",\"RepositoryParameters\",\"Description\",\"CustomParameters\"]}",
             properties = {""},
             timeout = DEFAULT_EXEC_TIMEOUT,
@@ -308,10 +311,11 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         String customParametersJson = getMandatoryInputString("CustomParameters");
         String userId = input.getString("UserId", "");
         boolean async = input.getBoolean("Async", false);
+        boolean failOnError = input.getBoolean("FailOnError",true);
 
         long timeout = Long.parseLong(input.getString("Timeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
 
-        runExecution(repoId, repoParametersJson, description, customParametersJson, userId, async, timeout);
+        runExecution(repoId, repoParametersJson, description, customParametersJson, userId, async, timeout, failOnError);
     }
 
     @Keyword(schema = "{\"properties\":{"
@@ -352,7 +356,8 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
     @Keyword(schema = "{\"properties\":{"
             + "\"Id\":{\"type\":\"string\"},"
-            + "\"WaitTimeout\":{\"type\":\"string\"}"
+            + "\"WaitTimeout\":{\"type\":\"string\"},"
+            + "\"FailOnError\":{\"type\":\"boolean\"}"
             + "},\"required\":[\"Id\"]}",
             properties = {""},
             timeout = DEFAULT_EXEC_TIMEOUT,
@@ -361,8 +366,9 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
         String executionID = getMandatoryInputString("Id");
         long timeout = Long.parseLong(input.getString("WaitTimeout", Integer.toString(DEFAULT_EXEC_TIMEOUT)));
+        boolean failOnError = input.getBoolean("FailOnError",true);
 
-        waitExecution(getClient(), executionID, timeout);
+        waitExecution(getClient(), executionID, timeout, failOnError);
     }
 
     @Keyword(schema = "{\"properties\":{},\"required\":[]}",
@@ -401,7 +407,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     }
 
     protected void runExecution(String repoId, String repoParametersJson, String description, String customParametersJson,
-                                String userId, boolean async, long timeout) throws BusinessException, IOException, InterruptedException {
+                                String userId, boolean async, long timeout, boolean failOnError) throws BusinessException, IOException {
         StepClient client = getClient();
 
         ExecutionParameters executionParams = new ExecutionParameters();
@@ -419,13 +425,13 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         repoObject.setRepositoryID(repoId);
 
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, String> repoParameters = mapper.readValue(repoParametersJson, new TypeReference<Map<String, String>>() {
+        Map<String, String> repoParameters = mapper.readValue(repoParametersJson, new TypeReference<>() {
         });
 
         repoObject.setRepositoryParameters(repoParameters);
         executionParams.setRepositoryObject(repoObject);
 
-        Map<String, String> customParameters = mapper.readValue(customParametersJson, new TypeReference<Map<String, String>>() {
+        Map<String, String> customParameters = mapper.readValue(customParametersJson, new TypeReference<>() {
         });
 
         executionParams.setCustomParameters(customParameters);
@@ -435,11 +441,11 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         output.add("Id", executionID);
 
         if (!async) {
-            waitExecution(client, executionID, timeout);
+            waitExecution(client, executionID, timeout, failOnError);
         }
     }
 
-    private void waitExecution(StepClient client, String executionID, long timeout) {
+    private void waitExecution(StepClient client, String executionID, long timeout, boolean failOnError) {
         Execution exec;
 
         try {
@@ -447,7 +453,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
             if (exec.getImportResult().isSuccessful()) {
                 output.add("Result", exec.getResult().toString());
-                if (exec.getResult() != ReportNodeStatus.PASSED) {
+                if (failOnError && exec.getResult() != ReportNodeStatus.PASSED) {
                     output.setBusinessError("Execution failed");
                 }
             } else {
