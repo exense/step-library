@@ -99,6 +99,19 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
     }
 
     @Keyword(schema = "{\"properties\":{"
+            + "\"User\":{\"type\":\"string\"},"
+            + "\"Url\":{\"type\":\"string\"}"
+            + "},\"required\":[\"Url\",\"User\"]}",
+            properties = {""},
+            description = "Keyword used to restart the controller")
+    public void RestartController() throws BusinessException {
+
+        StepClient client = getClient();
+
+        client.getControllerServicesClient().shutdownController();
+    }
+
+    @Keyword(schema = "{\"properties\":{"
             + "\"TenantName\":{\"type\":\"string\"},"
             + "\"ProjectId\":{\"type\":\"string\"}"
             + "}, \"oneOf\": [{\"required\":[\"TenantName\"]},"
@@ -278,7 +291,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
             description = "Keyword used to execute a plan given its name.")
     public void RunLocalExecution() throws BusinessException, IOException, InterruptedException {
         String planName = getMandatoryInputString("PlanName");
-        ;
+
         String description = input.getString("Description", planName);
         String customParametersJson = input.getString("CustomParameters", "{}");
         String userId = input.getString("UserId", "");
