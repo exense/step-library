@@ -178,7 +178,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
                 resultName.add(tenant.getName());
                 resultId.add(tenant.getProjectId());
             });
-            String oldJson = "{\"name\":[\"" + "".join("\",\"", resultName) + "\"],\"id\":[\"" + "".join("\",\"", resultId) + "\"]}";
+            String oldJson = "{\"name\":[\"" + String.join("\",\"", resultName) + "\"],\"id\":[\"" + String.join("\",\"", resultId) + "\"]}";
             output.add("Tenants", oldJson);
         } catch (Exception e) {
             throw new BusinessException("Exception when trying to list the tenants", e);
@@ -463,7 +463,7 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
 
         try {
             exec = client.getExecutionManager().waitForTermination(executionID, timeout);
-
+            output.add("Status", exec.getStatus().name());
             if (exec.getImportResult().isSuccessful()) {
                 output.add("Result", exec.getResult().toString());
                 if (failOnError && exec.getResult() != ReportNodeStatus.PASSED) {
