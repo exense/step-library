@@ -22,12 +22,16 @@ import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.message.BasicNameValuePair;
 import step.core.accessors.Attribute;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -268,6 +272,14 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
         try {
             output.startMeasure(requestName);
             httpResponse = httpClient.executeRequestInContext(request);
+        } catch (SSLException e) {
+            output.setBusinessError("SSL error: "+e.getMessage());
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            return;
+        } catch (UnknownHostException e) {
+            output.setBusinessError("Unknown host: "+e.getMessage());
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+            return;
         } catch (Exception e) {
             // stop network measure
             measureData.put("ExceptionType", e.getClass().toString());

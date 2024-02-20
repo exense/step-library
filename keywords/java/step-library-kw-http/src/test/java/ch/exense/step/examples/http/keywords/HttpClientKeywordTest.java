@@ -17,6 +17,7 @@ package ch.exense.step.examples.http.keywords;
 
 import org.junit.Assert;
 import org.junit.Test;
+import step.core.reports.ErrorType;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
@@ -41,6 +42,32 @@ public class HttpClientKeywordTest {
 		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/").build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
+	}
+
+	@Test
+	public void hostNotFoundErrorHttpGetRequest() throws Exception {
+		String input = Json.createObjectBuilder().add("URL", "https://this.is.not.an.existing.host/").build().toString();
+		ctx.setThrowExceptionOnError(false);
+		try {
+			Output<JsonObject> output = ctx.run("HttpRequest", input);
+			assertEquals(output.getError().getType(), ErrorType.BUSINESS);
+			assertTrue(output.getError().getMsg().startsWith("Unknown host:"));
+		} finally {
+			ctx.setThrowExceptionOnError(true);
+		}
+	}
+
+	@Test
+	public void sslErrorHttpGetRequest() throws Exception {
+		String input = Json.createObjectBuilder().add("URL", "https://noexisting.stepcloud.ch/").build().toString();
+		ctx.setThrowExceptionOnError(false);
+		try {
+			Output<JsonObject> output = ctx.run("HttpRequest", input);
+			assertEquals(output.getError().getType(), ErrorType.BUSINESS);
+			assertEquals(output.getError().getMsg(), "SSL error: Certificate for <noexisting.stepcloud.ch> doesn't match any of the subject alternative names: [ingress.local]");
+		} finally {
+			ctx.setThrowExceptionOnError(true);
+		}
 	}
 
 	@Test
