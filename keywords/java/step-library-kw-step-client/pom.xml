@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>ch.exense.step-enterprise</groupId>
 			<artifactId>step-client</artifactId>
-			<version>${step.version}</version>
+			<version>${step-ee.version}</version>
 		</dependency>
 	</dependencies>
 </project>

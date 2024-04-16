@@ -51,7 +51,8 @@
 
     <properties>
         <step-api.version>1.2.4</step-api.version>
-        <step.version>3.24.1</step.version>
+        <step-os.version>3.25.0-autoscale</step-os.version>
+        <step-ee.version>${step-os.version}</step-ee.version>
         <exense-commons.version>2.0.7</exense-commons.version>
 
         <maven.compiler.source>11</maven.compiler.source>
@@ -79,7 +80,7 @@
         <dependency>
             <groupId>ch.exense.step</groupId>
             <artifactId>step-core-model</artifactId>
-            <version>${step.version}</version>
+            <version>${step-os.version}</version>
         </dependency>
         <dependency>
             <groupId>ch.exense.step</groupId>
