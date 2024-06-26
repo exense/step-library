@@ -17,6 +17,7 @@ package ch.exense.step.examples.http.keywords;
 
 import org.junit.Assert;
 import org.junit.Test;
+import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.functions.io.Output;
 import step.handlers.javahandler.KeywordRunner;
@@ -120,26 +121,58 @@ public class HttpClientKeywordTest {
 		Output<JsonObject> output = ctx.run("InitHttpClient", "{}");
 		System.out.println(output.getPayload());
 
+		JsonObject checks = Json.createObjectBuilder().add("TitleCheck", "<title>Google</title>").build();
+		JsonObject extractRegexp = Json.createObjectBuilder().add("Title", "<title>(.+?)</title>").build();
 		// HTTP GET www.google.ch
 		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/")
 			.add("Method", "GET")
 			.add("Name", "Google home")
-			.add("Check_Title", "<title>Google</title>")
-			.add("Extract_Title", "<title>(.+?)</title>").build().toString();
+			.add("Checks", checks)
+			.add("ExtractRegexp", extractRegexp)
+				.build().toString();
 		output = ctx.run("HttpRequest", input);
 
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
-		assertTrue(output.getPayload().getBoolean("Check_Title"));
-		assertEquals(output.getPayload().getString("Extract_Title"),"Google");
+		assertEquals(output.getPayload().getString("Title"),"Google");
+
+		ctx.run("CloseHttpClient", "{}");
+	}
+
+	@Test
+	public void checkAndEtractErrors() throws Exception {
+		ctx.setThrowExceptionOnError(false);
+
+		JsonObject checks = Json.createObjectBuilder().add("TitleCheck", "<title>Something</title>").build();
+		JsonObject extractRegexp = Json.createObjectBuilder().add("Title", "<dummy>(.+?)</dummy>").build();
+		JsonObject extractJsonPath = Json.createObjectBuilder().add("myLong", "data.nested.myLong").build();
+
+		// HTTP GET www.google.ch
+		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/")
+				.add("Method", "GET")
+				.add("Name", "Google home")
+				.add("Checks", checks)
+				.add("ExtractRegexp", extractRegexp)
+				.add("ExtractJsonPath", extractJsonPath)
+				.build().toString();
+		Output<JsonObject> output = ctx.run("HttpRequest", input);
+
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
+		Error error = output.getError();
+		assertEquals(ErrorType.BUSINESS, error.getType());
+		assertEquals("ExtractRegexp 'Title' with pattern '<dummy>(.+?)</dummy>' has no match, ExtractJsonPath 'myLong' with JSON path 'data.nested.myLong' was not found, Content check 'TitleCheck' with text '<title>Something</title>' was not found",
+				error.getMsg());
+
 
 		ctx.run("CloseHttpClient", "{}");
 	}
 	
 	@Test
 	public void simpleHttpGetWithHeaders() throws Exception {
+		JsonObject headers = Json.createObjectBuilder()
+				.add("myHeader", "MyHeaderValue").build();
 		String input = Json.createObjectBuilder()
 				.add("URL", "https://postman-echo.com/headers")
-				.add("Header_myHeader", "MyHeaderValue")
+				.add("Headers", headers)
 				.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 		assertTrue(output.getPayload().getString("Response").contains("\"myheader\": \"MyHeaderValue\""));
@@ -175,9 +208,10 @@ public class HttpClientKeywordTest {
 	
 	@Test
 	public void httpPostFormData() throws Exception {
+		JsonObject formData = Json.createObjectBuilder().add("myFormInput1", "My form value 1").build();
 		String input = Json.createObjectBuilder().add("URL", "https://postman-echo.com/post")
 			.add("Method", "POST")
-			.add("FormData_myFormInput1", "My form value 1")
+			.add("FormData", formData)
 			.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
 
@@ -186,12 +220,44 @@ public class HttpClientKeywordTest {
 	}
 
 	@Test
-	public void httpPostMultiPartFormData() throws Exception {
+	public void httpJsonResponse() throws Exception {
+		JsonObject headers = Json.createObjectBuilder().add("Content-Type", "application/json").build();
+		String requestBody = Json.createObjectBuilder().add(
+						"nested", Json.createObjectBuilder()
+								.add("myLong", 123L)
+								.add("myString", "some value")
+								.add("myBoolean", true)
+								.build())
+				.build().toString();
+		JsonObject extractJsonPath = Json.createObjectBuilder()
+				.add("myLong", "data.nested.myLong")
+				.add("myString", "$.data.nested.myString")
+				.add("myBoolean", "$.data.nested.myBoolean")
+				.add("nested", "$.data.nested")
+				.build();
 		String input = Json.createObjectBuilder().add("URL", "https://postman-echo.com/post")
 				.add("Method", "POST")
-				.add("MultiPartFormData_input1", "My form value 1")
-				.add("MultiPartFormData_input2", "My form value 2")
-				.add("MultiPartFormData_filepath", Paths.get(this.getClass().getResource("/test.txt").toURI()).toString())
+				.add("Headers", headers)
+				.add("Data", requestBody)
+				.add("ExtractJsonPath", extractJsonPath)
+				.build().toString();
+		Output<JsonObject> output = ctx.run("HttpRequest", input);
+
+		assertEquals(output.getPayload().getString("StatusCode"),"200");
+		assertEquals(123L, output.getPayload().getInt("myLong"));
+		assertEquals("some value", output.getPayload().getString("myString"));
+		assertTrue(output.getPayload().getBoolean("myBoolean"));
+	}
+
+	@Test
+	public void httpPostMultiPartFormData() throws Exception {
+		JsonObject multiFormData = Json.createObjectBuilder().add("input1", "My form value 1")
+				.add("input2", "My form value 2")
+				.add("filepath", Paths.get(this.getClass().getResource("/test.txt").toURI()).toString())
+				.build();
+		String input = Json.createObjectBuilder().add("URL", "https://postman-echo.com/post")
+				.add("Method", "POST")
+				.add("MultiPartFormData", multiFormData)
 				.build().toString();
 
 		Output<JsonObject> output = ctx.run("HttpRequest", input);

@@ -20,16 +20,17 @@ import ch.exense.step.examples.http.HttpRequest;
 import ch.exense.step.examples.http.HttpResponse;
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.message.BasicNameValuePair;
 import step.core.accessors.Attribute;
 import step.grid.io.AttachmentHelper;
+import step.handlers.javahandler.Input;
 import step.handlers.javahandler.Keyword;
 
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
@@ -40,6 +41,7 @@ import java.security.cert.CertificateException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Attribute(key = "category", value = "HTTP")
 public class HttpClientKeyword extends AbstractEnhancedKeyword {
@@ -181,59 +183,35 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
      *
      * @throws Exception
      */
-    @Keyword(schema = "{\"properties\":{"
-            + "\"URL\":{\"type\":\"string\"},"
-            + "\"Method\":{\"type\":\"string\"},"
-            + "\"Enable_Redirect\":{\"type\":\"boolean\"},"
-            + "\"Header_myheader1\":{\"type\":\"string\"},"
-            + "\"FormData_myFormData1\":{\"type\":\"string\"},"
-            + "\"MultiPartFormData_myFormData1\":{\"type\":\"string\"},"
-            + "\"Extract_myField1ToExtract1\":{\"type\":\"string\"},"
-            + "\"Check_myFieldToCheck1\":{\"type\":\"string\"},"
-            + "\"Data\":{\"type\":\"string\"},"
-            + "\"ReturnResponse\":{\"type\":\"boolean\"},"
-            + "\"SaveResponseAsAttachment\":{\"type\":\"boolean\"},"
-            + "\"Name\":{\"type\":\"string\"}"
-            + "}, \"required\":[\"URL\"]}", properties = {},
-            description = "Keyword used to execute an HTTP request")
-    public void HttpRequest() throws Exception {
-        String url = input.getString("URL");
-        String method = input.getString("Method", "GET");
-        String requestName = input.getString("Name", url);
-        boolean returnResponse = input.getBoolean("ReturnResponse", true);
-        boolean saveAsAttachment = input.getBoolean("SaveResponseAsAttachment", false);
+    @Keyword(description = "Keyword used to execute an HTTP request")
+    public void HttpRequest(@Input(name = "URL", required = true) String url,
+                            @Input(name = "Method", defaultValue = "GET") String method,
+                            @Input(name = "Enable_Redirect", defaultValue = "true") boolean enableRedirect,
+                            @Input(name = "Headers", defaultValue = "{}") HashMap<String, String> headers,
+                            @Input(name = "FormData") HashMap<String, String> formDataMap,
+                            @Input(name = "Data", defaultValue = "") String payload,
+                            @Input(name = "MultiPartFormData") HashMap<String, String> multiPartFormDataMap,
+                            @Input(name = "ExtractRegexp") HashMap<String, String> extractRegexpMap,
+                            @Input(name = "ExtractJsonPath", defaultValue="{}") HashMap<String, String> extractJsonPath,
+                            @Input(name = "myList") List<String> list,
+                            @Input(name = "Checks") HashMap<String, String> textChecks,
+                            @Input(name = "ReturnResponse", defaultValue = "true") boolean returnResponse,
+                            @Input(name = "SaveResponseAsAttachment", defaultValue = "false") boolean saveResponseAsAttachment,
+                            @Input(name = "Name", defaultValue = "GET") String name) throws Exception {
+        String requestName = Objects.requireNonNullElse(name, url);
 
-        HashMap<String, String> headers = new HashMap<String, String>();
-        // Extract all dynamic and optional inputs
-        String payload = "";
-        List<NameValuePair> formData = new ArrayList<NameValuePair>();
+        //Transform inputs
+        List<NameValuePair> formData = new ArrayList<>();
+        if (formDataMap != null) {
+            formData = formDataMap.entrySet().stream().map(e -> new BasicNameValuePair(e.getKey(), e.getValue())).collect(Collectors.toList());
+        }
         List<NameValuePair> multiPartFormData = new ArrayList<>();
-        Map<String, Pattern> extractRegexp = new HashMap<String, Pattern>();
-        Map<String, String> textChecks = headers;
-        for (String key : input.keySet()) {
-            try {
-                String value = input.getString(key);
-                if (key.startsWith(HEADER_PREFIX)) {
-                    String name = key.substring(HEADER_PREFIX.length());
-                    headers.put(name, value);
-                } else if (key.startsWith(PARAM_PREFIX)) {
-                    String name = key.substring(PARAM_PREFIX.length());
-                    formData.add(new BasicNameValuePair(name, value));
-                } else if (key.startsWith(MULTIPART_PARAM_PREFIX)) {
-                    String name = key.substring(MULTIPART_PARAM_PREFIX.length());
-                    multiPartFormData.add(new BasicNameValuePair(name, value));
-                } else if (key.startsWith(EXTRACT_PREFIX)) {
-                    String name = key.substring(EXTRACT_PREFIX.length());
-                    extractRegexp.put(name, Pattern.compile(value, Pattern.DOTALL));
-                } else if (key.startsWith(CHECK_PREFIX)) {
-                    String name = key.substring(CHECK_PREFIX.length());
-                    textChecks.put(name, value);
-                } else if (key.equals(DATA)) {
-                    payload = input.getString(DATA);
-                }
-            } catch (ClassCastException e) {
-                logger.warn("Input " + key + " is not a String but a " + input.get(key).getClass().getSimpleName() + " so it will not be parsed");
-            }
+        if (multiPartFormDataMap != null) {
+            multiPartFormData = multiPartFormDataMap.entrySet().stream().map(e -> new BasicNameValuePair(e.getKey(), e.getValue())).collect(Collectors.toList());
+        }
+        Map<String, Pattern> extractRegexp = new HashMap<>();
+        if (extractRegexpMap != null) {
+            extractRegexpMap.forEach((k,v) -> extractRegexp.put(k, Pattern.compile(v)));
         }
 
         HttpClient httpClient = getHttpClientFromSession();
@@ -251,7 +229,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
                 .setConnectTimeout(clientDefaultRequestConfig.getConnectTimeout())
                 .setConnectionRequestTimeout(clientDefaultRequestConfig.getConnectionRequestTimeout())
                 .setSocketTimeout(clientDefaultRequestConfig.getSocketTimeout())
-                .setRedirectsEnabled(input.getBoolean("Enable_Redirect", true))
+                .setRedirectsEnabled(enableRedirect)
                 .build();
 
         request.setConfig(config);
@@ -259,7 +237,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
         if (!formData.isEmpty()) {
             request.setParams(formData);
-        } else if (!payload.isEmpty()) {
+        } else if (payload != null && !payload.isEmpty()) {
             request.setRowPayload(payload);
         } else if (!multiPartFormData.isEmpty()) {
             request.setMultiPartParams(multiPartFormData);
@@ -292,32 +270,36 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
         output.add("StatusCode", Integer.toString(httpResponse.getStatus()));
         output.add("Headers", httpResponse.getResponseHeaders().toString());
         output.add("Cookies", httpResponse.getCookies().toString());
+        String responsePayload = httpResponse.getResponsePayload();
         if (returnResponse) {
-            if (saveAsAttachment) {
-                String name = "attachment.data";
+            if (saveResponseAsAttachment) {
+                String attachmentName = "attachment.data";
 
                 BasicNameValuePair result;
                 if ((result = httpResponse.getResponseHeader("Content-Disposition")) != null) {
                     Matcher pattern_1 = Pattern.compile(".*filename ?= ?([^\"]+?);?.*").matcher(result.getValue());
                     if (pattern_1.find()) {
-                        name = pattern_1.group(1);
+                        attachmentName = pattern_1.group(1);
                     }
                     Matcher pattern_2 = Pattern.compile(".*filename ?= ?\"([^\"]+?)\".*").matcher(result.getValue());
                     if (pattern_2.find()) {
-                        name = pattern_2.group(1);
+                        attachmentName = pattern_2.group(1);
                     }
                 }
                 output.addAttachment(AttachmentHelper.
-                        generateAttachmentFromByteArray(httpResponse.getResponsePayloadAsBytes(), name));
+                        generateAttachmentFromByteArray(httpResponse.getResponsePayloadAsBytes(), attachmentName));
             } else {
-                output.add("Response", httpResponse.getResponsePayload());
+                output.add("Response", responsePayload);
             }
         }
+
+        //Content checks and extractions
+        ArrayList<String> businessErrors = new ArrayList<>();
 
         // extract all fields
         for (String key : extractRegexp.keySet()) {
             String value = "";
-            Matcher m = extractRegexp.get(key).matcher(httpResponse.getResponsePayload());
+            Matcher m = extractRegexp.get(key).matcher(responsePayload);
             if (m.find()) {
                 // return 1st group if defined or full match
                 try {
@@ -325,13 +307,43 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
                 } catch (Exception e) {
                     value = m.group(0);
                 }
+                output.add(key, value);
+            } else {
+                businessErrors.add("ExtractRegexp '" + key + "' with pattern '" + extractRegexp.get(key) + "' has no match");
             }
-            output.add(EXTRACT_PREFIX.concat(key), value);
+        }
+
+        for (String pathKey : extractJsonPath.keySet()) {
+            try {
+                Object value = JsonPath.read(responsePayload, extractJsonPath.get(pathKey));
+                Class<?> valueType = value.getClass();
+                if (Boolean.class.isAssignableFrom(valueType) || valueType.equals(boolean.class)) {
+                    output.add(pathKey, (boolean) value);
+                } else if (Integer.class.isAssignableFrom(valueType) || valueType.equals(int.class)) {
+                    output.add(pathKey, (int) value);
+                } else if (Double.class.isAssignableFrom(valueType) || valueType.equals(double.class)) {
+                    output.add(pathKey, (double) value);
+                } else if (Long.class.isAssignableFrom(valueType) || valueType.equals(long.class)) {
+                    output.add(pathKey, (long) value);
+                } else {
+                    output.add(pathKey, value.toString());
+                }
+            } catch (PathNotFoundException e) {
+                businessErrors.add("ExtractJsonPath '" + pathKey + "' with JSON path '" + extractJsonPath.get(pathKey) + "' was not found");
+            }
         }
 
         // do all checks
-        for (String key : textChecks.keySet()) {
-            output.add(CHECK_PREFIX.concat(key), httpResponse.getResponsePayload().contains(textChecks.get(key)));
+        if (textChecks != null) {
+            textChecks.forEach((k, v) -> {
+                if (!responsePayload.contains(v)) {
+                    businessErrors.add("Content check '" + k + "' with text '" + v + "' was not found");
+                }
+            });
+        }
+
+        if (!businessErrors.isEmpty()) {
+            output.setBusinessError(String.join(", ", businessErrors));
         }
     }
 
