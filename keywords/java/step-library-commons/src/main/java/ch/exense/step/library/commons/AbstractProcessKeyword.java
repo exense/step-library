@@ -23,6 +23,8 @@ import step.grid.io.AttachmentHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -131,8 +133,21 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     }
 
     protected void attachOutput(String outputName, File file, OutputConfiguration outputConfiguration) throws IOException {
-        StringBuilder processOutputBuilder = new StringBuilder();
-        Files.readAllLines(file.toPath(), Charset.defaultCharset()).forEach(l -> processOutputBuilder.append(l).append("\n"));
+        StringBuilder processOutputBuilder = new StringBuilder();;
+        MalformedInputException exception = null;
+        List<Charset> charsets = List.of(Charset.defaultCharset(), StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.ISO_8859_1);
+        for (Charset charset : charsets) {
+            try {
+                processOutputBuilder.setLength(0);
+                Files.readAllLines(file.toPath(), charset).forEach(l -> processOutputBuilder.append(l).append("\n"));
+                break;
+            } catch (MalformedInputException e) {
+                exception = e;
+            }
+        }
+        if (processOutputBuilder.length() == 0 && exception != null) {
+            throw exception;
+        }
 
         String processOutput = processOutputBuilder.toString();
 
