@@ -77,7 +77,7 @@ public class EmailClient {
         return "";
     }
 
-    private Store connectToStore() throws MessagingException {
+    protected Store connectToStore() throws MessagingException {
         Properties properties = new Properties();
         properties.put("mail.imap.host", smtpHost);
         Session emailSession = Session.getDefaultInstance(properties);
@@ -86,13 +86,13 @@ public class EmailClient {
         return store;
     }
 
-    private Folder openInbox(Store store, int mode) throws MessagingException {
+    protected Folder openInbox(Store store, int mode) throws MessagingException {
         Folder emailFolder = store.getFolder("INBOX");
         emailFolder.open(mode);
         return emailFolder;
     }
 
-    private String getTextFromMimeMultipart(Multipart multipart) throws MessagingException, IOException {
+    protected String getTextFromMimeMultipart(Multipart multipart) throws MessagingException, IOException {
         StringBuilder result = new StringBuilder();
         int count = multipart.getCount();
         for (int i = 0; i < count; i++) {
