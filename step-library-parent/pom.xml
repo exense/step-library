@@ -51,9 +51,9 @@
 
     <properties>
         <step-api.version>1.2.6</step-api.version>
-        <step-os.version>3.25.0</step-os.version>
+        <step-os.version>3.26.1</step-os.version>
         <step-ee.version>${step-os.version}</step-ee.version>
-        <exense-commons.version>2.0.7</exense-commons.version>
+        <exense-commons.version>2.0.9</exense-commons.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
