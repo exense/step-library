@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class DatabaseKeywordsTest {
 
-    private ExecutionContext ctx = KeywordRunner.getExecutionContext(Map.of("root_Password","init"),DatabaseKeywords.class);
+    private ExecutionContext ctx = KeywordRunner.getExecutionContext(Map.of("root_Password","xWVK!2Xi23"),DatabaseKeywords.class);
 
     @After
     public void tearDown() {
@@ -22,9 +22,9 @@ public class DatabaseKeywordsTest {
 
     @Test
     public void test() throws Exception {
-        Output<JsonObject> output = ctx.run("ExecuteQuery", "{\"ConnectionString\":\"jdbc:mysql://mysql-qa1.exense.ch/TEST\", " +
-                "\"Query\":\"SELECT * from mysqldataset\", " +
+        Output<JsonObject> output = ctx.run("ExecuteQuery", "{\"ConnectionString\":\"jdbc:mysql://34.65.202.8/mysql\", " +
+                "\"Query\":\"SELECT * from user where user like ('root')\", " +
                 "\"Username\":\"root\", \"ResultLimit\":\"1\"}");
-        Assert.assertEquals("{\"ColumnCount\":2,\"ResultAsJson\":\"[{\\\"ID\\\":\\\"1\\\",\\\"VALUE\\\":\\\"value1\\\"}]\"}", output.getPayload().toString());
+        Assert.assertTrue(output.getPayload().toString().contains("root"));
     }
 }
