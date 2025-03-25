@@ -50,10 +50,10 @@
     </repositories>
 
     <properties>
-        <step-api.version>1.2.6</step-api.version>
-        <step-os.version>3.26.1</step-os.version>
+        <step-api.version>1.3.0</step-api.version>
+        <step-os.version>3.27.0</step-os.version>
         <step-ee.version>${step-os.version}</step-ee.version>
-        <exense-commons.version>2.0.9</exense-commons.version>
+        <exense-commons.version>2.0.10</exense-commons.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -69,7 +69,7 @@
         <module>../keywords/java/step-library-kw-system</module>
         <module>../keywords/java/step-library-kw-monitoring-system</module>
         <module>../keywords/java/step-library-kw-step-client</module>
-        <module>../keywords/java/step-library-selenium-3</module>
+        <module>../keywords/java/step-library-selenium-4</module>
         <module>../keywords/java/step-library-kw-selenium</module>
         <module>../keywords/java/step-library-kw-excel</module>
         <module>../keywords/java/step-library-kw-network</module>

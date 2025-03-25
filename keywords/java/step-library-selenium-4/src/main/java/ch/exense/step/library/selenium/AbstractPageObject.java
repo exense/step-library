@@ -17,15 +17,14 @@ package ch.exense.step.library.selenium;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -61,7 +60,7 @@ public class AbstractPageObject {
     public AbstractPageObject(WebDriver driver) {
         this.driver = driver;
         this.jsWaiter = new JSWaiter(driver);
-        this.webDriverWait = new WebDriverWait(driver, getDefaultTimeout());
+        this.webDriverWait = new WebDriverWait(driver, Duration.of(getDefaultTimeout(), ChronoUnit.SECONDS));
     }
 
     /**
@@ -73,7 +72,7 @@ public class AbstractPageObject {
         this.timeout = timeout;
         this.driver = driver;
         this.jsWaiter = new JSWaiter(driver);
-        this.webDriverWait = new WebDriverWait(driver, getDefaultTimeout());
+        this.webDriverWait = new WebDriverWait(driver, Duration.of(getDefaultTimeout(), ChronoUnit.SECONDS));
     }
 
     public long getDefaultTimeout() {
@@ -456,7 +455,7 @@ public class AbstractPageObject {
     }
 
     public void safeSendKeys(By by, String keys, long timeout) {
-        safeSendKeys(by, keys, () -> findBy(by).getAttribute("value").equals(keys), timeout);
+        safeSendKeys(by, keys, () -> findBy(by).getDomProperty("value").equals(keys), timeout);
     }
 
     public void safeSendKeys(By by, Keys keys, long timeout) {
@@ -464,7 +463,7 @@ public class AbstractPageObject {
     }
 
     public void safeSendKeys(String[] selectors, String keys, long timeout) {
-        safeSendKeys(selectors, keys, () -> expandShadowPath(selectors).getAttribute("value").equals(keys), timeout);
+        safeSendKeys(selectors, keys, () -> expandShadowPath(selectors).getDomProperty("value").equals(keys), timeout);
     }
 
     /**
@@ -554,42 +553,15 @@ public class AbstractPageObject {
         for (String cssSelector : pathWithoutLastElement) {
             current = expandRootElement(driver, current, cssSelector);
         }
-        return lastSelector == null || lastSelector.isEmpty() ? current : current.findElement(By.cssSelector(lastSelector));
+        return lastSelector == null || lastSelector.isEmpty() ? current : current.getShadowRoot().findElement(By.cssSelector(lastSelector));
     }
 
     private WebElement expandRootElement(WebDriver driver, WebElement element, String cssSelector) {
         if (element == null) {
-            return expandRootElement(driver, driver.findElement(By.cssSelector(cssSelector)));
+            return driver.findElement(By.cssSelector(cssSelector));
         } else {
-            return expandRootElement(driver, element.findElement(By.cssSelector(cssSelector)));
+            return element.findElement(By.cssSelector(cssSelector));
         }
-    }
-
-    public WebElement expandRootElement(WebDriver driver, WebElement element) {
-        Object shadowRoot = ((JavascriptExecutor) driver).executeScript("return arguments[0].shadowRoot", element);
-        return shadowRootToWebElement(shadowRoot);
-    }
-
-    private WebElement shadowRootToWebElement(Object shadowRoot) {
-        WebElement returnObj;
-
-        if (shadowRoot instanceof WebElement) {
-            // Chromedriver 95-
-            returnObj = (WebElement) shadowRoot;
-        } else if (shadowRoot instanceof Map) {
-            // Chromedriver 96+
-            @SuppressWarnings("unchecked")
-            Map<String, Object> shadowRootMap = (Map<String, Object>) shadowRoot;
-            String shadowRootKey = (String) shadowRootMap.keySet().toArray()[0];
-            String id = (String) shadowRootMap.get(shadowRootKey);
-            RemoteWebElement remoteWebElement = new RemoteWebElement();
-            remoteWebElement.setParent((RemoteWebDriver) driver);
-            remoteWebElement.setId(id);
-            returnObj = remoteWebElement;
-        } else {
-            throw new RuntimeException("Unexpected return type for shadowRoot in expandRootElement");
-        }
-        return returnObj;
     }
 
     private ArrayList<String> toFullPathList(String[][] cssSelectorPath) {
@@ -597,7 +569,6 @@ public class AbstractPageObject {
         Arrays.stream(cssSelectorPath).forEach(partialPath -> fullPath.addAll(List.of(partialPath)));
         return fullPath;
     }
-
 
     /**
      * Method to exit a iframe

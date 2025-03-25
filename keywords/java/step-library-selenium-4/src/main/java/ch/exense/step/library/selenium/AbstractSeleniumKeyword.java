@@ -167,7 +167,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 					logs.append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date(entry.getTimestamp()))).
 							append(";").append(entry.getLevel()).append(";").append(entry.getMessage()).append("\n");
 				}
-				if (!"".equals(logs.toString())) {
+				if (!"".contentEquals(logs)) {
 					output.addAttachment(AttachmentHelper.generateAttachmentFromByteArray(logs.toString().getBytes(), "selenium_"+type+".log"));
 				}
 			}
