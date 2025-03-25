@@ -19,6 +19,8 @@ import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 
 import net.lightbody.bmp.BrowserMobProxy;
+import net.lightbody.bmp.core.har.Har;
+import net.lightbody.bmp.core.har.HarEntry;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -29,11 +31,10 @@ import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Central class containing the STEP Selenium Keywords and helper methods used to start / stop a Chrome instance via chromedriver.
@@ -149,7 +150,7 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 		if (isDriverCreated() && isDebug()) {
 			attachScreenshot();
 		}
-		super.beforeKeyword(keywordName,annotation);
+		super.afterKeyword(keywordName,annotation);
 	}
 
 
@@ -326,5 +327,42 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 	 */
 	protected void setProxy(BrowserMobProxy proxy) {
 		session.put(new ProxyWrapper(proxy));
+	}
+
+	/**
+	 * Helper method to check if the Har capture is enabled
+	 * @return true if enabled, otherwise false
+	 */
+	protected boolean isHarCaptureEnabled() {
+		return (boolean) session.get("enableHarCapture");
+	}
+	/**
+	 * Helper method used to insert the HTTP measurement details captured by an instance of the BrowserMobProxy (if enabled)
+	 * @param har the Har object containing the HTTP measurement details
+	 * @param transactionName the transaction to insert the HTTP measurments to
+	 * @param attachHarFile define if the Har object should be streamed to a file and attached to the Keyword output
+	 */
+	protected void insertHarMeasures(Har har, String transactionName, boolean attachHarFile) {
+		List<HarEntry> harEntries = har.getLog().getEntries();
+		harEntries.forEach(e -> {
+			Map<String, Object> measurementData = new HashMap<>();
+			measurementData.put("type", "http");
+			measurementData.put("request_url", e.getRequest().getUrl());
+			measurementData.put("request_method", e.getRequest().getMethod());
+			measurementData.put("response_status",e.getResponse().getStatus() + " - " + e.getResponse().getStatusText());
+			measurementData.put("response_content_size", e.getResponse().getContent().getSize());
+			measurementData.put("response_content_type", e.getResponse().getContent().getMimeType());
+			output.addMeasure(transactionName, e.getTime(), measurementData);
+			System.out.println("Inserting har measurement recorded at " + e.getStartedDateTime());
+		});
+		if(attachHarFile) {
+			StringWriter sw = new StringWriter();
+			try {
+				har.writeTo(sw);
+			} catch (IOException e) {
+				AttachmentHelper.generateAttachmentForException(e);
+			}
+			output.addAttachment(AttachmentHelper.generateAttachmentFromByteArray(sw.toString().getBytes(), transactionName + ".har"));
+		}
 	}
 }
