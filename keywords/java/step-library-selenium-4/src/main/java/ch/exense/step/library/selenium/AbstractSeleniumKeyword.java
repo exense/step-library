@@ -18,6 +18,7 @@ package ch.exense.step.library.selenium;
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 
+import net.lightbody.bmp.BrowserMobProxy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -28,7 +29,6 @@ import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -194,6 +194,13 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			output.appendError("Unable to generate screenshot");
 		}
 	}
+	
+	protected void closeProxy() {
+		BrowserMobProxy proxy = getProxy();
+		if(proxy != null) {
+			proxy.stop();
+		}
+	}
 
 	protected void closeDriver() {
 		WebDriver driver = getDriver();
@@ -305,4 +312,19 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 		stopTransaction(null);
 	}
 
+	/**
+	 * Helper method to get a BrowserMobProxy instance from a STEP session
+	 * @return the BrowserMobProxy instance from a STEP session
+	 */
+	protected BrowserMobProxy getProxy() {
+		return session.get(ProxyWrapper.class).getProxy();
+	}
+
+	/**
+	 * <p>Helper method to put a BrowserMobProxy instance into a STEP session</p>
+	 * @param proxy the BrowserMobProxy instance to put in session
+	 */
+	protected void setProxy(BrowserMobProxy proxy) {
+		session.put(new ProxyWrapper(proxy));
+	}
 }

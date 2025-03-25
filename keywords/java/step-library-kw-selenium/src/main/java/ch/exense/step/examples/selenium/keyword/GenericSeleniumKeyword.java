@@ -75,6 +75,17 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
+	 * <p>Keyword used to explicitly close the current driver. The driver and browser automatically close when the step session ends.</p>
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to explicitly close the current driver.")
+	public void Close_Proxy() {
+		closeProxy();
+	}
+
+	/**
 	 * <p>Keyword used to explicitly close the current window.
 	 * The driver and browser automatically close when the step session ends.</p>
 	 */
