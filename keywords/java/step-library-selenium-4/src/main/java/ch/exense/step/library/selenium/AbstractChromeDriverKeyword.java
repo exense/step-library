@@ -30,17 +30,17 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import step.grid.io.AttachmentHelper;
-import step.handlers.javahandler.Keyword;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
 
@@ -73,12 +73,8 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
             }
         }
 
-        boolean enableHarCapture = input.getBoolean("Enable_Har_Capture", false);
-        session.put("enableHarCapture", enableHarCapture);
-
         ChromeOptions options = new ChromeOptions();
-        options.setAcceptInsecureCerts(true);
-        options.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+        options.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
 
         if (properties.containsKey("Chrome_Path")) {
             File chromeBin = new File(properties.get("Chrome_Path"));
@@ -89,8 +85,10 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
             }
         }
 
+        boolean enableHarCapture = input.getBoolean("Enable_Har_Capture", false);
+        session.put("enableHarCapture", enableHarCapture);
+
         options.addArguments(defaultOptions);
-        options.setExperimentalOption("w3c", false);
 
         if (input.getBoolean("Headless", false)) {
             options.addArguments(headlessOptions);
@@ -159,8 +157,8 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
 
         final WebDriver driver = new ChromeDriver(options);
 
-        driver.manage().timeouts().implicitlyWait(input.getInt("Implicitly_Wait", 10), TimeUnit.SECONDS);
-        driver.manage().timeouts().pageLoadTimeout(input.getInt("PageLoad_Timeout", 10), TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(Duration.of(input.getInt("Implicitly_Wait", 10), ChronoUnit.SECONDS));
+        driver.manage().timeouts().pageLoadTimeout(Duration.of(input.getInt("PageLoad_Timeout", 10), ChronoUnit.SECONDS));
         driver.manage().window().setSize(new Dimension(1920, 1080));
 
         if (input.getBoolean("Maximize", false)) {
@@ -169,59 +167,5 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
         
         setDriver(driver);
         //stopTransaction(transactionName);
-    }
-
-    /**
-     * Helper method to check if the Har capture is enabled
-     * @return true if enabled, otherwise false
-     */
-    protected boolean isHarCaptureEnabled() {
-        return (boolean) session.get("enableHarCapture");
-    }
-    /**
-     * Helper method used to insert the HTTP measurement details captured by an instance of the BrowserMobProxy (if enabled)
-     * @param har the Har object containing the HTTP measurement details
-     * @param transactionName the transaction to insert the HTTP measurments to
-     * @param attachHarFile define if the Har object should be streamed to a file and attached to the Keyword output
-     */
-    protected void insertHarMeasures(Har har, String transactionName, boolean attachHarFile) {
-        List<HarEntry> harEntries = har.getLog().getEntries();
-        harEntries.stream()
-                .forEach(e -> {
-                    Map<String, Object> measurementData = new HashMap<>();
-                    measurementData.put("type", "http");
-                    measurementData.put("request_url", e.getRequest().getUrl());
-                    measurementData.put("request_method", e.getRequest().getMethod());
-                    measurementData.put("response_status",e.getResponse().getStatus() + " - " + e.getResponse().getStatusText());
-                    measurementData.put("response_content_size", e.getResponse().getContent().getSize());
-                    measurementData.put("response_content_type", e.getResponse().getContent().getMimeType());
-                    output.addMeasure(transactionName, e.getTime(), measurementData);
-                    System.out.println("Inserting har measurement recorded at " + e.getStartedDateTime());
-                });
-        if(attachHarFile) {
-            StringWriter sw = new StringWriter();
-            try {
-                har.writeTo(sw);
-            } catch (IOException e) {
-                AttachmentHelper.generateAttachmentForException(e);
-            }
-            output.addAttachment(AttachmentHelper.generateAttachmentFromByteArray(sw.toString().getBytes(), transactionName + ".har"));
-        }
-    }
-
-    /**
-     * Helper method to get a BrowserMobProxy instance from a STEP session
-     * @return the BrowserMobProxy instance from a STEP session
-     */
-    protected BrowserMobProxy getProxy() {
-        return session.get(ProxyWrapper.class).getProxy();
-    }
-
-    /**
-     * <p>Helper method to put a BrowserMobProxy instance into a STEP session</p>
-     * @param proxy the BrowserMobProxy instance to put in session
-     */
-    protected void setProxy(BrowserMobProxy proxy) {
-        session.put(new ProxyWrapper(proxy));
     }
 }

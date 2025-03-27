@@ -75,6 +75,17 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	}
 
 	/**
+	 * <p>Keyword used to explicitly close the Browser Mob proxy. The proxy automatically close when the step session ends.</p>
+	 */
+	@Keyword (schema = "{ \"properties\": { "
+			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
+			+ "}, \"required\" : []}", properties = { "" },
+			description = "Keyword used to explicitly close the Browser Mob proxy.")
+	public void Close_Proxy() {
+		closeProxy();
+	}
+
+	/**
 	 * <p>Keyword used to explicitly close the current window.
 	 * The driver and browser automatically close when the step session ends.</p>
 	 */
@@ -510,25 +521,4 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 		jse.executeScript("arguments[0].scrollTop=arguments[1];", obj, scrollTop);
 		stopTransaction();
 	}
-
-	@Keyword (schema = "{ \"properties\": { "
-			+ SELENIUM_DEFAULT_ELEMENT_INPUTS + ","
-			+ SELENIUM_DEFAULT_TIMEOUT_INPUT + ","
-			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
-			+ "}, \"required\" : []}", properties = { "" },
-			description = "Keyword used to expand a shadow path.")
-	public void Expand_Shadow_Path() {
-		AbstractPageObject page = getPageObject();
-		long timeout = getTimeoutFromInput();
-		By element = getElementFromInput();
-		WebElement obj = page.findBy(element);
-
-		Map<String, Object> additionalTransactionProperties = new HashMap<>();
-		additionalTransactionProperties.put("Element",element.toString());
-
-		startTransaction();
-				WebElement elem = page.expandRootElement(page.getDriver(),obj);
-				stopTransaction();
-	}
-
 }

@@ -24,33 +24,33 @@ import net.lightbody.bmp.BrowserMobProxy;
  * The class implements the Closeable interface in order to easily manage the ProxyWrapper instance.
  */
 public class ProxyWrapper implements Closeable {
-	/**
-	 * The BrowserMobProxy instance to be wrapped.
-	 */
-	final BrowserMobProxy proxy;
+    /**
+     * The BrowserMobProxy instance to be wrapped.
+     */
+    final BrowserMobProxy proxy;
 
-	/**
-	 * Constructor for ProxyWrapper
-	 * @param proxy the BrowserMobProxy instance to be wrapped
-	 */
-	public ProxyWrapper(BrowserMobProxy proxy) {
-		super();
-		this.proxy = proxy;
-	}
+    /**
+     * Constructor for ProxyWrapper
+     * @param proxy the BrowserMobProxy instance to be wrapped
+     */
+    public ProxyWrapper(BrowserMobProxy proxy) {
+        super();
+        this.proxy = proxy;
+    }
 
-	/**
-	 * Method to automatically and properly close the wrapped BrowserMobProxy when not used anymore
-	 */
-	@Override
-	public void close() {
-		proxy.stop();
-	}
+    /**
+     * Method to automatically and properly close the wrapped BrowserMobProxy when not used anymore
+     */
+    @Override
+    public void close() {
+        proxy.stop();
+    }
 
-	/**
-	 * Getter to retrieve the wrapped proxy
-	 * @return the wrapped BrowserMobProxy instance
-	 */
-	public BrowserMobProxy getProxy() {
-		return proxy;
-	}
+    /**
+     * Getter to retrieve the wrapped proxy
+     * @return the wrapped BrowserMobProxy instance
+     */
+    public BrowserMobProxy getProxy() {
+        return proxy;
+    }
 }

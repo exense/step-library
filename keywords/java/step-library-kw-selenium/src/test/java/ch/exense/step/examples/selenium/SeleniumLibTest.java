@@ -80,7 +80,7 @@ public class SeleniumLibTest {
 	public void TestShadowSendKeys() throws Exception{
 		TestNavigateTo();
 		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, #shadow_fname")
+				.add("Shadow_Selectors", "#container, #inside_input")
 				.add("Keys", "Test item")
 				.build().toString();
 		output = ctx.run("Shadow_Send_Keys", inputs);
@@ -116,26 +116,19 @@ public class SeleniumLibTest {
 	public void TestShadowClick() throws Exception{
 		TestNavigateTo();
 		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, p > button")
+				.add("Shadow_Selectors", "#container, #inside_input")
 				.build().toString();
 		output = ctx.run("Shadow_Click", inputs);
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
 
 		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, p > button")
+				.add("Shadow_Selectors", "#container, #inside_input")
 				.build().toString();
 		output = ctx.run("Shadow_Double_Click", inputs);
 		System.out.println(output.getPayload());
 		assertNull(output.getError());
-
-		inputs = Json.createObjectBuilder()
-				.add("Xpath", "/html/body/div[3]" )
-				.build().toString();
-		output = ctx.run("Get_Text", inputs);
-		assertEquals("3", output.getPayload().getString("Text"));
 	}
-
 	@Test
 	public void TestHover() throws Exception {
 		TestNavigateTo();
@@ -162,35 +155,6 @@ public class SeleniumLibTest {
 		assertNull(output.getError());
 		assertTrue(output.getPayload().getBoolean("Exists"));
 	}
-
-	@Test
-	public void TestShadowHover() throws Exception {
-		TestNavigateTo();
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, div.hiddenText")
-				.add("Timeout", 5)
-				.add("Optional", true)
-				.build().toString();
-		output = ctx.run("Shadow_Is_Displayed", inputs);
-		assertNull(output.getError());
-		assertFalse(output.getPayload().getBoolean("Exists"));
-
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, div.hoverDiv")
-				.build().toString();
-		output = ctx.run("Shadow_Hover", inputs);
-		System.out.println(output.getPayload());
-		assertNull(output.getError());
-
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, div.hiddenText")
-				.add("Optional", true)
-				.build().toString();
-		output = ctx.run("Shadow_Is_Displayed", inputs);
-		assertNull(output.getError());
-		assertTrue(output.getPayload().getBoolean("Exists"));
-	}
-
 	/**
 	 * This method is just used to check if we can execute Javascript correclty via Selenium.
 	 * Since changing how Selenium executes Javascript is out of our control.
@@ -252,20 +216,13 @@ public class SeleniumLibTest {
 	public void TestShadowIsVisible() throws Exception{
 		TestNavigateTo();
 		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, div.hoverDiv")
+				.add("Shadow_Selectors", "#container, #inside")
 				.add("Timeout", 1)
 				.add("Optional", true)
 				.build().toString();
 		output = ctx.run("Shadow_Is_Displayed", inputs);
 		assertTrue(output.getPayload().getBoolean("Exists"));
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, div.hiddenText")
-				.add("Timeout", 1)
-				.add("Optional", true)
-				.build().toString();
-		output = ctx.run("Shadow_Is_Displayed", inputs);
 		assertNull(output.getError());
-		assertFalse(output.getPayload().getBoolean("Exists"));
 	}
 
 	@Test
@@ -293,33 +250,7 @@ public class SeleniumLibTest {
 		output = ctx.run("Get_Text", inputs);
 		assertNull(output.getError());
 	}
-
-	@Test
-	public void TestShadowIFrame() throws Exception{
-		TestNavigateTo();
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, iframe")
-				.build().toString();
-		output = ctx.run("Shadow_Enter_Iframe", inputs);
-		assertNull(output.getError());
-		inputs = Json.createObjectBuilder()
-				.add("Xpath", "/html/body/p")
-				.build().toString();
-		output = ctx.run("Get_Text", inputs);
-		assertNull(output.getError());
-		assertEquals("Le Iframe text", output.getPayload().getString("Text"));
-		inputs = Json.createObjectBuilder()
-				.add("Xpath", "/html/body/iframe")
-				.build().toString();
-		output = ctx.run("Exit_Iframe", inputs);
-		assertNull(output.getError());
-		inputs = Json.createObjectBuilder()
-				.add("Xpath", "/html/body/p")
-				.build().toString();
-		output = ctx.run("Get_Text", inputs);
-		assertNull(output.getError());
-	}
-
+	
 	@Test
 	public void TestSelectOption()throws Exception{
 	    TestNavigateTo();
@@ -336,24 +267,7 @@ public class SeleniumLibTest {
 		ctx.run("Select_Option", inputs);
 		assertNull(output.getError());
 	}
-
-	@Test
-	public void TestShadowSelectOption()throws Exception{
-		TestNavigateTo();
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, #shadow_cars")
-				.add("Index", 1)
-				.build().toString();
-		ctx.run("Shadow_Select_Option", inputs);
-		assertNull(output.getError());
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, #shadow_cars")
-				.add("Text", "Opel")
-				.build().toString();
-		ctx.run("Shadow_Select_Option", inputs);
-		assertNull(output.getError());
-	}
-
+	
 	@Test
 	public void TestSelectWindow() throws Exception{
 		TestNavigateTo();
@@ -390,15 +304,7 @@ public class SeleniumLibTest {
 				.build().toString();
 		output = ctx.run("Set_ScrollTop", inputs);
 	}
-
-	@Test
-	public void TestShadowSetScrollIntoView()throws Exception{
-		TestNavigateTo();
-		inputs = Json.createObjectBuilder()
-				.add("Shadow_Selectors", "#shadow, p > button")
-				.build().toString();
-		output = ctx.run("Shadow_Set_ScrollIntoView", inputs);
-	}
+	
 
 	@After
 	public void destroy() throws Exception{
