@@ -195,7 +195,10 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 			output.appendError("Unable to generate screenshot");
 		}
 	}
-	
+
+	/**
+	 * <p>Method used to close the Browser Mob proxy</p>
+	 */
 	protected void closeProxy() {
 		BrowserMobProxy proxy = getProxy();
 		if(proxy != null) {
@@ -203,6 +206,9 @@ public class AbstractSeleniumKeyword extends AbstractEnhancedKeyword {
 		}
 	}
 
+	/**
+	 * <p>Method used to close the driver</p>
+	 */
 	protected void closeDriver() {
 		WebDriver driver = getDriver();
 		startTransaction();
