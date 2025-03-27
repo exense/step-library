@@ -80,7 +80,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 	@Keyword (schema = "{ \"properties\": { "
 			+ SELENIUM_DEFAULT_ACTION_NAME_INPUT
 			+ "}, \"required\" : []}", properties = { "" },
-			description = "Keyword used to explicitly close the current driver.")
+			description = "Keyword used to explicitly close the Browser Mob proxy.")
 	public void Close_Proxy() {
 		closeProxy();
 	}
