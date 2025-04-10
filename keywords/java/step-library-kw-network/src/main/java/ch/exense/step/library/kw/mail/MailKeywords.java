@@ -16,7 +16,6 @@
 package ch.exense.step.library.kw.mail;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
 import javax.mail.*;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
-@Attribute(key = "category",value = "Network")
 public class MailKeywords extends AbstractEnhancedKeyword {
 
     private static class MailWrapper implements Closeable {

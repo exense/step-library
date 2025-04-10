@@ -32,10 +32,8 @@ import org.apache.poi.ss.util.CellReference;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Excel")
 public class ExcelKeywords extends AbstractEnhancedKeyword {
 
 	@Keyword(schema = "{\"properties\":{" + "\"File\":{\"type\":\"string\"}," + "\"Sheet\":{\"type\":\"string\"},"

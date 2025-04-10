@@ -19,18 +19,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import org.apache.commons.io.FileUtils;
 
 import ch.exense.commons.io.FileHelper;
-import step.core.accessors.Attribute;
-import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Operating system")
 public class FileSystemKeywords extends AbstractEnhancedKeyword {
 
     @Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}}," +

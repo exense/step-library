@@ -4,8 +4,6 @@ import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
-import step.core.accessors.Attribute;
-import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
 import java.sql.*;
@@ -14,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Attribute(key = "category",value = "Database")
 public class DatabaseKeywords extends AbstractEnhancedKeyword {
 
     private Connection getConnection() throws SQLException {

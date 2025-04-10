@@ -18,10 +18,8 @@ package ch.exense.step.library.kw.system;
 import java.util.ArrayList;
 
 import ch.exense.step.library.commons.AbstractProcessKeyword;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Operating system")
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";

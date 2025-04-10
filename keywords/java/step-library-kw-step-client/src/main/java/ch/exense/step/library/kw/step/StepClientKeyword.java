@@ -25,7 +25,6 @@ import step.client.ControllerClientException;
 import step.client.StepClient;
 import step.controller.multitenancy.Tenant;
 import step.core.accessors.AbstractOrganizableObject;
-import step.core.accessors.Attribute;
 import step.core.artefacts.reports.ReportNodeStatus;
 import step.core.execution.model.Execution;
 import step.core.execution.model.ExecutionMode;
@@ -42,7 +41,6 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 
-@Attribute(key = "category", value = "Step Client")
 public class StepClientKeyword extends AbstractEnhancedKeyword {
 
     private static final String DEFAULT_PASSWORD = "init";

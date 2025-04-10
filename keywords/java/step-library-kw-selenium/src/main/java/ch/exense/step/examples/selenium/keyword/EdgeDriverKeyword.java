@@ -15,12 +15,9 @@
  ******************************************************************************/
 package ch.exense.step.examples.selenium.keyword;
 
-import ch.exense.step.library.selenium.AbstractChromeDriverKeyword;
 import ch.exense.step.library.selenium.AbstractEdgeDriverKeyword;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Selenium")
 public class EdgeDriverKeyword extends AbstractEdgeDriverKeyword {
 
     /**
