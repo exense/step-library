@@ -7,7 +7,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
 import javax.json.JsonNumber;
@@ -20,7 +19,6 @@ import java.util.function.Supplier;
 /**
  * Class containing selenium keywords to interact with Shadow DOM element via CSS Selectors
  */
-@Attribute(key = "category",value = "Selenium")
 public class ShadowSeleniumKeyword extends AbstractSeleniumKeyword {
     private static final String INPUT_SHADOW_SELECTORS = "Shadow_Selectors";
 

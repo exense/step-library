@@ -26,14 +26,11 @@ import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import com.sun.management.OperatingSystemMXBean;
 
-import step.core.accessors.Attribute;
-import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
 import javax.swing.filechooser.FileSystemView;
 
 @SuppressWarnings("restriction")
-@Attribute(key="project", value="@system")
 public class MBeanKeywords extends AbstractEnhancedKeyword {
 
 	protected static final String HEAP_MEMORY_USAGE_MAX = "HeapMemoryUsageMax";

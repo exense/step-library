@@ -17,10 +17,8 @@ package ch.exense.step.library.kw.system;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import org.apache.commons.io.FileUtils;
-import step.core.accessors.Attribute;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
-import step.handlers.javahandler.AbstractKeyword;
 import step.handlers.javahandler.Keyword;
 
 import javax.imageio.ImageIO;
@@ -30,7 +28,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-@Attribute(key = "category",value = "Operating system")
 public class SystemKeywords extends AbstractEnhancedKeyword {
 
 	private static final String DEFAULT_FORMAT = "jpg";

@@ -19,10 +19,8 @@ import java.io.File;
 import java.nio.file.Files;
 
 import ch.exense.step.library.commons.AbstractProcessKeyword;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Monitoring")
 public class WindowsServiceStatusKeywords extends AbstractProcessKeyword {
 
 	@Keyword(name = "Windows_Service_Status", schema = "{\"properties\":{\"Service_Display_Name\":{\"type\":\"string\"}},\"required\":[\"Service_Display_Name\"]}")

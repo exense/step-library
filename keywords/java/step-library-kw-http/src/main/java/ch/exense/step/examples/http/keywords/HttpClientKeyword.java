@@ -25,7 +25,6 @@ import com.jayway.jsonpath.PathNotFoundException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.message.BasicNameValuePair;
-import step.core.accessors.Attribute;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Input;
 import step.handlers.javahandler.Keyword;
@@ -43,7 +42,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Attribute(key = "category", value = "HTTP")
 public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
     private static final String HTTP_CLIENT = "httpClient";

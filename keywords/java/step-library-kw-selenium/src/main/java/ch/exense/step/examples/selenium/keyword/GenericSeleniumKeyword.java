@@ -32,13 +32,11 @@ import org.openqa.selenium.support.ui.Select;
 
 import ch.exense.step.library.selenium.AbstractPageObject;
 import ch.exense.step.library.selenium.AbstractSeleniumKeyword;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
 /**
  * Class containing generic selenium keywords
  */
-@Attribute(key = "category",value = "Selenium")
 public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 	/**

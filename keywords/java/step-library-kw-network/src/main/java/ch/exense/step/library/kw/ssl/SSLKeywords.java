@@ -17,7 +17,6 @@ package ch.exense.step.library.kw.ssl;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
-import step.core.accessors.Attribute;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
@@ -27,7 +26,6 @@ import java.security.cert.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-@Attribute(key = "category",value = "Network")
 public class SSLKeywords extends AbstractEnhancedKeyword {
 
     /**

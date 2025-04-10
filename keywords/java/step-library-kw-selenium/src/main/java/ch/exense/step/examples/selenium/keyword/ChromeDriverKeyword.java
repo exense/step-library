@@ -16,13 +16,11 @@
 package ch.exense.step.examples.selenium.keyword;
 
 import ch.exense.step.library.selenium.AbstractChromeDriverKeyword;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
 /**
  * Class containing selenium keywords to open a Chrome browser
  */
-@Attribute(key = "category",value = "Selenium")
 public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
 
     /**

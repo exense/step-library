@@ -19,10 +19,8 @@ import ch.exense.step.library.commons.AbstractEnhancedKeyword;
 import ch.exense.step.library.commons.BusinessException;
 import org.ldaptive.*;
 import org.ldaptive.auth.*;
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Network")
 public class LdapKeywords extends AbstractEnhancedKeyword {
 
     /**

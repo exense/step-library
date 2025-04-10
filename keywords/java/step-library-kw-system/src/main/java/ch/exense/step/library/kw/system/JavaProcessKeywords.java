@@ -15,10 +15,8 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
-import step.core.accessors.Attribute;
 import step.handlers.javahandler.Keyword;
 
-@Attribute(key = "category",value = "Operating system")
 public class JavaProcessKeywords extends ProcessKeywords {
 
 	private static final String JAVA_EXE = "Java_exe";
