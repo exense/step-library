@@ -11,8 +11,8 @@
 		},
 		{
 			"NAME": "PRODUCTION",
-			"URL": "sonatype::https://oss.sonatype.org/service/local/staging/deploy/maven2",
-			"CONFIG": "DefaultBuild"
+			"URL": "sonatype::https://obsolete",
+			"CONFIG": "SignedBuild"
 		}
 	]
 }
