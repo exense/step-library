@@ -20,6 +20,7 @@ import org.junit.Test;
 import step.core.reports.Error;
 import step.core.reports.ErrorType;
 import step.functions.io.Output;
+import step.handlers.javahandler.KeywordException;
 import step.handlers.javahandler.KeywordRunner;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
@@ -27,17 +28,17 @@ import javax.json.Json;
 import javax.json.JsonObject;
 
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 
 public class HttpClientKeywordTest {
 
 	private final ExecutionContext ctx = KeywordRunner
 			.getExecutionContext(Map.of("postman_Password", "password"), HttpClientKeyword.class);
-	
+
 	@Test
 	public void simpleHttpGetRequest() throws Exception {
 		String input = Json.createObjectBuilder().add("URL", "https://www.google.ch/").build().toString();
@@ -58,7 +59,8 @@ public class HttpClientKeywordTest {
 		}
 	}
 
-	@Test
+	//@Test
+	//non-existing subdomains are now automatically redirected, this error case cannot be tested with such URL anymore
 	public void sslErrorHttpGetRequest() throws Exception {
 		String input = Json.createObjectBuilder().add("URL", "https://noexisting.stepcloud.ch/").build().toString();
 		ctx.setThrowExceptionOnError(false);
@@ -188,7 +190,7 @@ public class HttpClientKeywordTest {
 		assertEquals(output.getPayload().getString("StatusCode"),"200");
 		
 		output = ctx.run("GetCookies", input);
-		assertTrue(output.getPayload().getString("Cookies").contains("Domain=google.ch; Path=/"));
+		assertTrue(output.getPayload().getString("Cookies").contains("Domain=google.com; Path=/"));
 	}
 	
 	@Test
@@ -343,5 +345,16 @@ public class HttpClientKeywordTest {
 		}
         assert actual != null;
         assertTrue(actual.getMessage().startsWith("Connect to mycustomhost.ch:443 [/0.0.0.0] failed: Connection refused"));
+	}
+
+	@Test
+	public void initHttpClientWithCertificateTest() throws Exception {
+		HashMap<String, String> properties = new HashMap<>();
+		properties.put("/tmp/test.ca_Password", "test");
+		String input = Json.createObjectBuilder().add("KeyStorePath", "/tmp/test.ca").build().toString();
+		assertThrows("\\tmp\\test.ca (The system cannot find the file specified)", KeywordException.class, ()-> ctx.run("InitHttpClient", input, properties));
+
+		String inputPathAndPWd = Json.createObjectBuilder().add("KeyStorePath", "/tmp/test.ca").add("KeyStorePassword","pwd").build().toString();
+		assertThrows("\\tmp\\test.ca (The system cannot find the file specified)", KeywordException.class, ()-> ctx.run("InitHttpClient", inputPathAndPWd));
 	}
 }

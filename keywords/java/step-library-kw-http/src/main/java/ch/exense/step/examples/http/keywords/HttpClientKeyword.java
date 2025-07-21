@@ -81,6 +81,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
             + "\"BasicAuthHostScheme\":{\"type\":\"string\"},"
             + "\"BasicAuthPort\":{\"type\":\"string\"},"
             + "\"KeyStorePath\":{\"type\":\"string\"},"
+            + "\"KeyStorePassword\":{\"type\":\"string\"},"
             + "\"TimeoutInMs\":{\"type\":\"string\"},"
             + "\"CustomDnsResolverTargetIP\":{\"type\":\"string\"},"
             + "\"CustomDnsResolverHostWithCustomDns\":{\"type\":\"string\"},"
@@ -119,11 +120,10 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
             keyStorePath = input.getString("KeyStorePath");
 
             if (input.containsKey("KeyStorePassword")) {
-                throw new BusinessException(String.format("Passing the keystore password as input is deprecated. " +
-                        "Create a protected parameter called '%s_Password' instead",keyStorePath));
+                keyStorePassword = input.getString("KeyStorePassword");
+            } else {
+                keyStorePassword = getPassword(keyStorePath);
             }
-
-            keyStorePassword = getPassword(keyStorePath);
         }
         if (input.containsKey("CustomDnsResolverTargetIP")) {
             if (!input.containsKey("CustomDnsResolverHostWithCustomDns")) {
