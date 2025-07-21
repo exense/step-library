@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class StepKeywordsTest {
 
-    private final static String DEFAULT_INSTANCE = "https://stepee-nhy.stepcloud-test.ch/";
+    private final static String DEFAULT_INSTANCE = "https://stepee-master.stepcloud-test.ch/";
 
     private ExecutionContext ctx;
     private Output<JsonObject> output;
