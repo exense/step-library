@@ -16,12 +16,6 @@
 package ch.exense.step.library.selenium;
 
 import ch.exense.step.library.commons.BusinessException;
-import net.lightbody.bmp.BrowserMobProxy;
-import net.lightbody.bmp.BrowserMobProxyServer;
-import net.lightbody.bmp.client.ClientUtil;
-import net.lightbody.bmp.core.har.Har;
-import net.lightbody.bmp.core.har.HarEntry;
-import net.lightbody.bmp.proxy.CaptureType;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Proxy;
 import org.openqa.selenium.WebDriver;
@@ -29,18 +23,13 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import step.grid.io.AttachmentHelper;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
 
@@ -101,40 +90,7 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
         long readBytesPerSecond = input.getInt("Read_Bytes_Per_Second", 0);
         long writeBytesPerSecond = input.getInt("Write_Bytes_Per_Second", 0);
 
-        if(enableHarCapture || readBytesPerSecond > 0 || writeBytesPerSecond > 0) {
-            BrowserMobProxy browserProxy = new BrowserMobProxyServer();
-            browserProxy.setTrustAllServers(true);
-            if (input.containsKey("Proxy_Host") && input.containsKey("Proxy_Port")) {
-                browserProxy.setChainedProxy(
-                        new InetSocketAddress(
-                                input.getString("Proxy_Host"), input.getInt("Proxy_Port")));
-                if(input.containsKey("No_Proxy")) {
-                    String noProxy = input.getString("No_Proxy").replaceAll(",", "|");
-                    System.setProperty("http.nonProxyHosts", noProxy);
-                    System.setProperty("https.nonProxyHosts", noProxy);
-                }
-            }
-
-            if (readBytesPerSecond > 0) {
-                browserProxy.setReadBandwidthLimit(readBytesPerSecond);
-                output.add("Read_Bytes_Per_Second", readBytesPerSecond);
-            }
-            if (writeBytesPerSecond > 0) {
-                browserProxy.setWriteBandwidthLimit(writeBytesPerSecond);
-                output.add("Read_Bytes_Per_Second", writeBytesPerSecond);
-            }
-            if (!enableHarCapture) {
-                browserProxy.disableHarCaptureTypes(CaptureType.REQUEST_CONTENT, CaptureType.RESPONSE_CONTENT);
-            }
-
-            browserProxy.start(input.getInt("Browser_Proxy_Port", 0));
-
-            Proxy seleniumProxy = ClientUtil.createSeleniumProxy(browserProxy);
-            DesiredCapabilities seleniumCapabilities = new DesiredCapabilities();
-            seleniumCapabilities.setCapability(CapabilityType.PROXY, seleniumProxy);
-            options.merge(seleniumCapabilities);
-            setProxy(browserProxy);
-        } else if (input.containsKey("Proxy_Host") && input.containsKey("Proxy_Port")) {
+        if (input.containsKey("Proxy_Host") && input.containsKey("Proxy_Port")) {
             Proxy proxy = new Proxy();
             proxy.setHttpProxy(input.getString("Proxy_Host")+":"+input.getInt("Proxy_Port"));
             proxy.setSslProxy(input.getString("Proxy_Host")+":"+input.getInt("Proxy_Port"));
