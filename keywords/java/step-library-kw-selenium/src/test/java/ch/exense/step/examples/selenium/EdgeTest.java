@@ -32,10 +32,6 @@ public class EdgeTest {
 
         inputs = Json.createObjectBuilder()
                 .add("Headless", false)
-                .add("Login_With_Client_Certificate", true)
-                .add("Browser_Proxy_Port", 8081)
-                //.add("Browser_Proxy_Client_Certificate_Path", "C:\\Path\\To\\Client\\Certificate\\client.p12")
-                //.add("Browser_Proxy_Client_Certificate_Password", "ClientCertificatePassword")
                 .build().toString();
         output = ctx.run("Open_Edge", inputs);
         System.out.println(output.getPayload());
@@ -45,8 +41,7 @@ public class EdgeTest {
     @Test
     public void TestNavigateTo() throws Exception{
         inputs = Json.createObjectBuilder()
-                // URL MUST START WITH HTTP
-                .add("Url", "http://client.certificate.authentication.website")
+                .add("Url", "https://step.dev")
                 .build().toString();
         output = ctx.run("Navigate_To", inputs);
         System.out.println(output.getError());

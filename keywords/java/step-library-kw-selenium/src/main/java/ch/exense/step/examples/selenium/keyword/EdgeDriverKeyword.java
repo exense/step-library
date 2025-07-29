@@ -56,7 +56,6 @@ public class EdgeDriverKeyword extends AbstractEdgeDriverKeyword {
      * <li>headless (false): boolean toggle for the headless mode (headless required on server/kubernetes)
      * <li>proxyHost: define chrome proxy host if set
      * <li>proxyPort: define chrome proxy port if set
-     * <li>browserProxyPort (0): set the browser proxy port to be used (0 means automatically selected by the JVM/system)
      * <li>implicitlyWait (10): timeout in seconds to load a page
      * <li>pageLoadTimeout (10): timeout in seconds when waiting for a DOM element
      * <li>maximize (false): toggle to maximum the chrome windows
@@ -69,10 +68,6 @@ public class EdgeDriverKeyword extends AbstractEdgeDriverKeyword {
             + "\"Proxy_Host\": {\"type\": \"string\"},"
             + "\"Proxy_Port\": {\"type\": \"integer\"},"
             + "\"No_Proxy\": {\"type\": \"string\"},"
-            + "\"Login_With_Client_Certificate\": {\"type\": \"boolean\"},"
-            + "\"Browser_Proxy_Port\": {\"type\": \"integer\"},"
-            + "\"Browser_Proxy_Client_Certificate_Path\": {\"type\": \"string\"},"
-            + "\"Browser_Proxy_Client_Certificate_Password\": {\"type\": \"string\"},"
             + "\"Implicitly_Wait\": {  \"type\": \"integer\"},"
             + "\"PageLoad_Timeout\": {  \"type\": \"integer\"},"
             + "\"Maximize\": {  \"type\": \"boolean\"}"

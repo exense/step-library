@@ -60,10 +60,6 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
      * <li>disableShm (false): boolean toggle for Shm partition usage (disable on unix/kubernetes)
      * <li>proxyHost: define chrome proxy host if set
      * <li>proxyPort: define chrome proxy port if set
-     * <li>enableHarCapture (false): boolean to enable the capture of HTTP requests and create custom measurements
-     * <li>browserProxyPort (0): set the browser proxy port to be used (0 means automatically selected by the JVM/system)
-     * <li>readBytesPerSecond: if set, limit the rate of read bytes by second
-     * <li>writeBytesPerSecond: if set, limit the rate of write bytes by second
      * <li>user-data-dir: if set, define a specific chrome data folder to be used (by default a new temporary folder is used when starting chrome)
      * <li>additionalOptions: if set, this list of options is added to ChromeOptions
      * <li>implicitlyWait (10): timeout in seconds to load a page
@@ -79,10 +75,6 @@ public class ChromeDriverKeyword extends AbstractChromeDriverKeyword {
             + "\"Proxy_Host\": {\"type\": \"string\"},"
             + "\"Proxy_Port\": {\"type\": \"integer\"},"
             + "\"No_Proxy\": {\"type\": \"string\"},"
-            + "\"Enable_Har_Capture\": {\"type\": \"boolean\"},"
-            + "\"Browser_Proxy_Port\": {\"type\": \"integer\"},"
-            + "\"Read_Bytes_Per_Second\": {\"type\": \"integer\"},"
-            + "\"Write_Bytes_Per_Second\": {\"type\": \"integer\"},"
             + "\"User_Data_Dir\": {  \"type\": \"string\"},"
             + "\"Additional_Options\": {  \"type\": \"string\"},"
             + "\"Implicitly_Wait\": {  \"type\": \"integer\"},"
