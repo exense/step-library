@@ -88,7 +88,8 @@ public class ProcessKeywordsTest {
 
 		Assert.assertTrue(output.getPayload().getString("stderr").equals("j") ||
 				output.getPayload().getString("stderr").equals("o"));
-		Assert.assertEquals("stderr.log", output.getAttachments().get(0).getName());
+		// TODO: the process output is streamed and not returned as attachment anymore. Currently, streamed attachments are not accessible in local executions.
+		// As soon as streamed attachments can be accessed locally, we should add a proper assertion
 	}
 
 	@Test
@@ -99,8 +100,8 @@ public class ProcessKeywordsTest {
 
 		Assert.assertTrue(output.getPayload().getString("stderr").equals("j") ||
 				output.getPayload().getString("stderr").equals("o"));
-		Assert.assertTrue(output.getAttachments().get(0).getHexContent().equals("ag==") ||
-				output.getAttachments().get(0).getHexContent().equals("bw=="));
+		// TODO: the process output is streamed and not returned as attachment anymore. Currently, streamed attachments are not accessible in local executions.
+		// As soon as streamed attachments can be accessed locally, we should add a proper assertion
 	}
 
 	@Test
@@ -111,9 +112,7 @@ public class ProcessKeywordsTest {
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(1, attachments.size());
-		Attachment attachment = attachments.get(0);
-		Assert.assertEquals("test.log", attachment.getName());
-		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+		assertFirstAttachment(attachments);
 	}
 
 	private static String executeCommandKeyword() {
@@ -125,6 +124,12 @@ public class ProcessKeywordsTest {
 		return os != null && os.toLowerCase().startsWith("windows");
 	}
 
+	private static void assertFirstAttachment(List<Attachment> attachments) {
+		Attachment attachment = attachments.get(0);
+		Assert.assertEquals("test.log", attachment.getName());
+		Assert.assertEquals(isWindows() ? "test  \r\n" : "test", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+	}
+
 	@Test
 	public void testArtifacts2() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
@@ -133,9 +138,7 @@ public class ProcessKeywordsTest {
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(2, attachments.size());
-		Attachment attachment = attachments.get(0);
-		Assert.assertEquals("test.log", attachment.getName());
-		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+		assertFirstAttachment(attachments);
 	}
 
 	@Test
@@ -146,9 +149,7 @@ public class ProcessKeywordsTest {
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(2, attachments.size());
-		Attachment attachment = attachments.get(0);
-		Assert.assertEquals("test.log", attachment.getName());
-		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+		assertFirstAttachment(attachments);
 	}
 
 	@Test

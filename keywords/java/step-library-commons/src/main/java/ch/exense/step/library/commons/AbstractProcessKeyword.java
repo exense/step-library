@@ -162,8 +162,8 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
             completeTextFileUploadIfNeeded(stdOutStreamingUpload);
             completeTextFileUploadIfNeeded(stdErrStreamingUpload);
 
-            if (stdOutStreamingUpload == null && (hasError || outputConfiguration.isAlwaysAttachOutput())) {
-                attachOutputs(process, outputConfiguration);
+            if (hasError || outputConfiguration.isAlwaysAttachOutput()) {
+                attachOutputs(process, outputConfiguration, !(stdOutStreamingUpload == null));
             }
         } finally {
             process.close();
@@ -192,12 +192,12 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
         }
     }
 
-    protected void attachOutputs(ManagedProcess process, OutputConfiguration outputConfiguration) throws IOException {
-        attachOutput("stdout", process.getProcessOutputLog(), outputConfiguration);
-        attachOutput("stderr", process.getProcessErrorLog(), outputConfiguration);
+    protected void attachOutputs(ManagedProcess process, OutputConfiguration outputConfiguration, boolean processOutputAlreadyAttached) throws IOException {
+        attachOutput("stdout", process.getProcessOutputLog(), outputConfiguration, processOutputAlreadyAttached);
+        attachOutput("stderr", process.getProcessErrorLog(), outputConfiguration, processOutputAlreadyAttached);
     }
 
-    protected void attachOutput(String outputName, File file, OutputConfiguration outputConfiguration) throws IOException {
+    protected void attachOutput(String outputName, File file, OutputConfiguration outputConfiguration, boolean processOutputAlreadyAttached) throws IOException {
         StringBuilder processOutputBuilder = new StringBuilder();;
         MalformedInputException exception = null;
         List<Charset> charsets = List.of(Charset.defaultCharset(), StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.ISO_8859_1);
@@ -221,7 +221,9 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
         if(processOutput.length() > outputConfiguration.maxOutputPayloadSize) {
             Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(
                     processOutput.substring(0, Math.min(processOutput.length(), outputConfiguration.maxOutputAttachmentSize)).getBytes(), outputName + ".log");
-            output.addAttachment(attachment);
+            if(!processOutputAlreadyAttached) {
+                output.addAttachment(attachment);
+            }
 
             if (file.length() > outputConfiguration.maxOutputAttachmentSize) {
                 output.add("technicalWarning",
