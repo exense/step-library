@@ -153,15 +153,16 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
                 if (postProcess != null) {
                     postProcess.accept(process);
                 }
-                completeTextFileUploadIfNeeded(stdOutStreamingUpload);
-                completeTextFileUploadIfNeeded(stdErrStreamingUpload);
 
             } catch (TimeoutException e) {
                 output.setBusinessError("Process didn't exit within the defined timeout of " + timeoutMs + "ms");
                 hasError = true;
             }
 
-            if (hasError || outputConfiguration.isAlwaysAttachOutput()) {
+            completeTextFileUploadIfNeeded(stdOutStreamingUpload);
+            completeTextFileUploadIfNeeded(stdErrStreamingUpload);
+
+            if (stdOutStreamingUpload == null && (hasError || outputConfiguration.isAlwaysAttachOutput())) {
                 attachOutputs(process, outputConfiguration);
             }
         } finally {
