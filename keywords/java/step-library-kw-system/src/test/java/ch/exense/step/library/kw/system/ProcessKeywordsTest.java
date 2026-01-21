@@ -127,7 +127,7 @@ public class ProcessKeywordsTest {
 	private static void assertFirstAttachment(List<Attachment> attachments) {
 		Attachment attachment = attachments.get(0);
 		Assert.assertEquals("test.log", attachment.getName());
-		Assert.assertEquals(isWindows() ? "test  \r\n" : "test", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+		Assert.assertEquals(isWindows() ? "test  \r\n" : "test\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
 	}
 
 	@Test
