@@ -15,10 +15,27 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
-import java.util.ArrayList;
-
+import ch.exense.commons.io.FileHelper;
+import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.step.library.commons.AbstractProcessKeyword;
+import org.apache.commons.io.filefilter.PathMatcherFileFilter;
+import org.apache.commons.io.filefilter.RegexFileFilter;
+import step.grid.io.Attachment;
+import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ProcessKeywords extends AbstractProcessKeyword {
 
@@ -27,7 +44,14 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
 	protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
 	protected static final String CHECK_EXIT_CODE = "Check_Exit_Code";
-	
+	public static final String ARTIFACTS = "Artifacts";
+	public static final String SCHEMA_ARRAY_STRING = "{\n" +
+			"      \"type\": \"array\",\n" +
+			"      \"items\": {\n" +
+			"        \"type\": \"string\"\n" +
+			"      }\n" +
+			"    }";
+
 	protected String command;
 	protected int timeoutInMillis;
 	protected OutputConfiguration outputConfiguration;
@@ -48,7 +72,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a bash command.")
 	public void executeBashCommand() throws Exception {
@@ -58,7 +82,9 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		cmd.add("bash");
 		cmd.add("-c");
 		cmd.add(command);
-		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, null);
+
+		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
+		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
 	
 
@@ -66,7 +92,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
-			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
+			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a windows cmd command.")
 	public void executeCmdCommand() throws Exception {
@@ -76,7 +102,66 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		cmd.add("cmd");
 		cmd.add("/C");
 		cmd.add(command);
-		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, null);
+
+		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
+		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, managedProcessConsumer);
+	}
+
+	private Consumer<ManagedProcess> getManagedProcessConsumer() {
+		Consumer<ManagedProcess> managedProcessConsumer;
+		if (input.containsKey(ARTIFACTS)) {
+			managedProcessConsumer = managedProcess -> {
+				File executionDirectory = managedProcess.getExecutionDirectory();
+				List<String> outputArtifactsToAttach = Arrays.stream(input.getJsonArray(ARTIFACTS).toArray()).map(Object::toString).collect(Collectors.toList());
+				outputArtifactsToAttach.forEach(artifact -> {
+					if(isPathAbsolute(artifact)) {
+						attachFile(Paths.get(artifact).toFile());
+					} else {
+						File[] array = executionDirectory.listFiles((FilenameFilter) new PathMatcherFileFilter(new RegexFileFilter(artifact)));
+						if(array != null && array.length > 0) {
+							Arrays.stream(array).forEach(this::attachFile);
+						}
+					}
+				});
+			};
+		} else {
+			managedProcessConsumer = null;
+		}
+		return managedProcessConsumer;
+	}
+
+	private boolean isPathAbsolute(String artifact) {
+		try {
+			Path path = Paths.get(artifact);
+			if (path.isAbsolute()) {
+				return true;
+			}
+		} catch (InvalidPathException e) {
+			// If the path is a regex, it cannot be parsed as Path. We ignore this error and consider the path as a regex
+		}
+		return false;
+	}
+
+	private void attachFile(File f) {
+		try {
+			byte[] bytes;
+			String fileName;
+			if (f.isDirectory()) {
+				try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+					FileHelper.zip(f, out);
+					bytes = out.toByteArray();
+				}
+				fileName = f.getName() + ".zip";
+			} else {
+				bytes = Files.readAllBytes(f.toPath());
+				fileName = f.getName();
+			}
+			Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(bytes, fileName);
+			output.addAttachment(attachment);
+		} catch (Exception e) {
+			output.appendError("Error while attaching file: " + e.getMessage());
+			output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+		}
 	}
 
 	protected void readInputs() {

@@ -16,16 +16,24 @@
 package ch.exense.step.library.kw.system;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 
+import ch.exense.commons.io.FileHelper;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import step.functions.io.Output;
+import step.grid.io.Attachment;
+import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.KeywordRunner;
 import step.handlers.javahandler.KeywordRunner.ExecutionContext;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
 public class ProcessKeywordsTest {
 
@@ -93,5 +101,58 @@ public class ProcessKeywordsTest {
 				output.getPayload().getString("stderr").equals("o"));
 		Assert.assertTrue(output.getAttachments().get(0).getHexContent().equals("ag==") ||
 				output.getAttachments().get(0).getHexContent().equals("bw=="));
+	}
+
+	@Test
+	public void testArtifacts() throws Exception {
+		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
+				.add("Artifacts", Json.createArrayBuilder().add("test.log").build()).build();
+		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+
+		List<Attachment> attachments = output.getAttachments();
+		Assert.assertEquals(1, attachments.size());
+		Attachment attachment = attachments.get(0);
+		Assert.assertEquals("test.log", attachment.getName());
+		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+	}
+
+	@Test
+	public void testArtifacts2() throws Exception {
+		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
+				.add("Artifacts", Json.createArrayBuilder().add("test.log").add("test.log").build()).build();
+		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+
+		List<Attachment> attachments = output.getAttachments();
+		Assert.assertEquals(2, attachments.size());
+		Attachment attachment = attachments.get(0);
+		Assert.assertEquals("test.log", attachment.getName());
+		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+	}
+
+	@Test
+	public void testArtifactsWithRegex() throws Exception {
+		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
+				.add("Artifacts", Json.createArrayBuilder().add("test.*").add("test.log").build()).build();
+		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+
+		List<Attachment> attachments = output.getAttachments();
+		Assert.assertEquals(2, attachments.size());
+		Attachment attachment = attachments.get(0);
+		Assert.assertEquals("test.log", attachment.getName());
+		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+	}
+
+	@Test
+	public void testArtifactsWithAbsolutePath() throws Exception {
+		Path tempFile = Files.createTempFile("test", ".txt");
+		tempFile.toFile().deleteOnExit();
+		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > " + tempFile)
+				.add("Artifacts", Json.createArrayBuilder().add(tempFile.toString()).build()).build();
+		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+
+		List<Attachment> attachments = output.getAttachments();
+		Assert.assertEquals(1, attachments.size());
+		Attachment attachment = attachments.get(0);
+		Assert.assertEquals(tempFile.getFileName().toString(), attachment.getName());
 	}
 }
