@@ -107,7 +107,7 @@ public class ProcessKeywordsTest {
 	public void testArtifacts() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
 				.add("Artifacts", Json.createArrayBuilder().add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(1, attachments.size());
@@ -116,11 +116,20 @@ public class ProcessKeywordsTest {
 		Assert.assertEquals("test  \r\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
 	}
 
+	private static String executeCommandKeyword() {
+		return isWindows() ? "ExecuteCmd" : "ExecuteBash";
+	}
+
+	public static boolean isWindows() {
+		String os = System.getProperty("os.name");
+		return os != null && os.toLowerCase().startsWith("windows");
+	}
+
 	@Test
 	public void testArtifacts2() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
 				.add("Artifacts", Json.createArrayBuilder().add("test.log").add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(2, attachments.size());
@@ -133,7 +142,7 @@ public class ProcessKeywordsTest {
 	public void testArtifactsWithRegex() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > test.log ")
 				.add("Artifacts", Json.createArrayBuilder().add("test.*").add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(2, attachments.size());
@@ -148,7 +157,7 @@ public class ProcessKeywordsTest {
 		tempFile.toFile().deleteOnExit();
 		JsonObject input = Json.createObjectBuilder().add("Command", "echo test > " + tempFile)
 				.add("Artifacts", Json.createArrayBuilder().add(tempFile.toString()).build()).build();
-		Output<JsonObject> output = ctx.run("ExecuteCmd", input.toString());
+		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		Assert.assertEquals(1, attachments.size());
