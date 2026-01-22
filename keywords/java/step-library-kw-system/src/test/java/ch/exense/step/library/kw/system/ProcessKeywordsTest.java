@@ -77,7 +77,7 @@ public class ProcessKeywordsTest {
 		ctx.setThrowExceptionOnError(false);
 		JsonObject input = Json.createObjectBuilder().add("Command", "java -verbose -version").add("Timeout_ms", "1").build();
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
-		Assert.assertEquals("Process didn't exit within the defined timeout of 1ms", output.getError().getMsg());
+		Assert.assertEquals("The process did not exit within the configured timeout of 1ms. You can increase this value using the 'Timeout_ms' input.", output.getError().getMsg());
 	}
 
 	@Test
