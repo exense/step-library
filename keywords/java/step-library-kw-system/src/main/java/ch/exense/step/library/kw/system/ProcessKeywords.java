@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";
-	protected static final String TIMEOUT_MS = "Timeout_ms";
 	protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
 	protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
 	protected static final String CHECK_EXIT_CODE = "Check_Exit_Code";
@@ -166,7 +165,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
-		timeoutInMillis = Integer.parseInt(input.getString(TIMEOUT_MS, "10000"));
+		timeoutInMillis = Integer.parseInt(input.getString(TIMEOUT_MS, Integer.toString(DEFAULT_PROCESS_TIMEOUT)));
 		outputConfiguration = readOutputConfiguration();
 	}
 

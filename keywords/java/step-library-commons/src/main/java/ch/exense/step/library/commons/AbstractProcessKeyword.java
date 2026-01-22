@@ -39,7 +39,8 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
 
-    protected static final int PROCESS_TIMEOUT = 60000;
+    protected static final int DEFAULT_PROCESS_TIMEOUT = 60000;
+    protected static final String TIMEOUT_MS = "Timeout_ms";
 
     public AbstractProcessKeyword() {
         super();
@@ -153,7 +154,7 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
                 }
 
             } catch (TimeoutException e) {
-                output.setBusinessError("Process didn't exit within the defined timeout of " + timeoutMs + "ms");
+                output.setBusinessError("The process did not exit within the configured timeout of " + timeoutMs +"ms. You can increase this value using the '" + TIMEOUT_MS + "' input.");
                 hasError = true;
             }
 
