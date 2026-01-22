@@ -45,7 +45,7 @@
         <!-- private nexus -->
         <repository>
             <id>nexus-exense</id>
-            <url>https://nexus-enterprise.stepcloud-test.ch/repository/exense/</url>
+            <url>https://nexus-enterprise.exense.ch/repository/exense/</url>
         </repository>
     </repositories>
 
