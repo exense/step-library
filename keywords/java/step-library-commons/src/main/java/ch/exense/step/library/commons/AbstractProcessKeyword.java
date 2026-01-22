@@ -17,7 +17,6 @@ package ch.exense.step.library.commons;
 
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.commons.processes.ManagedProcess.ManagedProcessException;
-import step.functions.io.AbstractSession;
 import step.grid.agent.tokenpool.TokenReservationSession;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
@@ -136,9 +135,8 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
             StreamingUpload stdOutStreamingUpload = startTextFileUploadIfRequired(outputConfiguration, process.getProcessOutputLog());
             StreamingUpload stdErrStreamingUpload = startTextFileUploadIfRequired(outputConfiguration, process.getProcessErrorLog());
 
-            AbstractSession tokenSession = getTokenSession();
-            if (tokenSession instanceof TokenReservationSession) {
-                TokenReservationSession tokenReservationSession = (TokenReservationSession) tokenSession;
+            if (session instanceof TokenReservationSession) {
+                TokenReservationSession tokenReservationSession = (TokenReservationSession) session;
                 tokenReservationSession.registerEventListener(process::stop);
             }
             try {

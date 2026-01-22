@@ -167,6 +167,13 @@
                             </excludes>
                         </filter>
                     </filters>
+                    <artifactSet>
+                        <excludes>
+                            <!-- The dependency to step-grid-api is added by the step-library-commons module
+                            and has to be excluded from the uberjars. See comment in step-library-commons for more details -->
+                            <exclude>ch.exense.step:step-grid-api</exclude>
+                        </excludes>
+                    </artifactSet>
                 </configuration>
             </plugin>
         </plugins>
