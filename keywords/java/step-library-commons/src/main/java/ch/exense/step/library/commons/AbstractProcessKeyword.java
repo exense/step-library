@@ -94,12 +94,16 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     }
 
     protected void executeManagedCommand(List<String> cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
+        // The method retrieveAndExtractAutomationPackage returns null if we're not in the context of an AP. In this case the managed process
+        // uses the default settings for the log and execution directory
         File workingDirectory = retrieveAndExtractAutomationPackage();
         ManagedProcess process = new ManagedProcess("ExecuteCommand", cmd, workingDirectory, workingDirectory, true);
         executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process, null);
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
+        // The method retrieveAndExtractAutomationPackage returns null if we're not in the context of an AP. In this case the managed process
+        // uses the default settings for the log and execution directory
         File workingDirectory = retrieveAndExtractAutomationPackage();
         // ManagedProcess doesn't expose a constructor accepting the cmd as string and allowing to specify the execution directory.
         // We're therefore force to duplicate the tokenize method of ManagedProcess
@@ -133,13 +137,13 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
             boolean hasError = false;
             process.start();
 
-            StreamingUpload stdOutStreamingUpload = startTextFileUploadIfRequired(outputConfiguration, process.getProcessOutputLog());
-            StreamingUpload stdErrStreamingUpload = startTextFileUploadIfRequired(outputConfiguration, process.getProcessErrorLog());
-
             if (session instanceof TokenReservationSession) {
                 TokenReservationSession tokenReservationSession = (TokenReservationSession) session;
                 tokenReservationSession.registerEventListener(process::stop);
             }
+
+            StreamingUpload stdOutStreamingUpload = startTextFileUploadIfRequired(outputConfiguration, process.getProcessOutputLog());
+            StreamingUpload stdErrStreamingUpload = startTextFileUploadIfRequired(outputConfiguration, process.getProcessErrorLog());
             try {
                 int exitCode = process.waitFor(timeoutMs);
                 if (outputConfiguration.isCheckExitCode() && exitCode != 0) {
@@ -152,17 +156,16 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
                 if (postProcess != null) {
                     postProcess.accept(process);
                 }
-
             } catch (TimeoutException e) {
                 output.setBusinessError("The process did not exit within the configured timeout of " + timeoutMs +"ms. You can increase this value using the '" + TIMEOUT_MS + "' input.");
                 hasError = true;
+            } finally {
+                completeTextFileUploadIfNeeded(stdOutStreamingUpload);
+                completeTextFileUploadIfNeeded(stdErrStreamingUpload);
             }
 
-            completeTextFileUploadIfNeeded(stdOutStreamingUpload);
-            completeTextFileUploadIfNeeded(stdErrStreamingUpload);
-
             if (hasError || outputConfiguration.isAlwaysAttachOutput()) {
-                attachOutputs(process, outputConfiguration, !(stdOutStreamingUpload == null));
+                attachOutputs(process, outputConfiguration, stdOutStreamingUpload != null);
             }
         } finally {
             process.close();
@@ -217,12 +220,10 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
 
         output.add(outputName, processOutput.substring(0, Math.min(processOutput.length(), outputConfiguration.maxOutputPayloadSize)));
 
-        if(processOutput.length() > outputConfiguration.maxOutputPayloadSize) {
+        if (!processOutputAlreadyAttached && processOutput.length() > outputConfiguration.maxOutputPayloadSize) {
             Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(
                     processOutput.substring(0, Math.min(processOutput.length(), outputConfiguration.maxOutputAttachmentSize)).getBytes(), outputName + ".log");
-            if(!processOutputAlreadyAttached) {
-                output.addAttachment(attachment);
-            }
+            output.addAttachment(attachment);
 
             if (file.length() > outputConfiguration.maxOutputAttachmentSize) {
                 output.add("technicalWarning",
