@@ -33,9 +33,9 @@ import step.core.execution.model.ExecutionStatus;
 import step.core.plans.Plan;
 import step.core.repositories.RepositoryObjectReference;
 import step.handlers.javahandler.Keyword;
+import step.resources.InvalidResourceFormatException;
 import step.resources.Resource;
 import step.resources.ResourceManager;
-import step.resources.SimilarResourceExistingException;
 
 import java.io.*;
 import java.util.*;
@@ -207,12 +207,12 @@ public class StepClientKeyword extends AbstractEnhancedKeyword {
         }
 
         try (FileInputStream stream = new FileInputStream(file)) {
-            Resource resource = client.getResourceManager().createResource(type, stream, file.getName(), false, null);
+            Resource resource = client.getResourceManager().createResource(type, stream, file.getName(), null, null);
             output.add("ResourceId", resource.getId().toString());
         } catch (IOException e) {
             throw new BusinessException("IOException when trying to upload the file '" + fileName + "'", e);
-        } catch (SimilarResourceExistingException e) {
-            throw new BusinessException("SimilarResourceExistingException when trying to upload the file '" + fileName + "'", e);
+        } catch (InvalidResourceFormatException e) {
+            throw new RuntimeException(e);
         }
     }
 

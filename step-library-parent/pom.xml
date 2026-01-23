@@ -40,7 +40,7 @@
         <!-- staging nexus -->
         <repository>
             <id>nexus-staging</id>
-            <url>https://nexus-enterprise-staging.exense.ch/repository/staging-maven/</url>
+            <url>https://nexus-enterprise-staging.stepcloud-test.ch/repository/staging-maven/</url>
         </repository>
         <!-- private nexus -->
         <repository>
@@ -50,8 +50,8 @@
     </repositories>
 
     <properties>
-        <step-api.version>1.3.0</step-api.version>
-        <step-os.version>3.27.1</step-os.version>
+        <step-api.version>1.5.0</step-api.version>
+        <step-os.version>3.29.1</step-os.version>
         <step-ee.version>${step-os.version}</step-ee.version>
         <exense-commons.version>2.0.10</exense-commons.version>
 
@@ -167,6 +167,13 @@
                             </excludes>
                         </filter>
                     </filters>
+                    <artifactSet>
+                        <excludes>
+                            <!-- The dependency to step-grid-api is added by the step-library-commons module
+                            and has to be excluded from the uberjars. See comment in step-library-commons for more details -->
+                            <exclude>ch.exense.step:step-grid-api</exclude>
+                        </excludes>
+                    </artifactSet>
                 </configuration>
             </plugin>
         </plugins>

@@ -13,6 +13,17 @@
     </parent>
 
     <dependencies>
+        <!-- The following dependency is required in the AbstractProcessKeyword class to register a TokenEventListener.
+        One the long term the registration of TokenEventListener should be supported by the Keyword API without having to
+        depend on the step-grid-api. We should remove this dependency as soon as possible. Note that this dependency should be removed
+        from the Uberjar we produce. Setting the scope to provided here doesn't work as it causes the JUnit tests to fail.
+        We therefore configure an exclusion in the maven-shade-plugin configured in the parent pom
+        -->
+        <dependency>
+            <groupId>ch.exense.step</groupId>
+            <artifactId>step-grid-api</artifactId>
+            <version>2.5.0</version>
+        </dependency>
         <dependency>
             <groupId>ch.exense.commons</groupId>
             <artifactId>exense-basic-commons</artifactId>

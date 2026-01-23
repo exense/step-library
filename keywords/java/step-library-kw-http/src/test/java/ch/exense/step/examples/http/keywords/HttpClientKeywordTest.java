@@ -177,7 +177,7 @@ public class HttpClientKeywordTest {
 				.add("Headers", headers)
 				.build().toString();
 		Output<JsonObject> output = ctx.run("HttpRequest", input);
-		assertTrue(output.getPayload().getString("Response").contains("\"myheader\": \"MyHeaderValue\""));
+		assertTrue(output.getPayload().getString("Response").contains("\"myheader\":\"MyHeaderValue\""));
 	}
 	
 	@Test
