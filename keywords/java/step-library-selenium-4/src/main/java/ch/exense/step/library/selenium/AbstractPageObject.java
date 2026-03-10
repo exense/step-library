@@ -490,13 +490,13 @@ public class AbstractPageObject {
      * @see java.util.concurrent.Callable
      */
     public <T> T doWithoutImplicitWait(Callable<T> callable) {
-        driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(Duration.of(0, ChronoUnit.SECONDS));
         try {
             return callable.call();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            driver.manage().timeouts().implicitlyWait(getDefaultTimeout(), TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(Duration.of(getDefaultTimeout(), ChronoUnit.SECONDS));
         }
     }
 
@@ -507,13 +507,13 @@ public class AbstractPageObject {
      * @see java.lang.Runnable
      */
     public void doWithoutImplicitWait(Runnable runnable) {
-        driver.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(Duration.of(0, ChronoUnit.SECONDS));
         try {
             runnable.run();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-            driver.manage().timeouts().implicitlyWait(getDefaultTimeout(), TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(Duration.of(getDefaultTimeout(), ChronoUnit.SECONDS));
         }
     }
 
@@ -571,7 +571,7 @@ public class AbstractPageObject {
     }
 
     /**
-     * Method to exit a iframe
+     * Method to exit an iframe
      *
      * @see AbstractPageObject#waitForFrameAndSwitchDriver(By)
      */

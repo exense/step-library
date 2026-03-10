@@ -22,10 +22,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.io.File;
-import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -86,10 +84,7 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
         if (input.getBoolean("Disable_Shm",false)) {
             options.addArguments("disable-dev-shm-usage");
         }
-
-        long readBytesPerSecond = input.getInt("Read_Bytes_Per_Second", 0);
-        long writeBytesPerSecond = input.getInt("Write_Bytes_Per_Second", 0);
-
+        
         if (input.containsKey("Proxy_Host") && input.containsKey("Proxy_Port")) {
             Proxy proxy = new Proxy();
             proxy.setHttpProxy(input.getString("Proxy_Host")+":"+input.getInt("Proxy_Port"));
@@ -108,9 +103,6 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
             options.addArguments(Arrays.asList(input.getString("Additional_Options").split(",")));
         }
 
-        String transactionName = "Open_chrome";
-        //startTransaction(transactionName);
-
         final WebDriver driver = new ChromeDriver(options);
 
         driver.manage().timeouts().implicitlyWait(Duration.of(input.getInt("Implicitly_Wait", 10), ChronoUnit.SECONDS));
@@ -122,6 +114,5 @@ public class AbstractChromeDriverKeyword extends AbstractSeleniumKeyword {
         }
         
         setDriver(driver);
-        //stopTransaction(transactionName);
     }
 }

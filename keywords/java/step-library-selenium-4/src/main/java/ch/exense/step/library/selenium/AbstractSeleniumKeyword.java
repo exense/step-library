@@ -28,8 +28,6 @@ import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
