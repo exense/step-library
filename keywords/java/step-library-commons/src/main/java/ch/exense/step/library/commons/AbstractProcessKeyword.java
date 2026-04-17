@@ -108,7 +108,7 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
         // ManagedProcess doesn't expose a constructor accepting the cmd as string and allowing to specify the execution directory.
         // We're therefore force to duplicate the tokenize method of ManagedProcess
         // TODO: Release a new version of ManagedProcess accepting cmd as string and allowing to specify the execution directory.
-        ManagedProcess process = new ManagedProcess("ExecuteCommand", tokenize(cmd), workingDirectory, workingDirectory, true);
+        ManagedProcess process = new ManagedProcess("ExecuteCommand", tokenize(cmd), workingDirectory, workingDirectory, true, environment);
         executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process,null);
     }
 
