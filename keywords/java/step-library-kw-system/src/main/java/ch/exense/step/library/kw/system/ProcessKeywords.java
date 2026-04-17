@@ -31,15 +31,14 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";
+	private static final String ENVIRONMENT_VARIABLES = "Environments";
 	protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
 	protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
 	protected static final String CHECK_EXIT_CODE = "Check_Exit_Code";
@@ -50,8 +49,8 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			"        \"type\": \"string\"\n" +
 			"      }\n" +
 			"    }";
-
 	protected String command;
+	protected Map<String,String> environments;
 	protected int timeoutInMillis;
 	protected OutputConfiguration outputConfiguration;
 	
@@ -59,18 +58,20 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ ENVIRONMENT_VARIABLES + "\": " + SCHEMA_ARRAY_STRING + ","
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to start a generic process.")
 	public void executeSystemCommand() throws Exception {
 		readInputs();
-		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
+		executeManagedCommand(command, environments, timeoutInMillis, outputConfiguration);
 	}
 	
 	@Keyword(name = "ExecuteBash", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ ENVIRONMENT_VARIABLES + "\": " + SCHEMA_ARRAY_STRING + ","
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a bash command.")
@@ -83,7 +84,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		cmd.add(command);
 
 		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
-		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, managedProcessConsumer);
+		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
 	
 
@@ -91,6 +92,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ ENVIRONMENT_VARIABLES + "\": " + SCHEMA_ARRAY_STRING + ","
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a windows cmd command.")
@@ -103,7 +105,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		cmd.add(command);
 
 		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
-		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, managedProcessConsumer);
+		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
 
 	private Consumer<ManagedProcess> getManagedProcessConsumer() {
@@ -165,6 +167,18 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
+		List<String> tmp_env = Arrays.stream(input.getJsonArray(ENVIRONMENT_VARIABLES).toArray())
+						.map(Object::toString).collect(Collectors.toList());
+
+		environments = new HashMap<>();
+		for (String env : tmp_env) {
+			String[] kv = env.split("=");
+			if (kv.length==1) {
+				environments.put(kv[0],"");
+			} else {
+				environments.put(kv[0],kv[1]);
+			}
+		}
 		timeoutInMillis = Integer.parseInt(input.getString(TIMEOUT_MS, Integer.toString(DEFAULT_PROCESS_TIMEOUT)));
 		outputConfiguration = readOutputConfiguration();
 	}

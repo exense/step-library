@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -86,22 +87,22 @@ public abstract class AbstractProcessKeyword extends AbstractEnhancedKeyword {
     }
 
     protected void executeManagedCommand(String cmd, int timeoutMs) throws Exception {
-        executeManagedCommand(cmd, timeoutMs, new OutputConfiguration(), null);
+        executeManagedCommand(cmd, Map.of(), timeoutMs, new OutputConfiguration(), null);
     }
 
-    protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration) throws Exception {
-        executeManagedCommand(cmd, timeoutMs, outputConfiguration, null);
+    protected void executeManagedCommand(String cmd, Map<String,String> environment, int timeoutMs, OutputConfiguration outputConfiguration) throws Exception {
+        executeManagedCommand(cmd, environment, timeoutMs, outputConfiguration, null);
     }
 
-    protected void executeManagedCommand(List<String> cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
+    protected void executeManagedCommand(List<String> cmd, Map<String,String> environment, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
         // The method retrieveAndExtractAutomationPackage returns null if we're not in the context of an AP. In this case the managed process
         // uses the default settings for the log and execution directory
         File workingDirectory = retrieveAndExtractAutomationPackage();
-        ManagedProcess process = new ManagedProcess("ExecuteCommand", cmd, workingDirectory, workingDirectory, true);
+        ManagedProcess process = new ManagedProcess("ExecuteCommand", cmd, workingDirectory, workingDirectory, true, environment);
         executeManagedCommand(timeoutMs, outputConfiguration, postProcess, process, null);
     }
 
-    protected void executeManagedCommand(String cmd, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
+    protected void executeManagedCommand(String cmd, Map<String,String> environment, int timeoutMs, OutputConfiguration outputConfiguration, Consumer<ManagedProcess> postProcess) throws Exception {
         // The method retrieveAndExtractAutomationPackage returns null if we're not in the context of an AP. In this case the managed process
         // uses the default settings for the log and execution directory
         File workingDirectory = retrieveAndExtractAutomationPackage();
