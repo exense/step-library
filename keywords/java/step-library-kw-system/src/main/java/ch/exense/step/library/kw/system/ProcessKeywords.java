@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";
-	private static final String ENVIRONMENT_VARIABLES = "Properties_As_Env";
+	protected static final String ENVIRONMENT_VARIABLES = "Properties_As_Env";
 	protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
 	protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
 	protected static final String CHECK_EXIT_CODE = "Check_Exit_Code";
@@ -57,7 +57,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "Execute", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
-			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
 			+ ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
@@ -70,7 +70,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "ExecuteBash", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
-			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
 			+ ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
@@ -91,7 +91,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "ExecuteCmd", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
-			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
 			+ ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
