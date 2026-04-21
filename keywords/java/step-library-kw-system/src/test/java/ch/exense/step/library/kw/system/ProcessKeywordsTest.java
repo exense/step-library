@@ -31,6 +31,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,7 +42,7 @@ public class ProcessKeywordsTest {
 
 	@Before
 	public void setUp() {
-		ctx = KeywordRunner.getExecutionContext(ProcessKeywords.class);
+		ctx = KeywordRunner.getExecutionContext(Map.of("Password","glop"),ProcessKeywords.class);
 	}
 
 	@After
@@ -113,6 +114,23 @@ public class ProcessKeywordsTest {
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(1, attachments.size());
 		assertFirstAttachment(attachments);
+	}
+
+	@Test
+	public void testEnvironment() throws Exception {
+		// set the env variables
+		JsonObject input = Json.createObjectBuilder().add("Command", "echo $Password").add("Properties_As_Env", true)
+				.build();
+		Output<JsonObject> output = ctx.run("ExecuteBash", input.toString());
+
+		assertTrue(output.getPayload().getString("stdout").startsWith("glop"));
+
+		// DO NOT set the env variables
+		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Properties_As_Env", false)
+				.build();
+		output = ctx.run("ExecuteBash", input.toString());
+
+		assertTrue(output.getPayload().getString("stdout").equals("\n"));
 	}
 
 	private static String executeCommandKeyword() {
