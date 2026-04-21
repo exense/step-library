@@ -18,6 +18,7 @@ package ch.exense.step.library.kw.system;
 import ch.exense.commons.io.FileHelper;
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.step.library.commons.AbstractProcessKeyword;
+import com.fasterxml.jackson.databind.util.LinkedNode;
 import org.apache.commons.io.filefilter.PathMatcherFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import step.grid.io.Attachment;
@@ -49,6 +50,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			"        \"type\": \"string\"\n" +
 			"      }\n" +
 			"    }";
+
 	protected String command;
 	protected Map<String,String> environments;
 	protected int timeoutInMillis;
@@ -165,11 +167,20 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		}
 	}
 
+	// the list of properties to remove from the env. variables
+	private static final List<String> LIST_JAVA_PROPERTIES = List.of("currentReport","controllerSettings",
+			"report","currentArtefact");
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
 
 		if (input.getBoolean(ENVIRONMENT_VARIABLES,false)) {
-			environments = properties;
+			environments = properties.entrySet().stream()
+					.filter(entry ->
+							!entry.getKey().startsWith("##") &&
+							!entry.getKey().startsWith("$") &&
+							!entry.getKey().startsWith("plugins.") &&
+							!LIST_JAVA_PROPERTIES.contains(entry.getKey()))
+					.collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
 		} else {
 			environments = new HashMap<>();
 		}
