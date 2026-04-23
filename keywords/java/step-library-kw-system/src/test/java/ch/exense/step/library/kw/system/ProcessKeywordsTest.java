@@ -38,6 +38,9 @@ import static org.junit.Assert.assertTrue;
 
 public class ProcessKeywordsTest {
 
+	private static final String COMMAND_KEYWORD = executeCommandKeyword();
+	private static final String ECHO_ENV_PASSWORD = "echo " + setEnvVariableSyntax("Password");
+	private static final String UNRESOLVED_ENV_VARIABLE_VALUE = setEnvVariableSyntax("Password") + "\n";
 	private ExecutionContext ctx;
 
 	@Before
@@ -109,7 +112,7 @@ public class ProcessKeywordsTest {
 	public void testArtifacts() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>test.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
+		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(1, attachments.size());
@@ -122,38 +125,43 @@ public class ProcessKeywordsTest {
 
 		ctx = KeywordRunner.getExecutionContext(Map.of("Password","glop"),ProcessKeywords.class);
 		// set the env variables
-		JsonObject input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", true)
+		JsonObject input = Json.createObjectBuilder().add("Command", ECHO_ENV_PASSWORD).add("Pass_Properties_As_Env_Variables", true)
 				.build();
-		Output<JsonObject> output = ctx.run("ExecuteBash", input.toString());
+		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
 
+		System.out.println(output.getPayload());
 		assertTrue(output.getPayload().getString("stdout").startsWith("glop"));
 
 		// DO NOT set the env variables
-		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", false)
+		input = Json.createObjectBuilder().add("Command", ECHO_ENV_PASSWORD).add("Pass_Properties_As_Env_Variables", false)
 				.build();
-		output = ctx.run("ExecuteBash", input.toString());
+		output = ctx.run(COMMAND_KEYWORD, input.toString());
 
-		assertTrue(output.getPayload().getString("stdout").equals("\n"));
+		assertTrue(output.getPayload().getString("stdout").equals(UNRESOLVED_ENV_VARIABLE_VALUE));
 
 		// with no properties - Pass_Properties_As_Env_Variables = false
 		ctx = old_ctx;
 
-		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", false)
+		input = Json.createObjectBuilder().add("Command", ECHO_ENV_PASSWORD).add("Pass_Properties_As_Env_Variables", false)
 				.build();
-		output = ctx.run("ExecuteBash", input.toString());
+		output = ctx.run(COMMAND_KEYWORD, input.toString());
 
-		assertTrue(output.getPayload().getString("stdout").equals("\n"));
+		assertTrue(output.getPayload().getString("stdout").equals(UNRESOLVED_ENV_VARIABLE_VALUE));
 
 		// with no properties - Pass_Properties_As_Env_Variables = true
-		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", true)
+		input = Json.createObjectBuilder().add("Command", ECHO_ENV_PASSWORD).add("Pass_Properties_As_Env_Variables", true)
 				.build();
-		output = ctx.run("ExecuteBash", input.toString());
+		output = ctx.run(COMMAND_KEYWORD, input.toString());
 
-		assertTrue(output.getPayload().getString("stdout").equals("\n"));
+		assertTrue(output.getPayload().getString("stdout").equals(UNRESOLVED_ENV_VARIABLE_VALUE));
 	}
 
 	private static String executeCommandKeyword() {
 		return isWindows() ? "ExecuteCmd" : "ExecuteBash";
+	}
+	
+	private static String setEnvVariableSyntax(String enVariable) {
+		return isWindows() ? String.format("%%%s%%", enVariable): String.format("$%s", enVariable) ;
 	}
 
 	public static boolean isWindows() {
@@ -179,7 +187,7 @@ public class ProcessKeywordsTest {
 	public void testArtifacts2() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>test.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test.log").add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
+		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(2, attachments.size());
@@ -190,7 +198,7 @@ public class ProcessKeywordsTest {
 	public void testArtifactsWithRegex() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>test1.log && (echo test)>test2.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test.*").build()).build();
-		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
+		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(2, attachments.size());
@@ -202,7 +210,7 @@ public class ProcessKeywordsTest {
 	public void testArtifactsAsDirectory() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "mkdir test && (echo test)>test/test.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test").build()).build();
-		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
+		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(1, attachments.size());
@@ -223,7 +231,7 @@ public class ProcessKeywordsTest {
 		tempFile.toFile().deleteOnExit();
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>" + tempFile)
 				.add("Artifacts", Json.createArrayBuilder().add(tempFile.toString()).build()).build();
-		Output<JsonObject> output = ctx.run(executeCommandKeyword(), input.toString());
+		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
 
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(1, attachments.size());
