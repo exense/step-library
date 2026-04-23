@@ -18,7 +18,6 @@ package ch.exense.step.library.kw.system;
 import ch.exense.commons.io.FileHelper;
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.step.library.commons.AbstractProcessKeyword;
-import com.fasterxml.jackson.databind.util.LinkedNode;
 import org.apache.commons.io.filefilter.PathMatcherFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import step.grid.io.Attachment;
@@ -39,7 +38,7 @@ import java.util.stream.Collectors;
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";
-	protected static final String ENVIRONMENT_VARIABLES = "Properties_As_Env";
+	protected static final String PROPERTIES_AS_ENVIRONMENT_VARIABLES = "Pass_Properties_As_Env_Variables";
 	protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
 	protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
 	protected static final String CHECK_EXIT_CODE = "Check_Exit_Code";
@@ -60,7 +59,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
-			+ ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
+			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to start a generic process.")
@@ -73,7 +72,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
-			+ ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
+			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a bash command.")
@@ -94,7 +93,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
 			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
-			+ ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
+			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a windows cmd command.")
@@ -173,7 +172,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
 
-		if (input.getBoolean(ENVIRONMENT_VARIABLES,false)) {
+		if (input.getBoolean(PROPERTIES_AS_ENVIRONMENT_VARIABLES,false)) {
 			environments = properties.entrySet().stream()
 					.filter(entry ->
 							!entry.getKey().startsWith("##") &&

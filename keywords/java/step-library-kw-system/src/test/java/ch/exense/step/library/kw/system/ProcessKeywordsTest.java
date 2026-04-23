@@ -42,7 +42,7 @@ public class ProcessKeywordsTest {
 
 	@Before
 	public void setUp() {
-		ctx = KeywordRunner.getExecutionContext(Map.of("Password","glop"),ProcessKeywords.class);
+		ctx = KeywordRunner.getExecutionContext(ProcessKeywords.class);
 	}
 
 	@After
@@ -118,15 +118,34 @@ public class ProcessKeywordsTest {
 
 	@Test
 	public void testEnvironment() throws Exception {
+		ExecutionContext old_ctx = ctx;
+
+		ctx = KeywordRunner.getExecutionContext(Map.of("Password","glop"),ProcessKeywords.class);
 		// set the env variables
-		JsonObject input = Json.createObjectBuilder().add("Command", "echo $Password").add("Properties_As_Env", true)
+		JsonObject input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", true)
 				.build();
 		Output<JsonObject> output = ctx.run("ExecuteBash", input.toString());
 
 		assertTrue(output.getPayload().getString("stdout").startsWith("glop"));
 
 		// DO NOT set the env variables
-		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Properties_As_Env", false)
+		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", false)
+				.build();
+		output = ctx.run("ExecuteBash", input.toString());
+
+		assertTrue(output.getPayload().getString("stdout").equals("\n"));
+
+		// with no properties - Pass_Properties_As_Env_Variables = false
+		ctx = old_ctx;
+
+		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", false)
+				.build();
+		output = ctx.run("ExecuteBash", input.toString());
+
+		assertTrue(output.getPayload().getString("stdout").equals("\n"));
+
+		// with no properties - Pass_Properties_As_Env_Variables = true
+		input = Json.createObjectBuilder().add("Command", "echo $Password").add("Pass_Properties_As_Env_Variables", true)
 				.build();
 		output = ctx.run("ExecuteBash", input.toString());
 
