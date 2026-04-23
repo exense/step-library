@@ -40,7 +40,7 @@ public class ProcessKeywordsTest {
 
 	private static final String COMMAND_KEYWORD = executeCommandKeyword();
 	private static final String ECHO_ENV_PASSWORD = "echo " + setEnvVariableSyntax("Password");
-	private static final String UNRESOLVED_ENV_VARIABLE_VALUE = setEnvVariableSyntax("Password") + "\n";
+	private static final String UNRESOLVED_ENV_VARIABLE_VALUE = setEnvVariableOutput("Password") + "\n";
 	private ExecutionContext ctx;
 
 	@Before
@@ -162,6 +162,10 @@ public class ProcessKeywordsTest {
 	
 	private static String setEnvVariableSyntax(String enVariable) {
 		return isWindows() ? String.format("%%%s%%", enVariable): String.format("$%s", enVariable) ;
+	}
+	
+	private static String setEnvVariableOutput(String enVariable) {
+		return isWindows() ? String.format("%%%s%%", enVariable): "" ;
 	}
 
 	public static boolean isWindows() {
