@@ -16,6 +16,7 @@
 package ch.exense.step.library.kw.system;
 
 import step.handlers.javahandler.Keyword;
+import java.util.Map;
 
 public class JavaProcessKeywords extends ProcessKeywords {
 
@@ -35,7 +36,7 @@ public class JavaProcessKeywords extends ProcessKeywords {
 	public void executeJavaProcess() throws Exception {
 		readInputs();
 		String command = buildCommandLine();
-		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
+		executeManagedCommand(command, Map.of(), timeoutInMillis, outputConfiguration);
 	}
 
 	protected String buildCommandLine() {

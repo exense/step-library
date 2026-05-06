@@ -31,15 +31,14 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ProcessKeywords extends AbstractProcessKeyword {
 
 	protected static final String COMMAND = "Command";
+	protected static final String PROPERTIES_AS_ENVIRONMENT_VARIABLES = "Pass_Properties_As_Env_Variables";
 	protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
 	protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
 	protected static final String CHECK_EXIT_CODE = "Check_Exit_Code";
@@ -52,25 +51,28 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			"    }";
 
 	protected String command;
+	protected Map<String,String> environments;
 	protected int timeoutInMillis;
 	protected OutputConfiguration outputConfiguration;
 	
 	@Keyword(name = "Execute", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
-			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
+			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to start a generic process.")
 	public void executeSystemCommand() throws Exception {
 		readInputs();
-		executeManagedCommand(command, timeoutInMillis, outputConfiguration);
+		executeManagedCommand(command, environments, timeoutInMillis, outputConfiguration);
 	}
 	
 	@Keyword(name = "ExecuteBash", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
-			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
+			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a bash command.")
@@ -83,14 +85,15 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		cmd.add(command);
 
 		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
-		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, managedProcessConsumer);
+		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
 	
 
 	@Keyword(name = "ExecuteCmd", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
-			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},"
+			+ CHECK_EXIT_CODE + "\":{\"type\":\"boolean\"},\""
+			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
 			description="Keyword used to run a windows cmd command.")
@@ -103,7 +106,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		cmd.add(command);
 
 		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
-		executeManagedCommand(cmd, timeoutInMillis, outputConfiguration, managedProcessConsumer);
+		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
 
 	private Consumer<ManagedProcess> getManagedProcessConsumer() {
@@ -163,8 +166,24 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		}
 	}
 
+	// the list of properties to remove from the env. variables
+	private static final List<String> LIST_JAVA_PROPERTIES = List.of("currentReport","controllerSettings",
+			"report","currentArtefact");
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
+
+		if (input.getBoolean(PROPERTIES_AS_ENVIRONMENT_VARIABLES,false)) {
+			environments = properties.entrySet().stream()
+					.filter(entry ->
+							!entry.getKey().startsWith("##") &&
+							!entry.getKey().startsWith("$") &&
+							!entry.getKey().startsWith("plugins.") &&
+							!LIST_JAVA_PROPERTIES.contains(entry.getKey()))
+					.collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
+		} else {
+			environments = new HashMap<>();
+		}
+
 		timeoutInMillis = Integer.parseInt(input.getString(TIMEOUT_MS, Integer.toString(DEFAULT_PROCESS_TIMEOUT)));
 		outputConfiguration = readOutputConfiguration();
 	}

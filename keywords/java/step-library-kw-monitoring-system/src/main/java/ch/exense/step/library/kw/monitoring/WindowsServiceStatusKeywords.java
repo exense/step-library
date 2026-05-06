@@ -17,6 +17,7 @@ package ch.exense.step.library.kw.monitoring;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.Map;
 
 import ch.exense.step.library.commons.AbstractProcessKeyword;
 import step.handlers.javahandler.Keyword;
@@ -26,7 +27,7 @@ public class WindowsServiceStatusKeywords extends AbstractProcessKeyword {
 	@Keyword(name = "Windows_Service_Status", schema = "{\"properties\":{\"Service_Display_Name\":{\"type\":\"string\"}},\"required\":[\"Service_Display_Name\"]}")
 	public void getWindowsServiceStatus() throws Exception {
 		String cmd = buildCommandLine();
-		executeManagedCommand(cmd, DEFAULT_PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true, true), p->{
+		executeManagedCommand(cmd, Map.of(), DEFAULT_PROCESS_TIMEOUT, new OutputConfiguration(false, 1000, 10000, true, true), p->{
 			try {
 				executionPostProcess(p.getProcessOutputLog());
 			} catch (Exception e) {
