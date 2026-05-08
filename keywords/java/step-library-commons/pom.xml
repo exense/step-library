@@ -22,7 +22,7 @@
         <dependency>
             <groupId>ch.exense.step</groupId>
             <artifactId>step-grid-api</artifactId>
-            <version>2.5.0</version>
+            <version>0.0.0-MASTER-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>ch.exense.commons</groupId>

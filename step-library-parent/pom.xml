@@ -61,10 +61,10 @@
     </distributionManagement>
 
     <properties>
-        <step-api.version>1.5.0</step-api.version>
+        <step-api.version>0.0.0-MASTER-SNAPSHOT</step-api.version>
         <step-os.version>0.0.0-MASTER-SNAPSHOT</step-os.version>
         <step-ee.version>${step-os.version}</step-ee.version>
-        <exense-commons.version>2.1.0</exense-commons.version>
+        <exense-commons.version>0.0.0-MASTER-SNAPSHOT</exense-commons.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
