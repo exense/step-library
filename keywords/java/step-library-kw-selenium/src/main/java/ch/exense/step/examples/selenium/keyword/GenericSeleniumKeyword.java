@@ -23,7 +23,6 @@ import java.util.NoSuchElementException;
 import javax.json.JsonNumber;
 import javax.json.JsonString;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -453,7 +452,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 
 		startTransaction();
 		try {
-			output.add("Handles", StringUtils.join(page.getDriver().getWindowHandles(),","));
+			output.add("Handles", String.join(",", page.getDriver().getWindowHandles()));
 			page.switchToWindow(handle);
 		} finally {
 			stopTransaction();
@@ -474,7 +473,7 @@ public class GenericSeleniumKeyword extends AbstractSeleniumKeyword {
 			handles.remove(main);
 
 			output.add("Main", main);
-			output.add("Popups", StringUtils.join(handles, ","));
+			output.add("Popups", String.join(",", handles));
 		} finally {
 			stopTransaction();
 		}
