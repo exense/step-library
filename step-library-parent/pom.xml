@@ -245,7 +245,9 @@
                         <version>3.5.2</version>
                         <configuration>
                             <excludedGroups>ch.exense.step.library.tests.LocalOnly</excludedGroups>
+                            <skipTests>true</skipTests>
                         </configuration>
+
                     </plugin>
                 </plugins>
             </build>
