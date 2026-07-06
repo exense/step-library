@@ -97,11 +97,21 @@ public class FileSystemKeywordsTest {
 	public void test_zip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
 
-		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+ File.separator +".." + File.separator + "test_zip.zip").build();
+		JsonObject input = Json.createObjectBuilder().add("Folder", path)
+				.add("Destination", path+ File.separator +".." + File.separator + "test_zip.zip").build();
 		
 		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
 		
 		System.out.println(output.getPayload());
+		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/test_zip.zip"));
+
+		// test if Folder end with a "/"
+		input = Json.createObjectBuilder().add("Folder", path+"/").build();
+
+		output = ctx.run("Zip_file", input.toString());
+
+		System.out.println(output.getPayload());
+		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/test-classes.zip"));
 	}
 	
 	@Test
