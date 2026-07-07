@@ -15,8 +15,11 @@
  ******************************************************************************/
 package ch.exense.step.library.commons;
 
+import ch.exense.commons.io.FileHelper;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
+
+import java.io.File;
 
 /**
  * An Enhanced Abstract keyword using the onError function for
@@ -44,5 +47,22 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
                     "Please define the following protected parameters: '%s_Password'", username, username));
         }
         return properties.get(username + "_Password");
+    }
+
+    protected void attachFile(File f) {
+        try {
+            if (!f.exists()) {
+                throw new BusinessException("File '" + f.getCanonicalPath() + "' cannot be found!");
+            }
+            if (f.isDirectory()) {
+                File directory = f;
+                f = new File(f.getCanonicalPath() + ".zip");
+                FileHelper.zip(directory, f);
+            }
+            liveReporting.fileUploads.startBinaryFileUpload(f).complete();
+        } catch (Exception e) {
+            output.appendError("Error while attaching file: " + e.getMessage());
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+        }
     }
 }
