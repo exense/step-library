@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class ProcessKeywords extends AbstractProcessKeyword {
 
-    protected static final String COMMAND = "Command";
+	protected static final String COMMAND = "Command";
     protected static final String PROPERTIES_AS_ENVIRONMENT_VARIABLES = "Pass_Properties_As_Env_Variables";
     protected static final String MAX_OUTPUT_ATTACHMENT_SIZE = "Max_Output_Attachment_Size";
     protected static final String MAX_OUTPUT_PAYLOAD_SIZE = "Max_Output_Payload_Size";
