@@ -69,7 +69,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
-			description = "Keyword used to run a bash command.")
+			description="Keyword used to run a bash command.")
 	public void executeBashCommand() throws Exception {
 		readInputs();
 
@@ -81,6 +81,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
 		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
+
 
 	@Keyword(name = "ExecuteCmd", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
@@ -109,11 +110,11 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 				File executionDirectory = managedProcess.getExecutionDirectory();
 				List<String> outputArtifactsToAttach = Arrays.stream(input.getJsonArray(ARTIFACTS).toArray()).map(Object::toString).collect(Collectors.toList());
 				outputArtifactsToAttach.forEach(artifact -> {
-					if (isPathAbsolute(artifact)) {
+					if(isPathAbsolute(artifact)) {
 						attachFile(Paths.get(artifact).toFile());
 					} else {
 						File[] array = executionDirectory.listFiles((FilenameFilter) new PathMatcherFileFilter(new RegexFileFilter(artifact)));
-						if (array != null && array.length > 0) {
+						if(array != null && array.length > 0) {
 							Arrays.stream(array).forEach(this::attachFile);
 						}
 					}
@@ -142,15 +143,15 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			"report", "currentArtefact");
 
 	protected void readInputs() {
-		command = input.getString(COMMAND, "");
+		command = input.getString(COMMAND,"");
 
 		if (input.getBoolean(PROPERTIES_AS_ENVIRONMENT_VARIABLES, false)) {
 			environments = properties.entrySet().stream()
 					.filter(entry ->
 							!entry.getKey().startsWith("##") &&
-									!entry.getKey().startsWith("$") &&
-									!entry.getKey().startsWith("plugins.") &&
-									!LIST_JAVA_PROPERTIES.contains(entry.getKey()))
+							!entry.getKey().startsWith("$") &&
+                            !entry.getKey().startsWith("plugins.") &&
+							!LIST_JAVA_PROPERTIES.contains(entry.getKey()))
 					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 		} else {
 			environments = new HashMap<>();
