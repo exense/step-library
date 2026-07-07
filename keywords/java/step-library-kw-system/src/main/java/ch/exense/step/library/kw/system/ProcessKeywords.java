@@ -45,7 +45,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			"    }";
 
 	protected String command;
-	protected Map<String, String> environments;
+	protected Map<String,String> environments;
 	protected int timeoutInMillis;
 	protected OutputConfiguration outputConfiguration;
 
@@ -56,7 +56,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
-			description = "Keyword used to start a generic process.")
+			description="Keyword used to start a generic process.")
 	public void executeSystemCommand() throws Exception {
 		readInputs();
 		executeManagedCommand(command, environments, timeoutInMillis, outputConfiguration);
@@ -82,7 +82,6 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
 
-
 	@Keyword(name = "ExecuteCmd", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
@@ -90,7 +89,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			+ PROPERTIES_AS_ENVIRONMENT_VARIABLES + "\":{\"type\":\"boolean\"},"
 			+ "\"" + COMMAND + "\":{\"type\":\"string\"}, \"" + ARTIFACTS + "\": " + SCHEMA_ARRAY_STRING + "},\"required\":[\"" + COMMAND + "\"]}",
 			timeout = 1800000,
-			description = "Keyword used to run a windows cmd command.")
+			description="Keyword used to run a windows cmd command.")
 	public void executeCmdCommand() throws Exception {
 		readInputs();
 
