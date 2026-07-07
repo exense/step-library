@@ -62,7 +62,7 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
             }
             liveReporting.fileUploads.startBinaryFileUpload(f).complete();
         } catch(QuotaExceededException e) {
-            throw new BusinessException("Maximum attachment size reached");
+            throw new BusinessException("Maximum attachment size reached",e);
         } catch (Exception e) {
             output.appendError("Error while attaching file: " + e.getMessage());
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
