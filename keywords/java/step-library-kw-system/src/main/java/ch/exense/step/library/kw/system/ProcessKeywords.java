@@ -139,8 +139,8 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	}
 
 	// the list of properties to remove from the env. variables
-	private static final List<String> LIST_JAVA_PROPERTIES = List.of("currentReport", "controllerSettings",
-			"report", "currentArtefact");
+	private static final List<String> LIST_JAVA_PROPERTIES = List.of("currentReport","controllerSettings",
+			"report","currentArtefact");
 
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
@@ -150,9 +150,9 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 					.filter(entry ->
 							!entry.getKey().startsWith("##") &&
 							!entry.getKey().startsWith("$") &&
-                            !entry.getKey().startsWith("plugins.") &&
+							!entry.getKey().startsWith("plugins.") &&
 							!LIST_JAVA_PROPERTIES.contains(entry.getKey()))
-					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+					.collect(Collectors.toMap(Map.Entry::getKey,Map.Entry::getValue));
 		} else {
 			environments = new HashMap<>();
 		}
