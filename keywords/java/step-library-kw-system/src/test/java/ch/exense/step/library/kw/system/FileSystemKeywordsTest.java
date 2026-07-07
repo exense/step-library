@@ -112,6 +112,14 @@ public class FileSystemKeywordsTest {
 
 		System.out.println(output.getPayload());
 		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/test-classes.zip"));
+
+		// test if Folder contains relative paths
+		input = Json.createObjectBuilder().add("Folder", path+"/../../target").build();
+
+		output = ctx.run("Zip_file", input.toString());
+
+		System.out.println(output.getPayload());
+		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/target.zip"));
 	}
 	
 	@Test
