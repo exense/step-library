@@ -18,6 +18,7 @@ package ch.exense.step.library.commons;
 import ch.exense.commons.io.FileHelper;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
+import step.streaming.common.QuotaExceededException;
 
 import java.io.File;
 
@@ -60,6 +61,8 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
                 FileHelper.zip(directory, f);
             }
             liveReporting.fileUploads.startBinaryFileUpload(f).complete();
+        } catch(QuotaExceededException e) {
+            throw new BusinessException("Maximum attachment size reached");
         } catch (Exception e) {
             output.appendError("Error while attaching file: " + e.getMessage());
             output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
