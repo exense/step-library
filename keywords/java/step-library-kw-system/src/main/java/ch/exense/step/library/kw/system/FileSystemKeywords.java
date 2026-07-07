@@ -328,7 +328,7 @@ public class FileSystemKeywords extends AbstractEnhancedKeyword {
         String folderName = input.getString("Folder");
         File folder = new File(folderName).getAbsoluteFile();
 
-        String zip = input.getString("Destination", folder.getName() + ".zip");
+        String zip = input.getString("Destination", folder.getAbsolutePath() + ".zip");
         File zipFile = new File(zip).getAbsoluteFile();
 
         if (!folder.exists()) {

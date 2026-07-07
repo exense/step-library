@@ -103,7 +103,9 @@ public class FileSystemKeywordsTest {
 		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
 		
 		System.out.println(output.getPayload());
-		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/test_zip.zip"));
+		String destination = output.getPayload().getString("Destination");
+		Assert.assertTrue(destination.endsWith("/test_zip.zip"));
+		Assert.assertTrue(new File(destination).exists());
 
 		// test if Folder end with a "/"
 		input = Json.createObjectBuilder().add("Folder", path+"/").build();
@@ -111,7 +113,10 @@ public class FileSystemKeywordsTest {
 		output = ctx.run("Zip_file", input.toString());
 
 		System.out.println(output.getPayload());
-		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/test-classes.zip"));
+
+		destination = output.getPayload().getString("Destination");
+		Assert.assertTrue(destination.endsWith("/test-classes.zip"));
+		Assert.assertTrue(new File(destination).exists());
 
 		// test if Folder contains relative paths
 		input = Json.createObjectBuilder().add("Folder", path+"/../../target").build();
@@ -119,7 +124,9 @@ public class FileSystemKeywordsTest {
 		output = ctx.run("Zip_file", input.toString());
 
 		System.out.println(output.getPayload());
-		Assert.assertTrue(output.getPayload().getString("Destination").endsWith("/target.zip"));
+		destination = output.getPayload().getString("Destination");
+		Assert.assertTrue(destination.endsWith("/target.zip"));
+		Assert.assertTrue(new File(destination).exists());
 	}
 	
 	@Test
