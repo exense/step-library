@@ -30,8 +30,11 @@ import javax.json.JsonObject;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -206,8 +209,12 @@ public class ProcessKeywordsTest {
 
 		List<Attachment> attachments = output.getAttachments();
 		assertEquals(2, attachments.size());
-		assertAttachment(attachments.get(0), "test1.log");
-		assertAttachment(attachments.get(1), "test2.log");
+		Set<String> names = new HashSet<>();
+		for (Attachment attachment : attachments) {
+			names.add(attachment.getName());
+			assertAttachmentContent(attachment);
+		}
+		assertEquals(new HashSet<>(Arrays.asList("test1.log", "test2.log")), names);
 	}
 
 	@Test

@@ -41,4 +41,18 @@
 		</dependency>
 
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<!-- Force IPv4 so connect timeout tests hit the timeout instead of
+				     an unreachable IPv6 route (e.g. dual-stack hosts under WSL2). -->
+				<configuration>
+					<argLine>-Djava.net.preferIPv4Stack=true</argLine>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
