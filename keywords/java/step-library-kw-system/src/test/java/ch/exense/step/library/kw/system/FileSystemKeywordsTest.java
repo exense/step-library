@@ -108,6 +108,7 @@ public class FileSystemKeywordsTest {
 		String destination = output.getPayload().getString("Destination");
 		Assert.assertEquals(Paths.get(destinationInput).normalize().toString(), destination);
 		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(destination).delete());
 
 		//Test with folder provided as input but using default destination (e.g. folder path + zip extension creating a file next to the folder
 		String defaultDestinationZIP = Paths.get(path + ".zip").normalize().toString();
@@ -126,6 +127,7 @@ public class FileSystemKeywordsTest {
 		destination = output.getPayload().getString("Destination");
 		Assert.assertEquals(defaultDestinationZIP, destination);
 		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(destination).delete());
 
 		// test Folder containing relative paths
 		String folderWithRelativePath = path + "/../../target";
@@ -135,6 +137,7 @@ public class FileSystemKeywordsTest {
 		destination = output.getPayload().getString("Destination");
 		Assert.assertEquals(Paths.get(folderWithRelativePath + ".zip").normalize().toString(), destination);
 		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(destination).delete());
 	}
 	
 	@Test
