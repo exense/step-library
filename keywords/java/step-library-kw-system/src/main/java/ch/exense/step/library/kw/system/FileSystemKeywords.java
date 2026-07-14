@@ -326,10 +326,10 @@ public class FileSystemKeywords extends AbstractEnhancedKeyword {
             description="Keyword used to zip a folder.")
     public void Zip_file() {
         String folderName = input.getString("Folder");
-        String zip = input.getString("Destination", folderName + ".zip");
+        File folder = new File(folderName).getAbsoluteFile();
 
-        File folder = new File(folderName);
-        File zipFile = new File(zip);
+        String zip = input.getString("Destination", folder.getAbsolutePath() + ".zip");
+        File zipFile = new File(zip).getAbsoluteFile();
 
         if (!folder.exists()) {
             output.setBusinessError("Folder \"" + folderName + "\" do not exist.");
@@ -346,6 +346,7 @@ public class FileSystemKeywords extends AbstractEnhancedKeyword {
 
         try {
             FileHelper.zip(folder, zipFile);
+            output.add("Destination",zipFile.getCanonicalPath());
         } catch (Exception e) {
             output.setBusinessError(
                     "Exception when zipping \"" + folderName + "\". Error message was: \"" + e.getMessage() + "\"");

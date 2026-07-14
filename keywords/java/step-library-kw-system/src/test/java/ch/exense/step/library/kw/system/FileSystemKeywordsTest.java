@@ -16,6 +16,8 @@
 package ch.exense.step.library.kw.system;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -97,11 +99,45 @@ public class FileSystemKeywordsTest {
 	public void test_zip() throws Exception {
 		String path = new File(getClass().getClassLoader().getResource("package.json").getFile()).getParent();
 
-		JsonObject input = Json.createObjectBuilder().add("Folder", path).add("Destination", path+ File.separator +".." + File.separator + "test_zip.zip").build();
-		
+		//Test with folder and destination provided as input
+		String destinationInput = path + File.separator + ".." + File.separator + "test_zip.zip";
+		JsonObject input = Json.createObjectBuilder().add("Folder", path)
+				.add("Destination", destinationInput).build();
 		Output<JsonObject> output = ctx.run("Zip_file", input.toString());
-		
 		System.out.println(output.getPayload());
+		String destination = output.getPayload().getString("Destination");
+		Assert.assertEquals(Paths.get(destinationInput).normalize().toString(), destination);
+		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(destination).delete());
+
+		//Test with folder provided as input but using default destination (e.g. folder path + zip extension creating a file next to the folder
+		String defaultDestinationZIP = Paths.get(path + ".zip").normalize().toString();
+		input = Json.createObjectBuilder().add("Folder", path).build();
+		output = ctx.run("Zip_file", input.toString());
+		System.out.println(output.getPayload());
+		destination = output.getPayload().getString("Destination");
+		Assert.assertEquals(defaultDestinationZIP, destination);
+		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(defaultDestinationZIP).delete());
+
+		// test Folder path ending with a file separator and default ZIP destination
+		input = Json.createObjectBuilder().add("Folder", path + File.separator).build();
+		output = ctx.run("Zip_file", input.toString());
+		System.out.println(output.getPayload());
+		destination = output.getPayload().getString("Destination");
+		Assert.assertEquals(defaultDestinationZIP, destination);
+		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(destination).delete());
+
+		// test Folder containing relative paths
+		String folderWithRelativePath = path + "/../../target";
+		input = Json.createObjectBuilder().add("Folder", folderWithRelativePath).build();
+		output = ctx.run("Zip_file", input.toString());
+		System.out.println(output.getPayload());
+		destination = output.getPayload().getString("Destination");
+		Assert.assertEquals(Paths.get(folderWithRelativePath + ".zip").normalize().toString(), destination);
+		Assert.assertTrue(new File(destination).exists());
+		Assert.assertTrue(new File(destination).delete());
 	}
 	
 	@Test
