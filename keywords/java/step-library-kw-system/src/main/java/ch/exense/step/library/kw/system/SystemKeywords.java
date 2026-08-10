@@ -16,7 +16,6 @@
 package ch.exense.step.library.kw.system;
 
 import ch.exense.step.library.commons.AbstractEnhancedKeyword;
-import org.apache.commons.io.FileUtils;
 import step.grid.io.Attachment;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
@@ -51,15 +50,7 @@ public class SystemKeywords extends AbstractEnhancedKeyword {
 	@Keyword(schema = "{\"properties\":{\"File\":{\"type\":\"string\"}},\"required\":[\"File\"]}",
 			description="Keyword used to add a file as an attachment.")
     public void AttachFileToLog() {
-		String zipName = input.getString("File");
-
-		File file = new File(zipName);
-		try {
-			byte[] bytes = FileUtils.readFileToByteArray(file);
-			Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(bytes, file.getName());
-			output.addAttachment(attachment);
-		} catch (Exception ex) {
-			output.appendError("Unable to upload file");
-		}
+		String fileName = input.getString("File");
+		attachFile(new File(fileName));
 	}
 }

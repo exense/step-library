@@ -15,8 +15,13 @@
  ******************************************************************************/
 package ch.exense.step.library.commons;
 
+import ch.exense.commons.io.FileHelper;
 import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.AbstractKeyword;
+import step.streaming.common.QuotaExceededException;
+
+import java.io.File;
+import java.nio.file.Path;
 
 /**
  * An Enhanced Abstract keyword using the onError function for
@@ -44,5 +49,32 @@ public class AbstractEnhancedKeyword extends AbstractKeyword {
                     "Please define the following protected parameters: '%s_Password'", username, username));
         }
         return properties.get(username + "_Password");
+    }
+
+    protected void attachFile(File f) {
+        try {
+            if (!f.exists()) {
+                throw new BusinessException("File '" + f.getCanonicalPath() + "' cannot be found!");
+            }
+
+            if (f.isDirectory()) {
+                File tempFolder = FileHelper.createTempFolder();
+                Path fileName = f.toPath().getFileName();
+                Path zippedDirectory = tempFolder.toPath().resolve(fileName + ".zip");
+                FileHelper.zip(f, zippedDirectory.toFile());
+                try {
+                    liveReporting.fileUploads.startBinaryFileUpload(zippedDirectory.toFile()).complete();
+                } finally {
+                    FileHelper.deleteFolder(tempFolder);
+                }
+            } else {
+                liveReporting.fileUploads.startBinaryFileUpload(f).complete();
+            }
+        } catch(QuotaExceededException e) {
+            throw new BusinessException("Maximum attachment size reached",e);
+        } catch (Exception e) {
+            output.appendError("Error while attaching file: " + e.getMessage());
+            output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
+        }
     }
 }
