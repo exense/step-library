@@ -80,7 +80,6 @@
         <module>../keywords/java/step-library-kw-step-client</module>
         <module>../keywords/java/step-library-selenium-4</module>
         <module>../keywords/java/step-library-kw-selenium</module>
-        <module>../keywords/java/step-library-playwright</module>
         <module>../keywords/java/step-library-kw-excel</module>
         <module>../keywords/java/step-library-kw-network</module>
         <module>../keywords/java/step-library-kw-db</module>
