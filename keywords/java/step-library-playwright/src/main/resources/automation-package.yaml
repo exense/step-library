@@ -1,0 +1,138 @@
+# The declarations of the Playwright keywords, to copy into the automation package using them, next to
+# step-library-playwright.jar copied to the root of that package. The plans call the keywords within a Session:
+# Playwright_Start first, Playwright_Stop last.
+# The schemas mirror the @Input parameters of PlaywrightKeywords; PlaywrightKeywordsSchemaTest keeps them in sync.
+version: 1.3.0
+name: "Playwright keywords"
+keywords:
+  - GeneralScript:
+      name: Playwright_Start
+      description: "Opens the web application given by the applicationId and environmentId of the application registry in a browser, and keeps it in the session for the other Playwright keywords."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          applicationId:
+            type: string
+          environmentId:
+            type: string
+        required: [applicationId, environmentId]
+  - GeneralScript:
+      name: Playwright_Stop
+      description: "Closes the browser opened by Playwright_Start. Does nothing if none is open."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties: {}
+        required: []
+  - GeneralScript:
+      name: Playwright_Navigate
+      description: "Opens the page given by its path, relative to the address of the application, e.g. /account/register."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          path:
+            type: string
+        required: [path]
+  - GeneralScript:
+      name: Playwright_Click
+      description: "Clicks the element given by its Playwright selector."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+        required: [locator]
+  - GeneralScript:
+      name: Playwright_Hover
+      description: "Moves the mouse over the element given by its Playwright selector."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+        required: [locator]
+  - GeneralScript:
+      name: Playwright_Fill
+      description: "Replaces the text of the field given by its Playwright selector."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+          text:
+            type: string
+        required: [locator, text]
+  - GeneralScript:
+      name: Playwright_Select
+      description: "Selects the option, given by its value or label, in the selection field given by its Playwright selector."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+          value:
+            type: string
+        required: [locator, value]
+  - GeneralScript:
+      name: Playwright_Check
+      description: "Checks, or with checked false unchecks, the checkbox or radio button given by its Playwright selector."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+          checked:
+            type: boolean
+        required: [locator]
+  - GeneralScript:
+      name: Playwright_Press
+      description: "Presses a key, such as Enter or Control+A, on the element given by its Playwright selector."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+          key:
+            type: string
+        required: [locator, key]
+  - GeneralScript:
+      name: Playwright_GetText
+      description: "Returns the visible text of the element given by its Playwright selector, as output text, or the value of a field."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+        required: [locator]
+  - GeneralScript:
+      name: Playwright_WaitFor
+      description: "Waits until the element given by its Playwright selector is in the state: visible (default), hidden, attached or detached. Actions wait on their own; use it only for a change no following action waits for."
+      scriptLanguage: java
+      scriptFile: step-library-playwright.jar
+      schema:
+        type: object
+        properties:
+          locator:
+            type: string
+          state:
+            type: string
+        required: [locator]
