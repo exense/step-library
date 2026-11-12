@@ -16,25 +16,20 @@
 package ch.exense.step.library.kw.system;
 
 import ch.exense.commons.io.FileHelper;
+import ch.exense.step.library.kw.system.StreamingAttachmentsExecutionContext.StreamedAttachment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import step.functions.io.Output;
-import step.grid.io.Attachment;
-import step.grid.io.AttachmentHelper;
-import step.handlers.javahandler.KeywordRunner;
-import step.handlers.javahandler.KeywordRunner.ExecutionContext;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -44,11 +39,12 @@ public class ProcessKeywordsTest {
 	private static final String COMMAND_KEYWORD = executeCommandKeyword();
 	private static final String ECHO_ENV_PASSWORD = "echo " + setEnvVariableSyntax("Password");
 	private static final String UNRESOLVED_ENV_VARIABLE_VALUE = setEnvVariableOutput("Password") + "\n";
-	private ExecutionContext ctx;
+	private static final String EXPECTED_ARTIFACT_CONTENT = isWindows() ? "test\r\n" : "test\n";
+	private StreamingAttachmentsExecutionContext ctx;
 
 	@Before
-	public void setUp() {
-		ctx = KeywordRunner.getExecutionContext(ProcessKeywords.class);
+	public void setUp() throws Exception {
+		ctx = new StreamingAttachmentsExecutionContext(ProcessKeywords.class);
 	}
 
 	@After
@@ -63,7 +59,7 @@ public class ProcessKeywordsTest {
 		assertTrue(output.getPayload().getString("stderr").startsWith("java version") ||
 				output.getPayload().getString("stderr").startsWith("openjdk "));
 	}
-	
+
 	@Test
 	public void testExitCode() throws Exception {
 		ctx.setThrowExceptionOnError(false);
@@ -71,7 +67,7 @@ public class ProcessKeywordsTest {
 		Output<JsonObject> output = ctx.run("Execute", input.toString());
 		assertEquals("Process exited with code 1", output.getError().getMsg());
 	}
-	
+
 	@Test
 	public void testCheckExitCode() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "java").add("Check_Exit_Code", false).build();
@@ -95,8 +91,10 @@ public class ProcessKeywordsTest {
 
 		assertTrue(output.getPayload().getString("stderr").equals("j") ||
 				output.getPayload().getString("stderr").equals("o"));
-		// TODO: the process output is streamed and not returned as attachment anymore. Currently, streamed attachments are not accessible in local executions.
-		// As soon as streamed attachments can be accessed locally, we should add a proper assertion
+		// The process output isn't attached to the output anymore. It is streamed as attachment instead
+		assertTrue(output.getAttachments() == null || output.getAttachments().isEmpty());
+		String streamedProcessError = ctx.getStreamedAttachment(StreamingAttachmentsExecutionContext.PROCESS_ERROR_LOG).getContentAsString();
+		assertTrue(streamedProcessError.startsWith("java version") || streamedProcessError.startsWith("openjdk "));
 	}
 
 	@Test
@@ -107,26 +105,28 @@ public class ProcessKeywordsTest {
 
 		assertTrue(output.getPayload().getString("stderr").equals("j") ||
 				output.getPayload().getString("stderr").equals("o"));
-		// TODO: the process output is streamed and not returned as attachment anymore. Currently, streamed attachments are not accessible in local executions.
-		// As soon as streamed attachments can be accessed locally, we should add a proper assertion
+		// The process output is streamed as attachment and therefore not truncated by Max_Output_Attachment_Size
+		assertTrue(output.getAttachments() == null || output.getAttachments().isEmpty());
+		String streamedProcessError = ctx.getStreamedAttachment(StreamingAttachmentsExecutionContext.PROCESS_ERROR_LOG).getContentAsString();
+		assertTrue(streamedProcessError.startsWith("java version") || streamedProcessError.startsWith("openjdk "));
 	}
 
 	@Test
 	public void testArtifacts() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>test.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
+		ctx.run(COMMAND_KEYWORD, input.toString());
 
-		List<Attachment> attachments = output.getAttachments();
+		List<StreamedAttachment> attachments = ctx.getStreamedAttachmentsWithoutProcessOutputs();
 		assertEquals(1, attachments.size());
 		assertFirstAttachment(attachments);
 	}
 
 	@Test
 	public void testEnvironment() throws Exception {
-		ExecutionContext old_ctx = ctx;
+		StreamingAttachmentsExecutionContext old_ctx = ctx;
 
-		ctx = KeywordRunner.getExecutionContext(Map.of("Password","glop"),ProcessKeywords.class);
+		ctx = new StreamingAttachmentsExecutionContext(Map.of("Password","glop"),ProcessKeywords.class);
 		// set the env variables
 		JsonObject input = Json.createObjectBuilder().add("Command", ECHO_ENV_PASSWORD).add("Pass_Properties_As_Env_Variables", true)
 				.build();
@@ -143,6 +143,7 @@ public class ProcessKeywordsTest {
 		assertTrue(output.getPayload().getString("stdout").equals(UNRESOLVED_ENV_VARIABLE_VALUE));
 
 		// with no properties - Pass_Properties_As_Env_Variables = false
+		ctx.close();
 		ctx = old_ctx;
 
 		input = Json.createObjectBuilder().add("Command", ECHO_ENV_PASSWORD).add("Pass_Properties_As_Env_Variables", false)
@@ -162,11 +163,11 @@ public class ProcessKeywordsTest {
 	private static String executeCommandKeyword() {
 		return isWindows() ? "ExecuteCmd" : "ExecuteBash";
 	}
-	
+
 	private static String setEnvVariableSyntax(String enVariable) {
 		return isWindows() ? String.format("%%%s%%", enVariable): String.format("$%s", enVariable) ;
 	}
-	
+
 	private static String setEnvVariableOutput(String enVariable) {
 		return isWindows() ? String.format("%%%s%%", enVariable): "" ;
 	}
@@ -176,63 +177,61 @@ public class ProcessKeywordsTest {
 		return os != null && os.toLowerCase().startsWith("windows");
 	}
 
-	private static void assertFirstAttachment(List<Attachment> attachments) {
-		Attachment attachment = attachments.get(0);
-		assertAttachment(attachment, "test.log");
+	private static void assertFirstAttachment(List<StreamedAttachment> attachments) throws Exception {
+		assertAttachment(attachments.get(0), "test.log");
 	}
 
-	private static void assertAttachment(Attachment attachment, String expected) {
+	private static void assertAttachment(StreamedAttachment attachment, String expected) throws Exception {
 		assertEquals(expected, attachment.getName());
 		assertAttachmentContent(attachment);
 	}
 
-	private static void assertAttachmentContent(Attachment attachment) {
-		assertEquals(isWindows() ? "test\r\n" : "test\n", new String(AttachmentHelper.hexStringToByteArray(attachment.getHexContent())));
+	private static void assertAttachmentContent(StreamedAttachment attachment) throws Exception {
+		assertEquals(EXPECTED_ARTIFACT_CONTENT, attachment.getContentAsString());
 	}
 
 	@Test
 	public void testArtifacts2() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>test.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test.log").add("test.log").build()).build();
-		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
+		ctx.run(COMMAND_KEYWORD, input.toString());
 
-		List<Attachment> attachments = output.getAttachments();
+		List<StreamedAttachment> attachments = ctx.getStreamedAttachmentsWithoutProcessOutputs();
 		assertEquals(2, attachments.size());
-		assertFirstAttachment(attachments);
+		assertAttachment(attachments.get(0), "test.log");
+		assertAttachment(attachments.get(1), "test.log");
 	}
 
 	@Test
 	public void testArtifactsWithRegex() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>test1.log && (echo test)>test2.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test.*").build()).build();
-		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
+		ctx.run(COMMAND_KEYWORD, input.toString());
 
-		List<Attachment> attachments = output.getAttachments();
+		List<StreamedAttachment> attachments = ctx.getStreamedAttachmentsWithoutProcessOutputs();
 		assertEquals(2, attachments.size());
-		Set<String> names = new HashSet<>();
-		for (Attachment attachment : attachments) {
-			names.add(attachment.getName());
-			assertAttachmentContent(attachment);
-		}
-		assertEquals(new HashSet<>(Arrays.asList("test1.log", "test2.log")), names);
+		assertEquals(List.of("test1.log", "test2.log"),
+				attachments.stream().map(StreamedAttachment::getName).sorted().collect(Collectors.toList()));
+		assertAttachmentContent(attachments.get(0));
+		assertAttachmentContent(attachments.get(1));
 	}
 
 	@Test
 	public void testArtifactsAsDirectory() throws Exception {
 		JsonObject input = Json.createObjectBuilder().add("Command", "mkdir test && (echo test)>test/test.log")
 				.add("Artifacts", Json.createArrayBuilder().add("test").build()).build();
-		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
+		ctx.run(COMMAND_KEYWORD, input.toString());
 
-		List<Attachment> attachments = output.getAttachments();
+		List<StreamedAttachment> attachments = ctx.getStreamedAttachmentsWithoutProcessOutputs();
 		assertEquals(1, attachments.size());
-		Attachment attachment = attachments.get(0);
+		StreamedAttachment attachment = attachments.get(0);
 		assertEquals("test.zip", attachment.getName());
-		File tempFile = FileHelper.createTempFolder();
+		File tempFolder = FileHelper.createTempFolder();
 		try {
-			FileHelper.unzip(AttachmentHelper.hexStringToByteArray(attachment.getHexContent()), tempFile);
-			assertEquals("test.log", tempFile.listFiles()[0].getName());
+			FileHelper.unzip(attachment.getContent(), tempFolder);
+			assertEquals("test.log", tempFolder.listFiles()[0].getName());
 		} finally {
-			FileHelper.deleteFolder(tempFile);
+			FileHelper.deleteFolder(tempFolder);
 		}
 	}
 
@@ -242,11 +241,12 @@ public class ProcessKeywordsTest {
 		tempFile.toFile().deleteOnExit();
 		JsonObject input = Json.createObjectBuilder().add("Command", "(echo test)>" + tempFile)
 				.add("Artifacts", Json.createArrayBuilder().add(tempFile.toString()).build()).build();
-		Output<JsonObject> output = ctx.run(COMMAND_KEYWORD, input.toString());
+		ctx.run(COMMAND_KEYWORD, input.toString());
 
-		List<Attachment> attachments = output.getAttachments();
+		List<StreamedAttachment> attachments = ctx.getStreamedAttachmentsWithoutProcessOutputs();
 		assertEquals(1, attachments.size());
-		Attachment attachment = attachments.get(0);
+		StreamedAttachment attachment = attachments.get(0);
 		assertEquals(tempFile.getFileName().toString(), attachment.getName());
+		assertAttachmentContent(attachment);
 	}
 }

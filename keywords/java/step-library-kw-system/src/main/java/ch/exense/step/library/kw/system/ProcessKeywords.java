@@ -15,19 +15,13 @@
  ******************************************************************************/
 package ch.exense.step.library.kw.system;
 
-import ch.exense.commons.io.FileHelper;
 import ch.exense.commons.processes.ManagedProcess;
 import ch.exense.step.library.commons.AbstractProcessKeyword;
 import org.apache.commons.io.filefilter.PathMatcherFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import step.grid.io.Attachment;
-import step.grid.io.AttachmentHelper;
 import step.handlers.javahandler.Keyword;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.nio.file.Files;
+import java.io.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +48,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 	protected Map<String,String> environments;
 	protected int timeoutInMillis;
 	protected OutputConfiguration outputConfiguration;
-	
+
 	@Keyword(name = "Execute", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
@@ -67,7 +61,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		readInputs();
 		executeManagedCommand(command, environments, timeoutInMillis, outputConfiguration);
 	}
-	
+
 	@Keyword(name = "ExecuteBash", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
 			+ MAX_OUTPUT_ATTACHMENT_SIZE + "\":{\"type\":\"string\"},\""
@@ -78,7 +72,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			description="Keyword used to run a bash command.")
 	public void executeBashCommand() throws Exception {
 		readInputs();
-		
+
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add("bash");
 		cmd.add("-c");
@@ -87,7 +81,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		Consumer<ManagedProcess> managedProcessConsumer = getManagedProcessConsumer();
 		executeManagedCommand(cmd, environments, timeoutInMillis, outputConfiguration, managedProcessConsumer);
 	}
-	
+
 
 	@Keyword(name = "ExecuteCmd", schema = "{\"properties\":{\"" + TIMEOUT_MS + "\":{\"type\":\"string\"},"
 			+ "\"" + MAX_OUTPUT_PAYLOAD_SIZE + "\":{\"type\":\"string\"},\""
@@ -99,7 +93,7 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 			description="Keyword used to run a windows cmd command.")
 	public void executeCmdCommand() throws Exception {
 		readInputs();
-		
+
 		ArrayList<String> cmd = new ArrayList<String>();
 		cmd.add("cmd");
 		cmd.add("/C");
@@ -144,35 +138,14 @@ public class ProcessKeywords extends AbstractProcessKeyword {
 		return false;
 	}
 
-	private void attachFile(File f) {
-		try {
-			byte[] bytes;
-			String fileName;
-			if (f.isDirectory()) {
-				try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-					FileHelper.zip(f, out);
-					bytes = out.toByteArray();
-				}
-				fileName = f.getName() + ".zip";
-			} else {
-				bytes = Files.readAllBytes(f.toPath());
-				fileName = f.getName();
-			}
-			Attachment attachment = AttachmentHelper.generateAttachmentFromByteArray(bytes, fileName);
-			output.addAttachment(attachment);
-		} catch (Exception e) {
-			output.appendError("Error while attaching file: " + e.getMessage());
-			output.addAttachment(AttachmentHelper.generateAttachmentForException(e));
-		}
-	}
-
 	// the list of properties to remove from the env. variables
 	private static final List<String> LIST_JAVA_PROPERTIES = List.of("currentReport","controllerSettings",
 			"report","currentArtefact");
+
 	protected void readInputs() {
 		command = input.getString(COMMAND,"");
 
-		if (input.getBoolean(PROPERTIES_AS_ENVIRONMENT_VARIABLES,false)) {
+		if (input.getBoolean(PROPERTIES_AS_ENVIRONMENT_VARIABLES, false)) {
 			environments = properties.entrySet().stream()
 					.filter(entry ->
 							!entry.getKey().startsWith("##") &&
