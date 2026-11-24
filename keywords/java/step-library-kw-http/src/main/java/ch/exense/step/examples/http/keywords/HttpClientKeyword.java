@@ -187,6 +187,7 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
                             @Input(name = "Enable_Redirect", defaultValue = "true") boolean enableRedirect,
                             @Input(name = "Headers", defaultValue = "{}") HashMap<String, String> headers,
                             @Input(name = "FormData") HashMap<String, String> formDataMap,
+                            @Input(name = "BearerTokenParameter", defaultValue = "") String bearerParam,
                             @Input(name = "Data", defaultValue = "") String payload,
                             @Input(name = "MultiPartFormData") HashMap<String, String> multiPartFormDataMap,
                             @Input(name = "ExtractRegexp") HashMap<String, String> extractRegexpMap,
@@ -232,6 +233,16 @@ public class HttpClientKeyword extends AbstractEnhancedKeyword {
 
         request.setConfig(config);
         headers.forEach((k, v) -> request.appendHeader(k, v));
+        //inject Bearer token if configured
+        if(bearerParam!=null && bearerParam!=""){
+            if(!properties.containsKey(bearerParam))
+                throw new BusinessException(String.format("Parameter %s not found in project but request is configured to use its value as Bearer token",bearerParam));
+            String token=properties.get(bearerParam);
+
+            request.appendHeader("Authorization", "Bearer "+token);
+        }
+        
+
 
         if (!formData.isEmpty()) {
             request.setParams(formData);
